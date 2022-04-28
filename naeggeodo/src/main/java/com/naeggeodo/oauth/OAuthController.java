@@ -1,4 +1,4 @@
-package com.naeggeodo.oauth.controller;
+package com.naeggeodo.oauth;
 
 import java.io.IOException;
 
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.naeggeodo.jwt.JwtTokenProvider;
-import com.naeggeodo.oauth.service.OAuthService;
 
 import lombok.RequiredArgsConstructor;
 

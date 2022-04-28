@@ -1,4 +1,4 @@
-package com.naeggeodo.oauth.service;
+package com.naeggeodo.oauth;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,10 +33,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.naeggeodo.entity.user.Authority;
 import com.naeggeodo.entity.user.Users;
-import com.naeggeodo.oauth.KakaoOAuthDto;
-import com.naeggeodo.oauth.NaverOAuthDto;
-import com.naeggeodo.oauth.OAuthDto;
-import com.naeggeodo.oauth.OAuthDtoMapper;
 import com.naeggeodo.oauth.config.InMemoryProviderRepository;
 import com.naeggeodo.oauth.config.OauthProvider;
 import com.naeggeodo.oauth.config.OauthTokenResponse;
