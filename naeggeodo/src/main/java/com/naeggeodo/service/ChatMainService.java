@@ -90,7 +90,7 @@ public class ChatMainService {
 	
 	//방장이냐?
 	@Transactional
-	public boolean isHost(Long chatMain_id,Long user_id) {
+	public boolean isHost(Long chatMain_id,String user_id) {
 		ChatMain chatMain = chatMainRepository.findOne(chatMain_id);
 		
 		if(chatMain.getUser().getId().equals(user_id)) {

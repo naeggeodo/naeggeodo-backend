@@ -13,7 +13,7 @@ public class MessageDTO {
 	private Long chatMain_id;
 	private String contents;
 	//전송한 user_id
-	private Long sender;
+	private String sender;
 	private ChatDetailType type;
 	
 }

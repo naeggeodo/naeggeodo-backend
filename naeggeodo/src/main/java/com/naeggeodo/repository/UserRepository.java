@@ -13,7 +13,7 @@ public class UserRepository {
 	@PersistenceContext
 	private EntityManager em;
 	
-	public Users findOne(Long id) {
+	public Users findOne(String id) {
 		return em.find(Users.class, id);
 	}
 	
