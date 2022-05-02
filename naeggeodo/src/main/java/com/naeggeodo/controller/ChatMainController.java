@@ -110,7 +110,7 @@ public class ChatMainController {
 	
 	@PatchMapping(value="/chat/rooms/{chatMain_id}/users/{user_id}",produces = "application/json")
 	public String updateRemittanceState(@PathVariable(name="chatMain_id")Long chatMain_id,
-										@PathVariable(name="user_id")Long user_id) {
+										@PathVariable(name="user_id")String user_id) {
 		chatUserService.updateRemittanceStateToY(chatMain_id, user_id);
 		return "success";
 	}

@@ -62,9 +62,8 @@ public class ChatDetailService {
 	
 	//기존 채팅 내역 불러오기
 	@Transactional
-	public List<JSONObject> load(String chatMain_idstr, String user_idstr) throws Exception{
+	public List<JSONObject> load(String chatMain_idstr, String user_id) throws Exception{
 		Long chatMain_id = Long.parseLong(chatMain_idstr);
-		Long user_id = Long.parseLong(user_idstr);
 		
 		List<ChatDetail> list_chatDetail = chatDetailRepository.load(chatMain_id, user_id);
 		List<JSONObject> list_json = new ArrayList<>();

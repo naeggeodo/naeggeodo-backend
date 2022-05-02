@@ -19,7 +19,7 @@ public class ChatDetailRepository {
 		em.persist(chatDetail);
 	}
 	
-	public List<ChatDetail> load(Long chatMain_id, Long user_id){
+	public List<ChatDetail> load(Long chatMain_id, String user_id){
 		return em.createQuery("SELECT cd FROM ChatDetail cd WHERE cd.chatmain.id = :chatMain_id AND cd.regDate >= (SELECT cu.enterDate FROM ChatUser cu WHERE cu.chatMain.id = :chatMain_id AND cu.user.id =:user_id)",ChatDetail.class)
 				.setParameter("chatMain_id", chatMain_id).setParameter("user_id", user_id).getResultList();
 	}

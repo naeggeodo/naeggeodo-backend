@@ -34,7 +34,7 @@ public class ChatUserService {
 	}
 	// 변수로 저장
 	@Transactional
-	public void save(Long chatMain_id,Long sender,String session_id) {
+	public void save(Long chatMain_id,String sender,String session_id) {
 		ChatMain chatMain =  chatMainRepository.findOne(chatMain_id);
 		Users user = userRepository.findOne(sender);
 		chatUserRepository.save(ChatUser.create(user, chatMain,session_id));
@@ -53,7 +53,7 @@ public class ChatUserService {
 	
 	//이 사람이 채팅방에 있냐?(변수)
 	@Transactional
-	public boolean isExist(Long chatMain_id,Long sender) {
+	public boolean isExist(Long chatMain_id,String sender) {
 		Long cnt = chatUserRepository.check(chatMain_id,sender);
 		
 		if(cnt == 1L) {
@@ -70,7 +70,7 @@ public class ChatUserService {
 	
 	//유저 delete(변수)
 	@Transactional
-	public void exit(Long chatMain_id,Long user_id) {
+	public void exit(Long chatMain_id,String user_id) {
 		chatUserRepository.deleteById(chatMain_id, user_id);
 	}
 	//유저 delete(session)
@@ -84,18 +84,17 @@ public class ChatUserService {
 	public String getSession_id(MessageDTO messageDTO) {
 		Long chatMain_id = messageDTO.getChatMain_id();
 		//밴할 유저 id
-		Long user_id = Long.parseLong(messageDTO.getContents());
+		String user_id = messageDTO.getContents();
 		return chatUserRepository.findByChatMainAndUserId(chatMain_id, user_id).getSession_id();
 	}
 	@Transactional
-	public String getSession_id(Long chatMain_id, Long user_id) {
-		//밴할 유저 id
+	public String getSession_id(Long chatMain_id, String user_id) {
 		return chatUserRepository.findByChatMainAndUserId(chatMain_id, user_id).getSession_id();
 	}
 	
 	//update sessionid
 	@Transactional
-	public void updateSession_id(Long chatMain_id,Long user_id,String session_id) {
+	public void updateSession_id(Long chatMain_id,String user_id,String session_id) {
 		ChatUser chatUser = chatUserRepository.findByChatMainAndUserId(chatMain_id, user_id);
 		chatUser.setSession_id(session_id);
 	}
@@ -118,7 +117,7 @@ public class ChatUserService {
 	
 	//송금상태 update
 	@Transactional
-	public void updateRemittanceStateToY(Long chatMain_id,Long user_id) {
+	public void updateRemittanceStateToY(Long chatMain_id,String user_id) {
 		ChatUser chatUser = chatUserRepository.findByChatMainAndUserId(chatMain_id, user_id);
 		chatUser.setState(RemittanceState.Y);
 	}

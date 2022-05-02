@@ -72,7 +72,7 @@ public class StompController {
     @MessageMapping("/chat/exit")
     public void exit(MessageDTO message) throws Exception {
     	Long chatMain_id = message.getChatMain_id();
-    	Long sender = message.getSender();
+    	String sender = message.getSender();
     	
     	//메시지를 보낸 사람이 방장이 아닐때 
     	if(!chatMainService.isHost(chatMain_id, sender)) {
@@ -97,8 +97,8 @@ public class StompController {
     	//강퇴할 사람 sessionID 가져오기
     	String session_id = chatUserService.getSession_id(message);
     	Long chatMain_id = message.getChatMain_id();
-    	Long bannedUser = Long.parseLong(message.getContents());
-    	Long sender = message.getSender();
+    	String bannedUser = message.getContents();
+    	String sender = message.getSender();
     	
     	// 보낸사람이 방장이고 자기자신이 아니라면
     	if(chatMainService.isHost(chatMain_id, sender)&& !bannedUser.equals(sender)) {
@@ -159,14 +159,14 @@ public class StompController {
     
     // 개인 send
     // https://stackoverflow.com/questions/34929578/spring-websocket-sendtosession-send-message-to-specific-session
-    private void sendToUser(Long chatMain_id,Long receiver,MessageDTO dto) {
+    private void sendToUser(Long chatMain_id,String receiver,MessageDTO dto) {
     	String sessionId = chatUserService.getSession_id(chatMain_id,receiver);
         StompHeaderAccessor headers = StompHeaderAccessor.create(StompCommand.MESSAGE);
         headers.setSessionId(sessionId);
         simpMessagingTemplate.convertAndSendToUser(sessionId, "/queue/"+chatMain_id, dto,  headers.getMessageHeaders());
     }
     //개인 send 오버로딩 (deprecated)
-    private void sendToUser(Long chatMain_id,Long receiver,String message) {
+    private void sendToUser(Long chatMain_id,String receiver,String message) {
     	String sessionId = chatUserService.getSession_id(chatMain_id,receiver);
     	StompHeaderAccessor headers = StompHeaderAccessor.create(StompCommand.MESSAGE);
     	headers.setSessionId(sessionId);

@@ -32,7 +32,7 @@ public class StompInterceptor implements ChannelInterceptor{
 		if(StompCommand.CONNECT.equals(headers.getCommand())) {
 			log.info("CONNECT");
 			Long chatMain_id = Long.parseLong(headers.getNativeHeader("chatMain_id").get(0));
-			Long sender = Long.parseLong(headers.getNativeHeader("sender").get(0));
+			String sender = headers.getNativeHeader("sender").get(0);
 			if(!chatUserService.isExist(chatMain_id,sender)) {
 				if(chatMainService.isFull(chatMain_id)) {
 					log.debug("throw CustomWebSocketException Code = {}",StompErrorCode.CHAT_ROOM_FULL);

@@ -19,7 +19,7 @@ public class ChatUserRepository {
 		em.persist(chatUser);
 	}
 	
-	public ChatUser findByChatMainAndUserId(Long chatMain_id,Long user_id) {
+	public ChatUser findByChatMainAndUserId(Long chatMain_id,String user_id) {
 		return em.createQuery("SELECT c FROM ChatUser c WHERE c.chatMain.id = :chatMain_id AND c.user.id = :user_id",ChatUser.class)
 				.setParameter("chatMain_id", chatMain_id).setParameter("user_id", user_id).getSingleResult();
 	}
@@ -30,13 +30,13 @@ public class ChatUserRepository {
 	}
 	
 	//입장해있었는지 체크
-	public Long check(Long chatMain_id,Long user_id) {
+	public Long check(Long chatMain_id,String user_id) {
 		return em.createQuery("SELECT COUNT(*) FROM ChatUser c WHERE c.chatMain.id = :chatMain_id AND c.user.id =:user_id",Long.class)
 		.setParameter("chatMain_id", chatMain_id).setParameter("user_id", user_id).getSingleResult();
 	}
 	
 	//퇴장처리 (삭제)
-	public void deleteById(Long chatMain_id,Long user_id) {
+	public void deleteById(Long chatMain_id,String user_id) {
 		em.createQuery("DELETE FROM ChatUser c WHERE c.chatMain.id = :chatMain_id AND c.user.id =:user_id")
 		.setParameter("chatMain_id", chatMain_id).setParameter("user_id", user_id).executeUpdate();
 	}
@@ -46,7 +46,7 @@ public class ChatUserRepository {
 	}
 	
 	//강퇴 하기위한 session_id select하기
-	public String getSession_id(Long chatMain_id,Long user_id) {
+	public String getSession_id(Long chatMain_id,String user_id) {
 		return em.createQuery("SELECT c.session_id FROM ChatUser c WHERE c.chatMain.id = :chatMain_id AND c.user.id = :user_id",String.class)
 				.setParameter("chatMain_id", chatMain_id).setParameter("user_id", user_id).getSingleResult();
 	}
