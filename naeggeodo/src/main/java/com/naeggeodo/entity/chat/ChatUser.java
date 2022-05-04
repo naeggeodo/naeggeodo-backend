@@ -1,5 +1,6 @@
 package com.naeggeodo.entity.chat;
 
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 
 import javax.persistence.Column;
@@ -13,7 +14,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
+import org.json.JSONObject;
+
 import com.naeggeodo.entity.user.Users;
+import com.naeggeodo.interfaces.JSONConverter;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -21,7 +25,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class ChatUser {
+public class ChatUser implements JSONConverter{
 	@Id @GeneratedValue
 	@Column(name="chatUser_id")
 	private Long id;
@@ -55,4 +59,13 @@ public class ChatUser {
 		this.chatMain = chatMain;
 		chatMain.getChatUser().add(this);
 	}
+
+	@Override
+	public JSONObject toJSON() throws Exception {
+		JSONObject json = new JSONObject();
+		json.put("user_id",this.user.getId() );
+		json.put("remittanceState",this.state.name());
+		return json;
+	}
+	
 }

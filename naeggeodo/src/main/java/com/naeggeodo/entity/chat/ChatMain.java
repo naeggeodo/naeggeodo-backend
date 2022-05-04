@@ -15,10 +15,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
-import org.json.simple.JSONObject;
+import org.json.JSONObject;
 
 import com.naeggeodo.dto.ChatRoomDTO;
 import com.naeggeodo.entity.user.Users;
+import com.naeggeodo.interfaces.JSONConverter;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,7 +27,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class ChatMain {
+public class ChatMain implements JSONConverter{
 
 	@Id @GeneratedValue
 	@Column(name = "chatmain_id")
@@ -71,6 +72,7 @@ public class ChatMain {
 	
 	
 	//toJSON
+	@Override
 	public JSONObject toJSON() throws Exception {
 		JSONObject json = new JSONObject();
 		for (Field field : this.getClass().getDeclaredFields()) {
@@ -80,9 +82,7 @@ public class ChatMain {
 			}else if(field.get(this) instanceof List) {
 				
 			}else if(field.get(this) instanceof LocalDateTime) {
-				if(field.getName().equals("createDate")) {
-					json.put(field.getName(), ((LocalDateTime)field.get(this)).toString());
-				}
+				json.put(field.getName(), ((LocalDateTime)field.get(this)).toString());
 			}else if(field.get(this) instanceof Enum) {
 				json.put(field.getName(),((Enum)field.get(this)).name());
 			}else {
@@ -91,6 +91,7 @@ public class ChatMain {
 			
 			
 		}
+		json.put("currentCount", this.chatUser.size());
 		return json;
 	}
 }

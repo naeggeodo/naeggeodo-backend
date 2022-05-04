@@ -1,6 +1,8 @@
 package com.naeggeodo.controller;
 
 
+import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Controller;
 
 import com.naeggeodo.dto.MessageDTO;
 import com.naeggeodo.entity.chat.ChatDetailType;
+import com.naeggeodo.entity.chat.ChatUser;
 import com.naeggeodo.handler.SessionHandler;
 import com.naeggeodo.service.ChatDetailService;
 import com.naeggeodo.service.ChatMainService;
@@ -126,16 +129,29 @@ public class StompController {
     	
     	chatMainService.changeState(chatMain_id);
     }
-    
+    //quick-chat update
+    @MessageMapping("/chat/quick-chat/update")
+    public void updateQuickChat(MessageDTO message) {
+    	JSONObject json = new JSONObject(message.getContents());
+    	JSONArray arr_json = new JSONArray(json.get("quickChat").toString());
+    	String user_id = json.getString("user_id");
+    	
+    	chatMainService.updateQuickChat(arr_json, user_id);
+    	JSONObject contents_json =  MyUtility.convertStringListToJSONObject(chatMainService.getQuickChat(user_id), "quickChat");
+    	contents_json.put("user_id", user_id);
+    	message.setContents(contents_json.toString());
+    	message.setType(ChatDetailType.SYSTEM);
+    	sendToUser(message.getChatMain_id(), user_id, message);
+    }
     
     // 인원수 메시지 get
-    private MessageDTO getCountMessage(Long chatMain_id) {
+    private MessageDTO getCountMessage(Long chatMain_id) throws Exception {
     	int currentCount = chatMainService.getCurrentCount(chatMain_id);
-    	JSONArray arr_json = chatUserService.currentList(chatMain_id);
+    	List<ChatUser> list = chatUserService.currentList(chatMain_id);
     	
     	JSONObject json = new JSONObject();
+    	json = MyUtility.convertListToJSONobj(list, "user");
     	json.put("currentCount", currentCount);
-    	json.put("user", arr_json);
     	
     	MessageDTO messageDto = new MessageDTO();
     	messageDto.setChatMain_id(chatMain_id);
@@ -166,6 +182,7 @@ public class StompController {
         simpMessagingTemplate.convertAndSendToUser(sessionId, "/queue/"+chatMain_id, dto,  headers.getMessageHeaders());
     }
     //개인 send 오버로딩 (deprecated)
+    @Deprecated
     private void sendToUser(Long chatMain_id,String receiver,String message) {
     	String sessionId = chatUserService.getSession_id(chatMain_id,receiver);
     	StompHeaderAccessor headers = StompHeaderAccessor.create(StompCommand.MESSAGE);

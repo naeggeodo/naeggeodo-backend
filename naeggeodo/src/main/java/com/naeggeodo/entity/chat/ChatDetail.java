@@ -14,9 +14,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 
-import org.json.simple.JSONObject;
+import org.json.JSONObject;
 
 import com.naeggeodo.entity.user.Users;
+import com.naeggeodo.interfaces.JSONConverter;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -24,7 +25,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class ChatDetail {
+public class ChatDetail implements JSONConverter{
 
 	@Id @GeneratedValue
 	@Column(name="chatdetail_id")
@@ -61,6 +62,7 @@ public class ChatDetail {
 	}
 	
 	//toJSON
+	@Override
 	public JSONObject toJSON() throws Exception {
 		JSONObject json = new JSONObject();
 		

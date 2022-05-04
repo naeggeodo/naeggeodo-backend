@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-import org.json.simple.JSONObject;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,44 +36,27 @@ public class ChatDetailService {
 		chatDetailRepository.save(chatDetail);
 	}
 	
-//	
+	//기존 채팅 내역 불러오기
+	@Transactional
+	public List<ChatDetail> load(String chatMain_idstr, String user_id) throws Exception{
+		Long chatMain_id = Long.parseLong(chatMain_idstr);
+		
+		return chatDetailRepository.load(chatMain_id, user_id);
+	}
+//	//기존 채팅 내역 불러오기
 //	@Transactional
-//	public void save(MessageDTO messageDTO,String imgpath) {
-//		Users user = userRepository.findOne(messageDTO.getSender());
-//		ChatMain chatmain = chatMainRepository.findOne(messageDTO.getChatMain_id());
-//		ChatDetail chatDetail = ChatDetail.create(imgpath, user, chatmain, ChatDetailType.IMAGE);
-//		chatDetailRepository.save(chatDetail);
-//	}
-	
-//	@Transactional
-//	public List<JSONObject> load(String chatMain_id) throws Exception {
-//		List<ChatDetail> list_msg = chatDetailRepository.load(Long.parseLong(chatMain_id));
+//	public List<JSONObject> load(String chatMain_idstr, String user_id) throws Exception{
+//		Long chatMain_id = Long.parseLong(chatMain_idstr);
+//		
+//		List<ChatDetail> list_chatDetail = chatDetailRepository.load(chatMain_id, user_id);
 //		List<JSONObject> list_json = new ArrayList<>();
 //		JSONObject json = new JSONObject();
 //		
-//		for (int i = 0; i < list_msg.size(); i++) {
-//			json = list_msg.get(i).toJSON();
+//		for (int i = 0; i < list_chatDetail.size(); i++) {
+//			json = list_chatDetail.get(i).toJSON();
 //			json.put("idx", i);
 //			list_json.add(json);
 //		}
-//		
 //		return list_json;
 //	}
-	
-	//기존 채팅 내역 불러오기
-	@Transactional
-	public List<JSONObject> load(String chatMain_idstr, String user_id) throws Exception{
-		Long chatMain_id = Long.parseLong(chatMain_idstr);
-		
-		List<ChatDetail> list_chatDetail = chatDetailRepository.load(chatMain_id, user_id);
-		List<JSONObject> list_json = new ArrayList<>();
-		JSONObject json = new JSONObject();
-		
-		for (int i = 0; i < list_chatDetail.size(); i++) {
-			json = list_chatDetail.get(i).toJSON();
-			json.put("idx", i);
-			list_json.add(json);
-		}
-		return list_json;
-	}
 }

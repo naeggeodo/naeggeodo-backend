@@ -3,7 +3,8 @@ package com.naeggeodo.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.simple.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,7 +13,12 @@ import com.naeggeodo.dto.ChatRoomDTO;
 import com.naeggeodo.entity.chat.Category;
 import com.naeggeodo.entity.chat.ChatMain;
 import com.naeggeodo.entity.chat.ChatState;
+import com.naeggeodo.entity.chat.QuickChat;
+import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.repository.ChatMainRepository;
+import com.naeggeodo.repository.QuickChatRepository;
+import com.naeggeodo.repository.UserRepository;
+import com.naeggeodo.util.MyUtility;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,34 +29,23 @@ public class ChatMainService {
 	
 	private final ChatMainRepository chatMainRepository;
 	private final CloudinaryService cloudinaryService;
+	private final UserRepository userRepository;
+	private final QuickChatRepository quickChatRepository;
 	
 	//파라미터 2개일때 param[0] -> category , param[1] -> BuildingCode
 	@Transactional
-	public List<JSONObject> getChatList(String... param) throws Exception {
+	public List<ChatMain> getChatList(String... param) throws Exception {
 		
 		List<ChatMain> list = null;
-		List<JSONObject> list_json = new ArrayList<>();
-		JSONObject json = new JSONObject();
+		
 		if(param.length == 1) {
 			list = chatMainRepository.findByBuildingCode(param[0]);
-			for (int i = 0; i < list.size(); i++) {
-				json = list.get(i).toJSON();
-				json.put("idx", i);
-				json.put("currentCount", list.get(i).getChatUser().size());
-				list_json.add(json);
-			}
 		} else if(param.length == 2){
 			param[0] = param[0].toUpperCase();
 			Category category = Category.valueOf(param[0]);
 			list = chatMainRepository.findBycategoryAndBuildingCode(category, param[1]);
-			for (int i = 0; i < list.size(); i++) {
-				json = list.get(i).toJSON();
-				json.put("idx", i);
-				json.put("currentCount", list.get(i).getChatUser().size());
-				list_json.add(json);
-			}
 		}
-		return list_json;
+		return list;
 	}
 	
 	//채팅방 생성
@@ -109,5 +104,21 @@ public class ChatMainService {
 		} else {
 			chatMainRepository.updateState(chatMain_id, ChatState.CREATE);
 		}
+	}
+	
+	@Transactional
+	public List<String> getQuickChat(String user_id) {
+		Users user = userRepository.findOne(user_id);
+		return user.getQuickChat().getMsgList();
+	}
+	//이상해!
+	@Transactional
+	public void updateQuickChat(JSONArray arr_json,String user_id) {
+		QuickChat quickChat = quickChatRepository.findByUserId(user_id);
+		quickChat.setMsg1(new JSONObject(arr_json.get(0).toString()).getString("msg"));
+		quickChat.setMsg2(new JSONObject(arr_json.get(1).toString()).getString("msg"));
+		quickChat.setMsg3(new JSONObject(arr_json.get(2).toString()).getString("msg"));
+		quickChat.setMsg4(new JSONObject(arr_json.get(3).toString()).getString("msg"));
+		quickChat.setMsg5(new JSONObject(arr_json.get(4).toString()).getString("msg"));
 	}
 }

@@ -3,17 +3,19 @@ package com.naeggeodo.service;
 import java.util.List;
 
 import org.json.JSONArray;
-import org.json.simple.JSONObject;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.naeggeodo.dto.MessageDTO;
 import com.naeggeodo.entity.chat.ChatMain;
 import com.naeggeodo.entity.chat.ChatUser;
+import com.naeggeodo.entity.chat.QuickChat;
 import com.naeggeodo.entity.chat.RemittanceState;
 import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.repository.ChatMainRepository;
 import com.naeggeodo.repository.ChatUserRepository;
+import com.naeggeodo.repository.QuickChatRepository;
 import com.naeggeodo.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class ChatUserService {
 	private final ChatUserRepository chatUserRepository;
 	private final UserRepository userRepository;
 	private final ChatMainRepository chatMainRepository;
+	private final QuickChatRepository quickChatRepository;
 	
 	// dto로 저장
 	@Transactional
@@ -101,19 +104,23 @@ public class ChatUserService {
 	
 	//현재 접속 인원 list to json
 	@Transactional
-	public JSONArray currentList(Long chatMain_id) {
-		
-		JSONArray arr_json = new JSONArray();
-		List<ChatUser> list = chatUserRepository.findByChatMainId(chatMain_id);
-		for (int i = 0; i <list.size() ; i++) {
-			JSONObject json = new JSONObject();
-			json.put("idx", i);
-			json.put("user_id", list.get(i).getUser().getId());
-			json.put("remittanceState", list.get(i).getState().name());
-			arr_json.put(json);
-		}
-		return arr_json;
+	public List<ChatUser> currentList(Long chatMain_id) {
+		return chatUserRepository.findByChatMainId(chatMain_id);
 	}
+//	@Transactional
+//	public JSONArray currentList(Long chatMain_id) {
+//		
+//		JSONArray arr_json = new JSONArray();
+//		List<ChatUser> list = chatUserRepository.findByChatMainId(chatMain_id);
+//		for (int i = 0; i <list.size() ; i++) {
+//			JSONObject json = new JSONObject();
+//			json.put("idx", i);
+//			json.put("user_id", list.get(i).getUser().getId());
+//			json.put("remittanceState", list.get(i).getState().name());
+//			arr_json.put(json);
+//		}
+//		return arr_json;
+//	}
 	
 	//송금상태 update
 	@Transactional
