@@ -8,6 +8,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
 
 import com.naeggeodo.exception.StompErrorCode;
+import com.naeggeodo.entity.chat.ChatState;
 import com.naeggeodo.exception.CustomWebSocketException;
 import com.naeggeodo.service.ChatMainService;
 import com.naeggeodo.service.ChatUserService;
@@ -28,17 +29,18 @@ public class StompInterceptor implements ChannelInterceptor{
 		
 		StompHeaderAccessor headers = StompHeaderAccessor.wrap(message);
 		
-		//인원꽉차면 접속거부
+		//접속 인터셉트해서 조건에 따라 exception 발생시키기 
 		if(StompCommand.CONNECT.equals(headers.getCommand())) {
 			log.info("CONNECT");
 			Long chatMain_id = Long.parseLong(headers.getNativeHeader("chatMain_id").get(0));
 			String sender = headers.getNativeHeader("sender").get(0);
-			if(!chatUserService.isExist(chatMain_id,sender)) {
-				if(chatMainService.isFull(chatMain_id)) {
-					log.debug("throw CustomWebSocketException Code = {}",StompErrorCode.CHAT_ROOM_FULL);
-					throw new CustomWebSocketException(StompErrorCode.CHAT_ROOM_FULL.name());
-				}
-			} else {
+			
+			if(!ChatState.CREATE.equals(chatMainService.getState(chatMain_id))) {
+				log.debug("throw CustomWebSocketException Code = {}",StompErrorCode.INVALID_STATE);
+				throw new CustomWebSocketException(StompErrorCode.INVALID_STATE.name());
+			}
+			
+			if(chatUserService.isExist(chatMain_id,sender)) {
 				String sessionId = chatUserService.getSession_id(chatMain_id, sender);
 				if(sessionHandler.isExist(sessionId)) {
 					log.debug("throw CustomWebSocketException Code = {}",StompErrorCode.SESSION_DUPLICATION);

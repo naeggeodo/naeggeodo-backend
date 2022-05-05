@@ -37,7 +37,6 @@ public class ChatMainController {
 	
 	
 	//채팅방 리스트
-
 	@GetMapping(value="/chat/rooms",produces = "application/json")
 	public String getChatList(
 			@RequestParam(name = "category",required = false)String category,
@@ -52,13 +51,6 @@ public class ChatMainController {
 		}
 	}
 	
-	//카테고리 리스트
-	@GetMapping(value="/categories",produces = "application/json")
-	public String getCategoryList() throws Exception {
-		return MyUtility.convertCategoryToJSONobj("categories").toString();
-	}
-	
-	
 	//채팅방 생성
 	@PostMapping(value= "/chat/rooms",produces ="application/json" )
 	public String createChatRoom(@RequestPart ChatRoomDTO chat,@RequestPart MultipartFile file) {
@@ -67,6 +59,7 @@ public class ChatMainController {
 		return json.toString();
 	}
 	
+	//해당 채팅방 data
 	@GetMapping(value="/chat/rooms/{chatMain_id}",produces = "application/json")
 	@Transactional
 	public String getChatMain(@PathVariable(name = "chatMain_id") String chatMain_idstr) throws Exception {
@@ -85,11 +78,13 @@ public class ChatMainController {
 	}
 	
 	
+	// 해당 채팅방접속중인 유저 list
 	@GetMapping(value="/chat/rooms/{chatMain_id}/users",produces = "application/json")
 	public String getChatUserList(@PathVariable(name="chatMain_id")Long chatMain_id) throws Exception {
 		return MyUtility.convertListToJSONobj(chatUserService.currentList(chatMain_id), "users").toString();
 	}
 	
+	//송금상태 변경
 	@PatchMapping(value="/chat/rooms/{chatMain_id}/users/{user_id}",produces = "application/json")
 	public String updateRemittanceState(@PathVariable(name="chatMain_id")Long chatMain_id,
 										@PathVariable(name="user_id")String user_id) {
@@ -97,12 +92,25 @@ public class ChatMainController {
 		return "success";
 	}
 	
+	//해당 유저 퀵채팅
 	@GetMapping(value="/chat/user/{user_id}/quick-chatting",produces = "application/json")
 	public String getQuickChat(@PathVariable(name ="user_id")String user_id) {
 		List<String> list = chatMainService.getQuickChat(user_id);
 		JSONObject json = MyUtility.convertStringListToJSONObject(list, "quickChat");
 		json.put("user_id", user_id);
 		return json.toString();
+	}
+	
+	//참여중인 채팅방
+	@GetMapping(value="/chat/rooms/progressing/user/{user_id}",produces = "application/json")
+	public String getProgressingChatList(@PathVariable(name="user_id") String user_id) throws Exception {
+		List<ChatMain> list = chatMainService.getProgressingChatList(user_id);
+		return MyUtility.convertListToJSONobj(list, "chat-room").toString();
+	}
+	//카테고리 리스트
+	@GetMapping(value="/categories",produces = "application/json")
+	public String getCategoryList() throws Exception {
+		return MyUtility.convertCategoryToJSONobj("categories").toString();
 	}
 	
 }

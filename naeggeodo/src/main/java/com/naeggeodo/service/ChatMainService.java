@@ -121,4 +121,16 @@ public class ChatMainService {
 		quickChat.setMsg4(new JSONObject(arr_json.get(3).toString()).getString("msg"));
 		quickChat.setMsg5(new JSONObject(arr_json.get(4).toString()).getString("msg"));
 	}
+	
+	@Transactional
+	public List<ChatMain> getProgressingChatList(String user_id){
+		return chatMainRepository.findByUserIdInChatUser(user_id);
+	}
+	
+	@Transactional
+	public ChatState getState(Long chatMain_id) {
+		ChatMain chatMain = chatMainRepository.findOne(chatMain_id);
+		return chatMain.getState();
+	}
+	
 }

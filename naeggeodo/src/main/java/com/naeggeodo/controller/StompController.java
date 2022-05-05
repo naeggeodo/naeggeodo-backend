@@ -38,18 +38,13 @@ public class StompController {
     @MessageMapping("/chat/send")
     public void sendMsg(MessageDTO message) throws Exception {
         Long chatMain_id = message.getChatMain_id();
-        if(message.getType().equals(ChatDetailType.TEXT)) {
-        	//메시지 insert
-        	chatDetailService.save(message);
-        	//메시지 전송
-        	sendToAll(chatMain_id, message);
-        	return;
-        } 
+    	//메시지 insert
+    	chatDetailService.save(message);
+    	//메시지 전송
+    	sendToAll(chatMain_id, message);
         
         if(message.getType().equals(ChatDetailType.IMAGE)) {
         	log.debug("file size = {} KB",MyUtility.getFileSizeInBase64StringWithKB(message.getContents()));
-        	// 10MB 이상
-        		sendToAll(chatMain_id, message);
         }
     }
     //입장
@@ -59,7 +54,7 @@ public class StompController {
     	 String session_id = headers.getSessionId();
     	 //신규입장일때(chatUser 테이블에 접속한 사용자가 존재하지 않을때)
     	 if(!chatUserService.isExist(message)) {
-    		//chatUser,입장메시지 insert, 
+    		//chatUser,입장메시지 insert
      		chatUserService.save(message,session_id);
      		chatDetailService.save(message);
      		//입장 메시지 전송

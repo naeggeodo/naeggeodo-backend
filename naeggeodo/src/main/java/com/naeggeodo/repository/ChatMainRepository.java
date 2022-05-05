@@ -42,6 +42,11 @@ public class ChatMainRepository {
 				.setParameter("buildingCode", buildingCode).getResultList();
 	}
 	
+	public List<ChatMain> findByUserIdInChatUser(String user_id){
+		return em.createQuery("SELECT cm FROM ChatMain cm join ChatUser cu on cm.id = cu.chatMain.id WHERE cu.user.id = :user_id",ChatMain.class)
+				.setParameter("user_id", user_id).getResultList();
+	}
+	
 	public void updateState(Long id ,ChatState state) {
 		ChatMain chatMain = em.find(ChatMain.class, id);
 		chatMain.setState(state);
