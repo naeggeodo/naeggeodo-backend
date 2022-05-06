@@ -103,7 +103,7 @@ public class StompController {
     		//강퇴 당한 유저에게 ALERT
     		sendToUser(chatMain_id, bannedUser, getAlertMessage("강퇴 당하셨습니다."));
     		//세션지우기
-    		sessionHandler.ban(session_id);
+    		sessionHandler.close(session_id);
     		//유저 delete
         	chatUserService.exit(chatMain_id,bannedUser);
         	

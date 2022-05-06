@@ -55,7 +55,7 @@ public class ChatMainService {
 
 		Long chatMain_id = chatMainRepository.save(chatmain);
 		String imgpath = cloudinaryService.upload(file, "chatMain/"+chatMain_id);
-		chatmain.setImgPath(imgpath);
+		chatmain.updateImgPath(imgpath);
 		
 		JSONObject json = new JSONObject();
 		json.put("chatMain_id", chatMain_id);
@@ -100,9 +100,9 @@ public class ChatMainService {
 		ChatMain chatMain = chatMainRepository.findOne(chatMain_id);
 		
 		if(chatMain.getChatUser().size() >= chatMain.getMaxCount()) {
-			chatMainRepository.updateState(chatMain_id, ChatState.FULL);
+			chatMain.updateState(ChatState.FULL);
 		} else {
-			chatMainRepository.updateState(chatMain_id, ChatState.CREATE);
+			chatMain.updateState(ChatState.CREATE);
 		}
 	}
 	
@@ -115,11 +115,8 @@ public class ChatMainService {
 	@Transactional
 	public void updateQuickChat(JSONArray arr_json,String user_id) {
 		QuickChat quickChat = quickChatRepository.findByUserId(user_id);
-		quickChat.setMsg1(new JSONObject(arr_json.get(0).toString()).getString("msg"));
-		quickChat.setMsg2(new JSONObject(arr_json.get(1).toString()).getString("msg"));
-		quickChat.setMsg3(new JSONObject(arr_json.get(2).toString()).getString("msg"));
-		quickChat.setMsg4(new JSONObject(arr_json.get(3).toString()).getString("msg"));
-		quickChat.setMsg5(new JSONObject(arr_json.get(4).toString()).getString("msg"));
+		List<String> list = MyUtility.convertQuickChatJSONArrayToStringList(arr_json);
+		quickChat = QuickChat.updateMsgByList(list);
 	}
 	
 	@Transactional

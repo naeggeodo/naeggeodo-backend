@@ -2,6 +2,7 @@ package com.naeggeodo.handler;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
@@ -13,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class SessionHandler {
 	 private final Map<String, WebSocketSession> sessionMap = new HashMap<>();
-	 
 	 public SessionHandler() {;}
 	 
 	 public void register(WebSocketSession session) {
@@ -31,7 +31,7 @@ public class SessionHandler {
 		 log.debug("접속중인세션 {}", sessionMap.keySet());
 	 }
 	 
-	 public void ban(String session_id) {
+	 public void close(String session_id) {
 		 if(sessionMap.get(session_id) != null) {
 			 try {
 				sessionMap.get(session_id).close();

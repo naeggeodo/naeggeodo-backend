@@ -1,5 +1,6 @@
 package com.naeggeodo.util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -60,5 +61,13 @@ public class MyUtility {
 		return jsonResult;
 	}
 	
-	
+	public static List<String> convertQuickChatJSONArrayToStringList(JSONArray arr_json) {
+		List<Object> list_obj = arr_json.toList();
+		List<String> list_result = new ArrayList<>();
+		for (Object obj : list_obj) {
+			list_result.add(new JSONObject(obj).getString("msg"));
+		}
+		
+		return list_result;
+	}
 }

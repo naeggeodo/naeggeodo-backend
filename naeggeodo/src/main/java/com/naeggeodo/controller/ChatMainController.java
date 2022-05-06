@@ -73,7 +73,7 @@ public class ChatMainController {
 	@Transactional
 	public String updateRoomState(@PathVariable(name="chatMain_id") Long chatMain_id,
 		  						 @RequestParam(name="state") ChatState state) {
-		chatMainRepository.updateState(chatMain_id, state);
+		chatMainRepository.findOne(chatMain_id).updateState(state);
 		return "ok";
 	}
 	

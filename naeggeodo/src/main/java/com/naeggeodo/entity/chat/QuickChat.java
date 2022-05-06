@@ -18,14 +18,19 @@ import org.json.JSONObject;
 import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.interfaces.JSONConverter;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 @DynamicInsert
 @DynamicUpdate
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class QuickChat{
 	@Id @GeneratedValue
 	@Column(name = "quickChat_id")
@@ -52,9 +57,7 @@ public class QuickChat{
 	}
 	
 	public static QuickChat create(Users user) {
-		QuickChat quickChat = new QuickChat();
-		quickChat.setUser(user);
-		return quickChat;
+		return QuickChat.builder().user(user).build();
 	}
 	
 	
@@ -66,5 +69,11 @@ public class QuickChat{
 		list.add(this.msg4);
 		list.add(this.msg5);
 		return list;
+	}
+	
+	public static QuickChat updateMsgByList(List<String> list) {
+		if(list.size()!=5)  throw new IllegalArgumentException();
+		
+		return QuickChat.builder().msg1(list.get(0)).msg2(list.get(1)).msg3(list.get(2)).msg4(list.get(3)).msg5(list.get(4)).build();
 	}
 }

@@ -21,14 +21,21 @@ import com.naeggeodo.dto.ChatRoomDTO;
 import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.interfaces.JSONConverter;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChatMain implements JSONConverter{
 
+	
+	
 	@Id @GeneratedValue
 	@Column(name = "chatmain_id")
 	private Long id; 
@@ -57,19 +64,20 @@ public class ChatMain implements JSONConverter{
 	private List<ChatUser> chatUser;
 	//생성
 	public static ChatMain create(ChatRoomDTO dto) {
-		ChatMain chatMain = new ChatMain();
-		chatMain.setTitle(dto.getTitle());
-		chatMain.setCreateDate(LocalDateTime.now());
-		chatMain.setBuildingCode(dto.getAddr());
-		chatMain.setState(ChatState.CREATE);
-		chatMain.setLink(dto.getLink());
-		chatMain.setPlace(dto.getPlace());
-		chatMain.setCategory(dto.getCategory());
-		return chatMain;
+		return ChatMain.builder().title(dto.getTitle()).createDate(LocalDateTime.now())
+				.buildingCode(dto.getAddr()).state(ChatState.CREATE).link(dto.getLink())
+				.place(dto.getPlace()).category(dto.getCategory()).build();
 	}
 	
+	//state upadate
+	public void updateState(ChatState state) {
+		this.state = state;
+	}
 	
-	
+	//imgPath update
+	public void updateImgPath(String imgPath) {
+		this.imgPath = imgPath;
+	}
 	
 	//toJSON
 	@Override
@@ -94,4 +102,5 @@ public class ChatMain implements JSONConverter{
 		json.put("currentCount", this.chatUser.size());
 		return json;
 	}
+
 }

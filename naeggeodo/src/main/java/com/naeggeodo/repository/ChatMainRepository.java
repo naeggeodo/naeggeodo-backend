@@ -47,9 +47,4 @@ public class ChatMainRepository {
 				.setParameter("user_id", user_id).getResultList();
 	}
 	
-	public void updateState(Long id ,ChatState state) {
-		ChatMain chatMain = em.find(ChatMain.class, id);
-		chatMain.setState(state);
-	}
-	
 }
