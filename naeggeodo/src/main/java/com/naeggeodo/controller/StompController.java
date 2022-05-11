@@ -10,11 +10,16 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.naeggeodo.dto.MessageDTO;
 import com.naeggeodo.entity.chat.ChatDetailType;
+import com.naeggeodo.entity.chat.ChatMain;
+import com.naeggeodo.entity.chat.ChatState;
 import com.naeggeodo.entity.chat.ChatUser;
 import com.naeggeodo.handler.SessionHandler;
+import com.naeggeodo.repository.ChatMainRepository;
+import com.naeggeodo.repository.ChatUserRepository;
 import com.naeggeodo.service.ChatDetailService;
 import com.naeggeodo.service.ChatMainService;
 import com.naeggeodo.service.ChatUserService;
@@ -32,6 +37,8 @@ public class StompController {
     private final ChatMainService chatMainService;
     private final ChatUserService chatUserService;
     private final SessionHandler sessionHandler;
+    private final ChatMainRepository chatMainRepository;
+    private final ChatUserRepository chatUserRepository;
     
     
     //일반 메시지,이미지 보내기
@@ -50,48 +57,64 @@ public class StompController {
     //입장
     @MessageMapping("/chat/enter")
     public void enter(MessageDTO message,StompHeaderAccessor headers) throws Exception {
+    	System.out.println("================enter===================");
     	 Long chatMain_id = message.getChatMain_id();
     	 String session_id = headers.getSessionId();
     	 //신규입장일때(chatUser 테이블에 접속한 사용자가 존재하지 않을때)
     	 if(!chatUserService.isExist(message)) {
     		//chatUser,입장메시지 insert
+    		System.out.println("=========chatUser save()==========");
      		chatUserService.save(message,session_id);
+     		System.out.println("=========chatDetail save()==========");
      		chatDetailService.save(message);
      		//입장 메시지 전송
+     		System.out.println("========sendtoALL in if =============");
      		sendToAll(chatMain_id, message);
      	}
     	 //인원수 메시지 전송
+    	 System.out.println("========sendtoALL outof if =============");
     	 sendToAll(chatMain_id, getCountMessage(chatMain_id));
     	 // 채팅방 상태변경
+    	 System.out.println("=========chatMain changestate==========");
+    	 
     	 chatMainService.changeState(chatMain_id);
     }
     
     //퇴장
     @MessageMapping("/chat/exit")
+    @Transactional
     public void exit(MessageDTO message) throws Exception {
+    	System.out.println("====================exit==============================");
     	Long chatMain_id = message.getChatMain_id();
     	String sender = message.getSender();
     	
+    	ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(chatMain_id);
+    	
     	//메시지를 보낸 사람이 방장이 아닐때 
-    	if(!chatMainService.isHost(chatMain_id, sender)) {
+    	if(!chatMain.getUser().getId().equals(sender)) {
     		//나가기(delete), 퇴장메시지 db에 저장
-    		chatUserService.exit(message);
+    		System.out.println("=========del=====");
+    		chatUserRepository.delete(findChatUserBySender(chatMain, sender));
+    		//chatUserRepository.deleteByChatMainIdAndUserId(chatMain.getId(), sender);
+    		System.out.println("=========del=====");
         	chatDetailService.save(message);
         	//퇴장 메시지 전송
         	sendToAll(chatMain_id, message);
         	//인원수 메시지 전송
-        	sendToAll(chatMain_id, getCountMessage(chatMain_id));
+        	sendToAll(chatMain_id, getCountMessage(chatMain));
     	} else {
     		//일단 방장은 못나가게 해놨음 수정해야함
     		sendToUser(chatMain_id, sender, getAlertMessage("방장은 나갈수 없습니다."));
     	}
     	
-    	chatMainService.changeState(chatMain_id);
+		chatMain = ChatMain.builder().state(ChatState.CREATE).build();
+    	System.out.println("====================exit==============================");
     }
     
     //강퇴 (if문 정리 필요합니다)
     @MessageMapping("/chat/ban")
     public void ban(MessageDTO message) throws Exception {
+    	
     	//강퇴할 사람 sessionID 가져오기
     	String session_id = chatUserService.getSession_id(message);
     	Long chatMain_id = message.getChatMain_id();
@@ -140,16 +163,32 @@ public class StompController {
     }
     
     // 인원수 메시지 get
+    @Transactional
     private MessageDTO getCountMessage(Long chatMain_id) throws Exception {
-    	int currentCount = chatMainService.getCurrentCount(chatMain_id);
-    	List<ChatUser> list = chatUserService.currentList(chatMain_id);
+    	//int currentCount = chatMainService.getCurrentCount(chatMain_id);
+    	ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(chatMain_id);
+    	List<ChatUser> chatUser = chatMain.getChatUser();
     	
     	JSONObject json = new JSONObject();
-    	json = MyUtility.convertListToJSONobj(list, "user");
-    	json.put("currentCount", currentCount);
+    	json = MyUtility.convertListToJSONobj(chatUser, "user");
+    	json.put("currentCount", chatUser.size());
     	
     	MessageDTO messageDto = new MessageDTO();
     	messageDto.setChatMain_id(chatMain_id);
+    	messageDto.setContents(json.toString());
+    	messageDto.setType(ChatDetailType.CNT);
+    	return messageDto;
+    }
+    private MessageDTO getCountMessage(ChatMain chatMain) throws Exception {
+    	//int currentCount = chatMainService.getCurrentCount(chatMain_id);
+    	List<ChatUser> chatUser = chatMain.getChatUser();
+    	
+    	JSONObject json = new JSONObject();
+    	json = MyUtility.convertListToJSONobj(chatUser, "user");
+    	json.put("currentCount", chatUser.size());
+    	
+    	MessageDTO messageDto = new MessageDTO();
+    	messageDto.setChatMain_id(chatMain.getId());
     	messageDto.setContents(json.toString());
     	messageDto.setType(ChatDetailType.CNT);
     	return messageDto;
@@ -185,5 +224,16 @@ public class StompController {
     	simpMessagingTemplate.convertAndSendToUser(sessionId, "/queue/"+chatMain_id, message,  headers.getMessageHeaders());
     }
     
+    private ChatUser findChatUserBySender(ChatMain chatMain,String sender) {
+    	ChatUser chatUser = null;
+    	if(!chatMain.getChatUser().isEmpty()) {
+    		for (ChatUser cu : chatMain.getChatUser()) {
+    			if(cu.getUser().getId().equals(sender)) {
+    				chatUser = cu;
+    			}
+    		}
+    	}
+    	return chatUser;
+    }
     
 }

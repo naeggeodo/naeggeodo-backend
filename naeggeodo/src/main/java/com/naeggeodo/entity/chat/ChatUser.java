@@ -12,19 +12,23 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import org.hibernate.annotations.DynamicUpdate;
 import org.json.JSONObject;
 
 import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.interfaces.JSONConverter;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+@DynamicUpdate
 public class ChatUser implements JSONConverter{
 	@Id @GeneratedValue
 	@Column(name="chatUser_id")
@@ -34,13 +38,13 @@ public class ChatUser implements JSONConverter{
 	@JoinColumn(name = "user_id")
 	private Users user;
 	
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "chatmain_id")
 	private ChatMain chatMain;
 	
 	private LocalDateTime enterDate;
 	
-	private String session_id;
+	private String sessionId;
 	
 	@Enumerated(EnumType.STRING)
 	private RemittanceState state;
@@ -50,7 +54,7 @@ public class ChatUser implements JSONConverter{
 		chatUser.setUser(user);
 		chatUser.setChatMain(chatMain);
 		chatUser.setEnterDate(LocalDateTime.now());
-		chatUser.setSession_id(session_id);
+		chatUser.setSessionId(session_id);
 		chatUser.setState(RemittanceState.N);
 		return chatUser;
 	}

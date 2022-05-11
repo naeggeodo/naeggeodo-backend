@@ -43,7 +43,7 @@ public class ChatMainService {
 		} else if(param.length == 2){
 			param[0] = param[0].toUpperCase();
 			Category category = Category.valueOf(param[0]);
-			list = chatMainRepository.findBycategoryAndBuildingCode(category, param[1]);
+			list = chatMainRepository.findByCategoryAndBuildingCode(category, param[1]);
 		}
 		return list;
 	}
@@ -53,7 +53,7 @@ public class ChatMainService {
 	public JSONObject createChatRoom(ChatRoomDTO dto,MultipartFile file) {
 		ChatMain chatmain = ChatMain.create(dto);
 
-		Long chatMain_id = chatMainRepository.save(chatmain);
+		Long chatMain_id = chatMainRepository.save(chatmain).getId();
 		String imgpath = cloudinaryService.upload(file, "chatMain/"+chatMain_id);
 		chatmain.updateImgPath(imgpath);
 		
@@ -62,10 +62,12 @@ public class ChatMainService {
 		return json;
 	}
 	
+	
+	
 	//현재 인원수 get
 	@Transactional
 	public int getCurrentCount(Long chatMain_id) {
-		return chatMainRepository.findOne(chatMain_id).getChatUser().size();
+		return chatMainRepository.findById(chatMain_id).get().getChatUser().size();
 	}
 	
 	
@@ -73,7 +75,7 @@ public class ChatMainService {
 	//꽉찼냐?
 	@Transactional
 	public boolean isFull(Long id) {
-		ChatMain chatMain = chatMainRepository.findOne(id);
+		ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(id);
 		int maxCount = chatMain.getMaxCount();
 		int currentCount = chatMain.getChatUser().size();
 		
@@ -83,35 +85,45 @@ public class ChatMainService {
 		return false;
 	}
 	
+	public boolean isFull(ChatMain chatMain) {
+		int maxCount = chatMain.getMaxCount();
+		int currentCount = chatMain.getChatUser().size();
+		if(currentCount>=maxCount) {
+			return true;
+		}
+		return false;
+	}
+	
 	//방장이냐?
 	@Transactional
 	public boolean isHost(Long chatMain_id,String user_id) {
-		ChatMain chatMain = chatMainRepository.findOne(chatMain_id);
+		ChatMain chatMain = chatMainRepository.findById(chatMain_id).get();
 		
 		if(chatMain.getUser().getId().equals(user_id)) {
 			return true;
 		}
-		
 		return false;
 	}
 	
 	@Transactional
 	public void changeState(Long chatMain_id) {
-		ChatMain chatMain = chatMainRepository.findOne(chatMain_id);
+		System.out.println("===========change()========");
+		ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(chatMain_id);
 		
 		if(chatMain.getChatUser().size() >= chatMain.getMaxCount()) {
 			chatMain.updateState(ChatState.FULL);
 		} else {
 			chatMain.updateState(ChatState.CREATE);
 		}
+		System.out.println("===========change()========");
 	}
+	
 	
 	@Transactional
 	public List<String> getQuickChat(String user_id) {
-		Users user = userRepository.findOne(user_id);
+		Users user = userRepository.findById(user_id).get();
 		return user.getQuickChat().getMsgList();
 	}
-	//이상해!
 	@Transactional
 	public void updateQuickChat(JSONArray arr_json,String user_id) {
 		QuickChat quickChat = quickChatRepository.findByUserId(user_id);
@@ -126,7 +138,7 @@ public class ChatMainService {
 	
 	@Transactional
 	public ChatState getState(Long chatMain_id) {
-		ChatMain chatMain = chatMainRepository.findOne(chatMain_id);
+		ChatMain chatMain = chatMainRepository.findById(chatMain_id).get();
 		return chatMain.getState();
 	}
 	

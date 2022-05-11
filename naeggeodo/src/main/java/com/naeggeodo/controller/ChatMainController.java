@@ -64,7 +64,7 @@ public class ChatMainController {
 	@Transactional
 	public String getChatMain(@PathVariable(name = "chatMain_id") String chatMain_idstr) throws Exception {
 		Long chatMain_id = Long.parseLong(chatMain_idstr);
-		ChatMain chatMain = chatMainRepository.findOne(chatMain_id);
+		ChatMain chatMain = chatMainRepository.findById(chatMain_id).get();
 		return chatMain.toJSON().toString();
 	}
 	
@@ -73,7 +73,7 @@ public class ChatMainController {
 	@Transactional
 	public String updateRoomState(@PathVariable(name="chatMain_id") Long chatMain_id,
 		  						 @RequestParam(name="state") ChatState state) {
-		chatMainRepository.findOne(chatMain_id).updateState(state);
+		chatMainRepository.findById(chatMain_id).get().updateState(state);
 		return "ok";
 	}
 	

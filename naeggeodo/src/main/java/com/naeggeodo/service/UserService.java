@@ -15,7 +15,7 @@ public class UserService {
 	
 	@Transactional
 	public void updateProfile(String id,String imgpath) {
-		Users user = userRepository.findOne(id);
+		Users user = userRepository.findById(id).get();
 		user.setImgpath(imgpath);
 	}
 	

@@ -27,7 +27,9 @@ import lombok.Setter;
 @Setter
 @Entity
 public class Users {
-
+	
+	public Users() {}
+	
 	@Id @Column(name="user_id")
 	private String id;
 	

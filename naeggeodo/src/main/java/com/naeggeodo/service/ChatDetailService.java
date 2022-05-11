@@ -29,11 +29,13 @@ public class ChatDetailService {
 	//dto 로 저장
 	@Transactional
 	public void save(MessageDTO messageDTO) {
+		System.out.println("========chatDetail save()==========");
+		Users user = userRepository.getById(messageDTO.getSender());
+		ChatMain chatmain = chatMainRepository.getById(messageDTO.getChatMain_id());
 		
-		Users user = userRepository.findOne(messageDTO.getSender());
-		ChatMain chatmain = chatMainRepository.findOne(messageDTO.getChatMain_id());
 		ChatDetail chatDetail = ChatDetail.create(messageDTO.getContents(), user, chatmain, messageDTO.getType());
 		chatDetailRepository.save(chatDetail);
+		System.out.println("========chatDetail save()==========");
 	}
 	
 	//기존 채팅 내역 불러오기

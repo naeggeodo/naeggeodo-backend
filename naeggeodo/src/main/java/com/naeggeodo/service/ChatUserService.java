@@ -31,33 +31,41 @@ public class ChatUserService {
 	// dto로 저장
 	@Transactional
 	public void save(MessageDTO messageDTO,String session_id) {
-		ChatMain chatMain =  chatMainRepository.findOne(messageDTO.getChatMain_id());
-		Users user = userRepository.findOne(messageDTO.getSender());
+		System.out.println("=================save======================");
+		//ChatMain chatMain =  chatMainRepository.findById(messageDTO.getChatMain_id()).get();
+		ChatMain chatMain =  chatMainRepository.getById(messageDTO.getChatMain_id());
+		//Users user = userRepository.findById(messageDTO.getSender()).get();
+		Users user = userRepository.getById(messageDTO.getSender());
 		chatUserRepository.save(ChatUser.create(user, chatMain,session_id));
+		System.out.println("=======================================");
 	}
 	// 변수로 저장
 	@Transactional
 	public void save(Long chatMain_id,String sender,String session_id) {
-		ChatMain chatMain =  chatMainRepository.findOne(chatMain_id);
-		Users user = userRepository.findOne(sender);
+		ChatMain chatMain =  chatMainRepository.getById(chatMain_id);
+		Users user = userRepository.getById(sender);
 		chatUserRepository.save(ChatUser.create(user, chatMain,session_id));
 	}
 	
 	//이 사람이 채팅방에 있냐? (dto)
 	@Transactional
 	public boolean isExist(MessageDTO messageDTO) {
-		Long cnt = chatUserRepository.check(messageDTO.getChatMain_id(), messageDTO.getSender());
+		System.out.println("=========is exist");
+		Long cnt = chatUserRepository.countByChatMainIdAndUserId(messageDTO.getChatMain_id(), messageDTO.getSender());
 		
 		if(cnt == 1L) {
+			System.out.println("=========is exist");
 			return true;
 		}
+		System.out.println("=========is exist");
 		return false;
+		
 	}
 	
 	//이 사람이 채팅방에 있냐?(변수)
 	@Transactional
 	public boolean isExist(Long chatMain_id,String sender) {
-		Long cnt = chatUserRepository.check(chatMain_id,sender);
+		Long cnt = chatUserRepository.countByChatMainIdAndUserId(chatMain_id,sender);
 		
 		if(cnt == 1L) {
 			return true;
@@ -68,13 +76,13 @@ public class ChatUserService {
 	// 유저 delete(dto)
 	@Transactional
 	public void exit(MessageDTO messageDTO) {
-		chatUserRepository.deleteById(messageDTO.getChatMain_id(), messageDTO.getSender());
+		chatUserRepository.deleteByChatMainIdAndUserId(messageDTO.getChatMain_id(), messageDTO.getSender());
 	}
 	
 	//유저 delete(변수)
 	@Transactional
 	public void exit(Long chatMain_id,String user_id) {
-		chatUserRepository.deleteById(chatMain_id, user_id);
+		chatUserRepository.deleteByChatMainIdAndUserId(chatMain_id, user_id);
 	}
 	//유저 delete(session)
 	@Transactional
@@ -88,18 +96,18 @@ public class ChatUserService {
 		Long chatMain_id = messageDTO.getChatMain_id();
 		//밴할 유저 id
 		String user_id = messageDTO.getContents();
-		return chatUserRepository.findByChatMainAndUserId(chatMain_id, user_id).getSession_id();
+		return chatUserRepository.findByChatMainIdAndUserId(chatMain_id, user_id).getSessionId();
 	}
 	@Transactional
 	public String getSession_id(Long chatMain_id, String user_id) {
-		return chatUserRepository.findByChatMainAndUserId(chatMain_id, user_id).getSession_id();
+		return chatUserRepository.findByChatMainIdAndUserId(chatMain_id, user_id).getSessionId();
 	}
 	
 	//update sessionid
 	@Transactional
 	public void updateSession_id(Long chatMain_id,String user_id,String session_id) {
-		ChatUser chatUser = chatUserRepository.findByChatMainAndUserId(chatMain_id, user_id);
-		chatUser.setSession_id(session_id);
+		ChatUser chatUser = chatUserRepository.findByChatMainIdAndUserId(chatMain_id, user_id);
+		chatUser.setSessionId(session_id);
 	}
 	
 	//현재 접속 인원 list to json
@@ -125,7 +133,7 @@ public class ChatUserService {
 	//송금상태 update
 	@Transactional
 	public void updateRemittanceStateToY(Long chatMain_id,String user_id) {
-		ChatUser chatUser = chatUserRepository.findByChatMainAndUserId(chatMain_id, user_id);
+		ChatUser chatUser = chatUserRepository.findByChatMainIdAndUserId(chatMain_id, user_id);
 		chatUser.setState(RemittanceState.Y);
 	}
 }
