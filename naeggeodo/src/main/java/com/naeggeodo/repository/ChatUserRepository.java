@@ -21,6 +21,8 @@ public interface ChatUserRepository extends JpaRepository<ChatUser, Long>{
 	
 	public void deleteBySessionId(String session_id);
 	
+	public String findSessionIdByChatMainIdAndUserId(Long chatMain_id,String user_id);
+	
 	@Modifying
 	@Query("UPDATE ChatUser c SET c.sessionId = :newSessionId WHERE c.sessionId = :oldSessionId")
 	public void updateSessionId(@Param("newSessionId")String newSessionId,@Param("oldSessionId")String oldSessionId);

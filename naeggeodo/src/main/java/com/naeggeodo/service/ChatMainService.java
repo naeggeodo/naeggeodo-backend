@@ -64,82 +64,23 @@ public class ChatMainService {
 	
 	
 	
-	//현재 인원수 get
-	@Transactional
-	public int getCurrentCount(Long chatMain_id) {
-		return chatMainRepository.findById(chatMain_id).get().getChatUser().size();
-	}
-	
-	
-	
-	//꽉찼냐?
-	@Transactional
-	public boolean isFull(Long id) {
-		ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(id);
-		int maxCount = chatMain.getMaxCount();
-		int currentCount = chatMain.getChatUser().size();
-		
-		if(currentCount>=maxCount) {
-			return true;
-		}
-		return false;
-	}
-	
-	public boolean isFull(ChatMain chatMain) {
-		int maxCount = chatMain.getMaxCount();
-		int currentCount = chatMain.getChatUser().size();
-		if(currentCount>=maxCount) {
-			return true;
-		}
-		return false;
-	}
-	
-	//방장이냐?
-	@Transactional
-	public boolean isHost(Long chatMain_id,String user_id) {
-		ChatMain chatMain = chatMainRepository.findById(chatMain_id).get();
-		
-		if(chatMain.getUser().getId().equals(user_id)) {
-			return true;
-		}
-		return false;
-	}
-	
-	@Transactional
-	public void changeState(Long chatMain_id) {
-		System.out.println("===========change()========");
-		ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(chatMain_id);
-		
-		if(chatMain.getChatUser().size() >= chatMain.getMaxCount()) {
-			chatMain.updateState(ChatState.FULL);
-		} else {
-			chatMain.updateState(ChatState.CREATE);
-		}
-		System.out.println("===========change()========");
-	}
-	
 	
 	@Transactional
 	public List<String> getQuickChat(String user_id) {
 		Users user = userRepository.findById(user_id).get();
 		return user.getQuickChat().getMsgList();
 	}
-	@Transactional
-	public void updateQuickChat(JSONArray arr_json,String user_id) {
-		QuickChat quickChat = quickChatRepository.findByUserId(user_id);
-		List<String> list = MyUtility.convertQuickChatJSONArrayToStringList(arr_json);
-		quickChat = QuickChat.updateMsgByList(list);
-	}
+//	@Transactional
+//	public void updateQuickChat(JSONArray arr_json,String user_id) {
+//		QuickChat quickChat = quickChatRepository.getByUserId(user_id);
+//		List<String> list = MyUtility.convertQuickChatJSONArrayToStringList(arr_json);
+//		quickChat = QuickChat.updateMsgByList(list);
+//	}
 	
 	@Transactional
 	public List<ChatMain> getProgressingChatList(String user_id){
 		return chatMainRepository.findByUserIdInChatUser(user_id);
 	}
 	
-	@Transactional
-	public ChatState getState(Long chatMain_id) {
-		ChatMain chatMain = chatMainRepository.findById(chatMain_id).get();
-		return chatMain.getState();
-	}
 	
 }

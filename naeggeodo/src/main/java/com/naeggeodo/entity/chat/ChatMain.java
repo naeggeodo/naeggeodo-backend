@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -28,6 +29,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @Getter
@@ -35,6 +37,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicUpdate
+@Slf4j
 public class ChatMain implements JSONConverter{
 
 	
@@ -72,14 +75,42 @@ public class ChatMain implements JSONConverter{
 	}
 	
 	//state upadate
-	public void updateState(ChatState state) {
-		this.state = state;
+	public void updateState() {
+		
+		if(this.getChatUser().size()>=this.getMaxCount()) {
+			this.state = ChatState.FULL;
+			return;
+		} 
+		this.state = ChatState.CREATE;
+		log.debug("updateState this.state={}",this.state);
+	}
+	
+	// is Full
+	public boolean isFull() {
+		int maxCount = this.getMaxCount();
+		int currentCount = this.getChatUser().size();
+		if(currentCount>=maxCount) {
+			return true;
+		}
+		return false;
 	}
 	
 	//imgPath update
 	public void updateImgPath(String imgPath) {
 		this.imgPath = imgPath;
 	}
+	
+	public ChatUser findChatUserBySender(String sender) {
+    	ChatUser chatUser = null;
+    	if(!this.getChatUser().isEmpty()) {
+    		for (ChatUser cu : this.getChatUser()) {
+    			if(cu.getUser().getId().equals(sender)) {
+    				chatUser = cu;
+    			}
+    		}
+    	}
+    	return chatUser;
+    }
 	
 	//toJSON
 	@Override
@@ -104,5 +135,8 @@ public class ChatMain implements JSONConverter{
 		json.put("currentCount", this.chatUser.size());
 		return json;
 	}
-
+	
+	public void removeChatUser(ChatUser chatUser) {
+		this.chatUser.remove(chatUser);
+	}
 }

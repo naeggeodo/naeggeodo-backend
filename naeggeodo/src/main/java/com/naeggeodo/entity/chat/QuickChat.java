@@ -71,9 +71,13 @@ public class QuickChat{
 		return list;
 	}
 	
-	public static QuickChat updateMsgByList(List<String> list) {
+	public void updateMsgByList(List<String> list) {
 		if(list.size()!=5)  throw new IllegalArgumentException();
 		
-		return QuickChat.builder().msg1(list.get(0)).msg2(list.get(1)).msg3(list.get(2)).msg4(list.get(3)).msg5(list.get(4)).build();
+		this.msg1 = list.get(0);
+		this.msg2 = list.get(1);
+		this.msg3 = list.get(2);
+		this.msg4 = list.get(3);
+		this.msg5 = list.get(4);
 	}
 }

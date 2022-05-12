@@ -20,6 +20,8 @@ import com.naeggeodo.entity.chat.Category;
 import com.naeggeodo.entity.chat.ChatMain;
 import com.naeggeodo.entity.chat.ChatState;
 import com.naeggeodo.repository.ChatMainRepository;
+import com.naeggeodo.repository.ChatUserRepository;
+import com.naeggeodo.repository.QuickChatRepository;
 import com.naeggeodo.service.ChatMainService;
 import com.naeggeodo.service.ChatUserService;
 import com.naeggeodo.util.MyUtility;
@@ -33,21 +35,25 @@ public class ChatMainController {
 	private ChatMainService chatMainService;
 	@Autowired
 	private ChatUserService chatUserService;
-	
-	
+	@Autowired
+	private ChatUserRepository chatUserRepository;
+	@Autowired
+	private QuickChatRepository quickChatRepository;
 	
 	//채팅방 리스트
 	@GetMapping(value="/chat/rooms",produces = "application/json")
+	@Transactional(readOnly = true)
 	public String getChatList(
 			@RequestParam(name = "category",required = false)String category,
 			@RequestParam(name= "buildingcode",required = true)String buildingCode) throws Exception {
 		
 		if(category==null) {
 			//전체조회시
-			return MyUtility.convertListToJSONobj(chatMainService.getChatList(buildingCode), "chat-room").toString();
+			return MyUtility.convertListToJSONobj(chatMainRepository.findByBuildingCode(buildingCode), "chat-room").toString();
 		} else {
 			//카테고리 조회시
-			return MyUtility.convertListToJSONobj(chatMainService.getChatList(category,buildingCode), "chat-room").toString();
+			Category categoryEnum = Category.valueOf(category.toUpperCase());
+			return MyUtility.convertListToJSONobj(chatMainRepository.findByCategoryAndBuildingCode(categoryEnum, buildingCode), "chat-room").toString();
 		}
 	}
 	
@@ -61,27 +67,28 @@ public class ChatMainController {
 	
 	//해당 채팅방 data
 	@GetMapping(value="/chat/rooms/{chatMain_id}",produces = "application/json")
-	@Transactional
+	@Transactional(readOnly = true)
 	public String getChatMain(@PathVariable(name = "chatMain_id") String chatMain_idstr) throws Exception {
 		Long chatMain_id = Long.parseLong(chatMain_idstr);
-		ChatMain chatMain = chatMainRepository.findById(chatMain_id).get();
+		ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(chatMain_id);
 		return chatMain.toJSON().toString();
 	}
 	
 	//채팅방 상태 업데이트
-	@PatchMapping(value="/chat/rooms/{chatMain_id}")
+	@PatchMapping(value="/chat/rooms/{chatMain_id}/state")
 	@Transactional
-	public String updateRoomState(@PathVariable(name="chatMain_id") Long chatMain_id,
-		  						 @RequestParam(name="state") ChatState state) {
-		chatMainRepository.findById(chatMain_id).get().updateState(state);
-		return "ok";
+	public String updateRoomState(@PathVariable(name="chatMain_id") Long chatMain_id) {
+		ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(chatMain_id);
+		chatMain.updateState();
+		return chatMain.getState().name();
 	}
 	
 	
 	// 해당 채팅방접속중인 유저 list
 	@GetMapping(value="/chat/rooms/{chatMain_id}/users",produces = "application/json")
+	@Transactional(readOnly = true)
 	public String getChatUserList(@PathVariable(name="chatMain_id")Long chatMain_id) throws Exception {
-		return MyUtility.convertListToJSONobj(chatUserService.currentList(chatMain_id), "users").toString();
+		return MyUtility.convertListToJSONobj(chatUserRepository.findByChatMainId(chatMain_id), "users").toString();
 	}
 	
 	//송금상태 변경
@@ -93,18 +100,21 @@ public class ChatMainController {
 	}
 	
 	//해당 유저 퀵채팅
+	@Transactional(readOnly = true)
 	@GetMapping(value="/chat/user/{user_id}/quick-chatting",produces = "application/json")
 	public String getQuickChat(@PathVariable(name ="user_id")String user_id) {
-		List<String> list = chatMainService.getQuickChat(user_id);
+		
+		List<String> list = quickChatRepository.findByUserId(user_id).getMsgList();
 		JSONObject json = MyUtility.convertStringListToJSONObject(list, "quickChat");
 		json.put("user_id", user_id);
 		return json.toString();
 	}
 	
 	//참여중인 채팅방
+	@Transactional(readOnly = true)
 	@GetMapping(value="/chat/rooms/progressing/user/{user_id}",produces = "application/json")
 	public String getProgressingChatList(@PathVariable(name="user_id") String user_id) throws Exception {
-		List<ChatMain> list = chatMainService.getProgressingChatList(user_id);
+		List<ChatMain> list = chatMainRepository.findByUserIdInChatUser(user_id);
 		return MyUtility.convertListToJSONobj(list, "chat-room").toString();
 	}
 	//카테고리 리스트

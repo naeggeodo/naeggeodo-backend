@@ -26,7 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class StompInterceptor implements ChannelInterceptor{
 	
-	private final ChatUserRepository chatUserRepository;
 	private final ChatMainRepository chatMainRepository;
 	private final SessionHandler sessionHandler;
 	
@@ -44,30 +43,22 @@ public class StompInterceptor implements ChannelInterceptor{
 			String newSessionId = headers.getSessionId();
 			
 			ChatMain chatMain =  chatMainRepository.findChatMainEntityGraph(chatMain_id);
-			ChatUser enteredChatUser = null;
-			if(!chatMain.getChatUser().isEmpty()) {
-				
-				for (ChatUser chatUser : chatMain.getChatUser()) {
-					if(chatUser.getUser().getId().equals(sender)) {
-						enteredChatUser = chatUser;
+			ChatUser enteredChatUser = chatMain.findChatUserBySender(sender);
+			
+			if(chatMain.isFull()) {
+				if(enteredChatUser != null) {
+					String oldSessionId = enteredChatUser.getSessionId();
+					if(sessionHandler.isExist(oldSessionId)) {
+						log.debug("throw CustomWebSocketException Code = {}",StompErrorCode.SESSION_DUPLICATION);
+						throw new CustomWebSocketException(StompErrorCode.SESSION_DUPLICATION.name());
 					}
+					enteredChatUser.setSessionId(newSessionId);
+				} else {
+					log.debug("throw CustomWebSocketException Code = {}",StompErrorCode.INVALID_STATE);
+					throw new CustomWebSocketException(StompErrorCode.INVALID_STATE.name());
 				}
 			}
 			
-			//ChatUser chatUser = chatUserRepository.findByChatMainIdAndUserId(chatMain_id, sender);
-			if(!ChatState.CREATE.equals(chatMain.getState())) {
-				log.debug("throw CustomWebSocketException Code = {}",StompErrorCode.INVALID_STATE);
-				throw new CustomWebSocketException(StompErrorCode.INVALID_STATE.name());
-			}
-			if(enteredChatUser != null) {
-				String oldSessionId = enteredChatUser.getSessionId();
-				if(sessionHandler.isExist(oldSessionId)) {
-					log.debug("throw CustomWebSocketException Code = {}",StompErrorCode.SESSION_DUPLICATION);
-					throw new CustomWebSocketException(StompErrorCode.SESSION_DUPLICATION.name());
-				}
-				//chatUserRepository.updateSessionId(headers.getSessionId(), sessionId);
-				enteredChatUser.setSessionId(newSessionId);
-			}
 		}
 		System.out.println("=========================end===============================");
 		return message;
