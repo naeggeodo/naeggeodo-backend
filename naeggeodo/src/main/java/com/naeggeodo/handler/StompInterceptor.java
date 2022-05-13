@@ -59,6 +59,10 @@ public class StompInterceptor implements ChannelInterceptor{
 				}
 			}
 			
+			if(!chatMain.canEnter()) {
+				log.debug("throw CustomWebSocketException Code = {}",StompErrorCode.INVALID_STATE);
+				throw new CustomWebSocketException(StompErrorCode.INVALID_STATE.name());
+			}
 		}
 		System.out.println("=========================end===============================");
 		return message;

@@ -18,6 +18,7 @@ import org.json.JSONObject;
 
 import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.interfaces.JSONConverter;
+import com.naeggeodo.interfaces.JSONConverterAdapter;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -25,7 +26,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class ChatDetail implements JSONConverter{
+public class ChatDetail extends JSONConverterAdapter{
 
 	@Id @GeneratedValue
 	@Column(name="chatdetail_id")

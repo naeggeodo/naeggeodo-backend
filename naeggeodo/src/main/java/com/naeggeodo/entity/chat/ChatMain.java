@@ -2,6 +2,7 @@ package com.naeggeodo.entity.chat;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -17,11 +18,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.DynamicUpdate;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.naeggeodo.dto.ChatRoomDTO;
 import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.interfaces.JSONConverter;
+import com.naeggeodo.interfaces.JSONConverterAdapter;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,8 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicUpdate
-@Slf4j
-public class ChatMain implements JSONConverter{
+public class ChatMain extends JSONConverterAdapter{
 
 	
 	@Id @GeneratedValue
@@ -65,13 +67,22 @@ public class ChatMain implements JSONConverter{
 	
 	private int maxCount;
 	
+	@Enumerated(EnumType.STRING)
+	private OrderTimeType orderTimeType;
+	
+	
+	
 	@OneToMany(mappedBy = "chatMain")
 	private List<ChatUser> chatUser;
+	
+	@OneToMany(mappedBy = "chatMain")
+	private List<Tag> tag = new ArrayList<>();
+	
 	//생성
 	public static ChatMain create(ChatRoomDTO dto) {
 		return ChatMain.builder().title(dto.getTitle()).createDate(LocalDateTime.now())
 				.buildingCode(dto.getAddr()).state(ChatState.CREATE).link(dto.getLink())
-				.place(dto.getPlace()).category(dto.getCategory()).build();
+				.place(dto.getPlace()).category(dto.getCategory()).orderTimeType(dto.getOrderTimeType()).build();
 	}
 	
 	//state upadate
@@ -82,7 +93,10 @@ public class ChatMain implements JSONConverter{
 			return;
 		} 
 		this.state = ChatState.CREATE;
-		log.debug("updateState this.state={}",this.state);
+	}
+	
+	public void changeState(ChatState state) {
+		this.state = state;
 	}
 	
 	// is Full
@@ -94,6 +108,15 @@ public class ChatMain implements JSONConverter{
 		}
 		return false;
 	}
+	
+	// 입장가능?
+	public boolean canEnter() {
+		if(this.state==ChatState.CREATE||this.state==ChatState.FULL) {
+			return true;
+		}
+		return false;
+	}
+	
 	
 	//imgPath update
 	public void updateImgPath(String imgPath) {
@@ -112,6 +135,23 @@ public class ChatMain implements JSONConverter{
     	return chatUser;
     }
 	
+	//다음 방장 찾기
+	public ChatUser findChatUserForChangeHost() {
+		ChatUser chatUser = null;
+		LocalDateTime tempTime = LocalDateTime.MAX;
+		if(!this.getChatUser().isEmpty()) {
+    		for (ChatUser cu : this.getChatUser()) {
+    			if(tempTime.isAfter(cu.getEnterDate())) {
+    				if(!cu.getUser().getId().equals(this.getUser().getId())) {
+    					tempTime = cu.getEnterDate();
+        				chatUser = cu;	
+    				}
+    			}
+    		}
+    	}
+		return chatUser;
+	}
+	
 	//toJSON
 	@Override
 	public JSONObject toJSON() throws Exception {
@@ -121,7 +161,7 @@ public class ChatMain implements JSONConverter{
 			if(field.get(this) instanceof Users) {
 				json.put("user_id", ((Users) field.get(this)).getId());
 			}else if(field.get(this) instanceof List) {
-				
+				continue;
 			}else if(field.get(this) instanceof LocalDateTime) {
 				json.put(field.getName(), ((LocalDateTime)field.get(this)).toString());
 			}else if(field.get(this) instanceof Enum) {
@@ -136,7 +176,34 @@ public class ChatMain implements JSONConverter{
 		return json;
 	}
 	
+	public void changeUser(Users user) {
+		this.user = user;
+	}
+	
 	public void removeChatUser(ChatUser chatUser) {
 		this.chatUser.remove(chatUser);
 	}
+
+	@Override
+	public JSONObject toJSONIgnoringCurrentCount() throws Exception {
+		JSONObject json = new JSONObject();
+		for (Field field : this.getClass().getDeclaredFields()) {
+			field.setAccessible(true);
+			if(field.get(this) instanceof Users) {
+				json.put("user_id", ((Users) field.get(this)).getId());
+			}else if(field.get(this) instanceof List) {
+				continue;
+			}else if(field.get(this) instanceof LocalDateTime) {
+				json.put(field.getName(), ((LocalDateTime)field.get(this)).toString());
+			}else if(field.get(this) instanceof Enum) {
+				json.put(field.getName(),((Enum)field.get(this)).name());
+			}else {
+				json.put(field.getName(), field.get(this));
+			}
+			
+			
+		}
+		return json;
+	}
+	
 }

@@ -26,4 +26,7 @@ public interface ChatUserRepository extends JpaRepository<ChatUser, Long>{
 	@Modifying
 	@Query("UPDATE ChatUser c SET c.sessionId = :newSessionId WHERE c.sessionId = :oldSessionId")
 	public void updateSessionId(@Param("newSessionId")String newSessionId,@Param("oldSessionId")String oldSessionId);
+	
+//	@Query("SELECT cu FROM ChatUser cu WHERE cu.chatMain.id = :chatMain_id AND cu.enterDate = (SELECT MIN(cu.enterDate) FROM ChatUser cu)")
+//	public ChatUser findForChangeHost(@Param("chatMain_id")Long chatMain_id);
 }

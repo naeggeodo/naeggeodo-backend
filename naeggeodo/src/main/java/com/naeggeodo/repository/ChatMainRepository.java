@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.naeggeodo.entity.chat.Category;
 import com.naeggeodo.entity.chat.ChatMain;
+import com.naeggeodo.entity.chat.ChatState;
 
 public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 	@EntityGraph(attributePaths = {"chatUser"})
@@ -24,4 +25,8 @@ public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 	@EntityGraph(attributePaths = {"chatUser"})
 	ChatMain findChatMainEntityGraph(@Param("id") Long id);
 	
+	public List<ChatMain> findByStateAndUserId(ChatState state,String user_id);
+	
+	@EntityGraph(attributePaths = {"chatUser"})
+	public List<ChatMain> findByTagName(String tagName);
 }

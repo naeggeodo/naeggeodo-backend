@@ -14,9 +14,11 @@ import com.naeggeodo.entity.chat.Category;
 import com.naeggeodo.entity.chat.ChatMain;
 import com.naeggeodo.entity.chat.ChatState;
 import com.naeggeodo.entity.chat.QuickChat;
+import com.naeggeodo.entity.chat.Tag;
 import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.repository.ChatMainRepository;
 import com.naeggeodo.repository.QuickChatRepository;
+import com.naeggeodo.repository.TagRepository;
 import com.naeggeodo.repository.UserRepository;
 import com.naeggeodo.util.MyUtility;
 
@@ -31,6 +33,7 @@ public class ChatMainService {
 	private final CloudinaryService cloudinaryService;
 	private final UserRepository userRepository;
 	private final QuickChatRepository quickChatRepository;
+	private final TagRepository tagRepository;
 	
 	//파라미터 2개일때 param[0] -> category , param[1] -> BuildingCode
 	@Transactional
@@ -51,14 +54,20 @@ public class ChatMainService {
 	//채팅방 생성
 	@Transactional
 	public JSONObject createChatRoom(ChatRoomDTO dto,MultipartFile file) {
-		ChatMain chatmain = ChatMain.create(dto);
-
-		Long chatMain_id = chatMainRepository.save(chatmain).getId();
-		String imgpath = cloudinaryService.upload(file, "chatMain/"+chatMain_id);
-		chatmain.updateImgPath(imgpath);
+		ChatMain chatMain = ChatMain.create(dto);
+		List<String> TagStringList = dto.getTag();
+		List<Tag> tagList = new ArrayList<>();
+		ChatMain savedChatMain = chatMainRepository.save(chatMain);
+		for (String name : TagStringList) {
+			tagList.add(Tag.create(savedChatMain, name));
+		}
+		tagRepository.saveAll(tagList);
+		//Long chatMain_id = chatMainRepository.save(chatmain).getId();
+		String imgpath = cloudinaryService.upload(file, "chatMain/"+savedChatMain.getId());
+		chatMain.updateImgPath(imgpath);
 		
 		JSONObject json = new JSONObject();
-		json.put("chatMain_id", chatMain_id);
+		json.put("chatMain_id", savedChatMain.getId());
 		return json;
 	}
 	

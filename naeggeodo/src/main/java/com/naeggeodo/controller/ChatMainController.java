@@ -2,9 +2,11 @@ package com.naeggeodo.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -19,11 +21,13 @@ import com.naeggeodo.dto.ChatRoomDTO;
 import com.naeggeodo.entity.chat.Category;
 import com.naeggeodo.entity.chat.ChatMain;
 import com.naeggeodo.entity.chat.ChatState;
+import com.naeggeodo.entity.chat.ChatUser;
+import com.naeggeodo.entity.chat.RemittanceState;
 import com.naeggeodo.repository.ChatMainRepository;
 import com.naeggeodo.repository.ChatUserRepository;
 import com.naeggeodo.repository.QuickChatRepository;
+import com.naeggeodo.repository.TagRepository;
 import com.naeggeodo.service.ChatMainService;
-import com.naeggeodo.service.ChatUserService;
 import com.naeggeodo.util.MyUtility;
 
 @RestController
@@ -34,11 +38,11 @@ public class ChatMainController {
 	@Autowired
 	private ChatMainService chatMainService;
 	@Autowired
-	private ChatUserService chatUserService;
-	@Autowired
 	private ChatUserRepository chatUserRepository;
 	@Autowired
 	private QuickChatRepository quickChatRepository;
+	@Autowired
+	private TagRepository tagRepository;
 	
 	//채팅방 리스트
 	@GetMapping(value="/chat/rooms",produces = "application/json")
@@ -59,11 +63,21 @@ public class ChatMainController {
 	
 	//채팅방 생성
 	@PostMapping(value= "/chat/rooms",produces ="application/json" )
-	public String createChatRoom(@RequestPart ChatRoomDTO chat,@RequestPart MultipartFile file) {
-		
+	public String createChatRoom(@RequestPart(name = "chat") ChatRoomDTO chat,@RequestPart MultipartFile file) {
+		System.out.println(chat.getTag());
 		JSONObject json = chatMainService.createChatRoom(chat, file);
 		return json.toString();
 	}
+//	@PostMapping(value= "/chat/rooms",produces ="application/json" )
+//	public String createChatRoom(@RequestPart(name = "chat") Map<String, Object> map,@RequestPart MultipartFile file) {
+//		System.out.println(map.get("addr"));
+//		System.out.println(map.get("category"));
+//		System.out.println(map.get("tag"));
+//		return "hi";
+//		
+//		//JSONObject json = chatMainService.createChatRoom(chat, file);
+//		//return json.toString();
+//	}
 	
 	//해당 채팅방 data
 	@GetMapping(value="/chat/rooms/{chatMain_id}",produces = "application/json")
@@ -75,11 +89,13 @@ public class ChatMainController {
 	}
 	
 	//채팅방 상태 업데이트
-	@PatchMapping(value="/chat/rooms/{chatMain_id}/state")
+	@PatchMapping(value="/chat/rooms/{chatMain_id}")
 	@Transactional
-	public String updateRoomState(@PathVariable(name="chatMain_id") Long chatMain_id) {
-		ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(chatMain_id);
-		chatMain.updateState();
+	public String updateRoomState(@PathVariable(name="chatMain_id") Long chatMain_id,
+									@RequestParam(name="state")String state) {
+		ChatState chatState = ChatState.valueOf(state.toUpperCase());
+		ChatMain chatMain = chatMainRepository.findById(chatMain_id).get();
+		chatMain.changeState(chatState);
 		return chatMain.getState().name();
 	}
 	
@@ -93,9 +109,11 @@ public class ChatMainController {
 	
 	//송금상태 변경
 	@PatchMapping(value="/chat/rooms/{chatMain_id}/users/{user_id}",produces = "application/json")
+	@Transactional
 	public String updateRemittanceState(@PathVariable(name="chatMain_id")Long chatMain_id,
 										@PathVariable(name="user_id")String user_id) {
-		chatUserService.updateRemittanceStateToY(chatMain_id, user_id);
+		ChatUser chatUser =  chatUserRepository.findByChatMainIdAndUserId(chatMain_id, user_id);
+		chatUser.setState(RemittanceState.Y);
 		return "success";
 	}
 	
@@ -117,10 +135,43 @@ public class ChatMainController {
 		List<ChatMain> list = chatMainRepository.findByUserIdInChatUser(user_id);
 		return MyUtility.convertListToJSONobj(list, "chat-room").toString();
 	}
+	
+	//상태,방장아이디로 조회
+	@Transactional(readOnly= true)
+	@GetMapping(value="/chat/rooms/user/{user_id}",produces = "application/json")
+	public String getChatListByStateAndUserId(@PathVariable(name="user_id")String user_id,@RequestParam(name="state") String state) throws Exception {
+		
+		ChatState chatState = ChatState.valueOf(state.toUpperCase());
+		List<ChatMain> list = chatMainRepository.findByStateAndUserId(chatState, user_id);
+		JSONObject json;
+		if(ChatState.END.equals(chatState)) {
+			json = MyUtility.convertListToJSONobjIgnoringCurrentCount(list, "chat-room");
+		} else {
+			json = MyUtility.convertListToJSONobj(list, "chat-room");
+		}
+		
+		
+		return json.toString();
+	}
+	
+	
+	
 	//카테고리 리스트
 	@GetMapping(value="/categories",produces = "application/json")
 	public String getCategoryList() throws Exception {
 		return MyUtility.convertCategoryToJSONobj("categories").toString();
 	}
 	
+	@GetMapping(value = "/chat/rooms/tag/most-wanted",produces = "application/json")
+	@Transactional(readOnly = true)
+	public String getMostWantedTagList() throws Exception {
+		List<String> list = tagRepository.findTop10Tag(PageRequest.of(0, 10));
+		return MyUtility.convertStringListToJSONObject(list, "tags").toString();
+	}
+	@GetMapping(value="/chat/rooms/tag/{tag}",produces = "application/json")
+	@Transactional(readOnly = true)
+	public String getChatListByTag(@PathVariable("tag")String tag) throws Exception {
+		List<ChatMain> list = chatMainRepository.findByTagName(tag);
+		return MyUtility.convertListToJSONobj(list, "chat-room").toString();
+	}
 }

@@ -94,24 +94,34 @@ public class StompController {
     	String sender = message.getSender();
     	
     	ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(chatMain_id);
-    	
-    	//메시지를 보낸 사람이 방장이 아닐때 
-    	if(!chatMain.getUser().getId().equals(sender)) {
-    		//나가기(delete), 퇴장메시지 db에 저장
-    		ChatUser chatUser = chatMain.findChatUserBySender( sender);
-    		chatUserRepository.delete(chatUser);
-    		chatMain.removeChatUser(chatUser);
-    		
-        	chatDetailService.save(message);
-        	//퇴장 메시지 전송
-        	sendToAll(chatMain_id, message);
-        	//인원수 메시지 전송
-        	sendToAll(chatMain_id, getCountMessage(chatMain));
-    	} else {
-    		//일단 방장은 못나가게 해놨음 수정해야함
-    		sendToUser(chatMain_id, sender, getAlertMessage("방장은 나갈수 없습니다."));
+    	ChatUser exitChatUser = chatMain.findChatUserBySender(sender);
+    	ChatUser nextHost = null;
+    	//메시지를 보낸 사람이 방장일때 
+    	if(chatMain.getUser().getId().equals(sender)) {
+    		//다음 방장 get
+    		nextHost = chatMain.findChatUserForChangeHost();
+    		//다음방장이 null이라면 -> 혼자있으면
+    		if(nextHost ==null) {
+    			chatMain.changeState(ChatState.END);
+    			return;
+    		}
+    		chatMain.changeUser(nextHost.getUser());
+        
     	}
+    	//방장이 아닌사람이 나갔을때
+    	if(nextHost == null) {
+    		//퇴장 메시지 전송
+        	sendToAll(chatMain_id, message);
+    	} else {
+    		message.setContents("방장이 나가서"+nextHost.getUser().getId()+"님이 새로운 방장이 됩니다.");
+    		sendToAll(chatMain_id, message);
+    	}
+    	chatUserRepository.delete(exitChatUser);
+		chatMain.removeChatUser(exitChatUser);
+		chatDetailService.save(message);
     	
+    	//인원수 메시지 전송
+    	sendToAll(chatMain_id, getCountMessage(chatMain));
 		chatMain.updateState();
     	System.out.println("====================exit==============================");
     }
@@ -165,23 +175,6 @@ public class StompController {
     }
     // 인원수 메시지 get 
     // 개선하기전!!!!
-    @Transactional
-    private MessageDTO getCountMessage(Long chatMain_id) throws Exception {
-    	//int currentCount = chatMainService.getCurrentCount(chatMain_id);
-    	ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(chatMain_id);
-    	List<ChatUser> chatUser = chatMain.getChatUser();
-    	
-    	JSONObject json = new JSONObject();
-    	json = MyUtility.convertListToJSONobj(chatUser, "user");
-    	json.put("currentCount", chatUser.size());
-    	
-    	MessageDTO messageDto = new MessageDTO();
-    	messageDto.setChatMain_id(chatMain_id);
-    	messageDto.setContents(json.toString());
-    	messageDto.setType(ChatDetailType.CNT);
-    	return messageDto;
-    }
-    //개선후!!!
     private MessageDTO getCountMessage(ChatMain chatMain) throws Exception {
     	List<ChatUser> chatUser = chatMain.getChatUser();
     	

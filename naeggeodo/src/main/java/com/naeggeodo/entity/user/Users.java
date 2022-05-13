@@ -48,8 +48,6 @@ public class Users {
 	private String imgpath;
 	
 	@OneToMany(mappedBy = "user")
-	private List<ChatMain> chatMain;
-	@OneToMany(mappedBy = "user")
 	private List<Notice> notice;
 	@OneToMany(mappedBy = "user")
 	private List<Qna> qna;
