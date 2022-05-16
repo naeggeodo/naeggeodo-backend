@@ -1,6 +1,7 @@
 package com.naeggeodo.entity.user;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -9,12 +10,12 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.naeggeodo.entity.chat.ChatDetail;
-import com.naeggeodo.entity.chat.ChatMain;
-import com.naeggeodo.entity.deal.DealHistory;
+
+import com.naeggeodo.entity.chat.QuickChat;
+
+import com.naeggeodo.entity.deal.Deal;
 import com.naeggeodo.entity.post.Notice;
 import com.naeggeodo.entity.post.Qna;
 import com.naeggeodo.entity.post.Report;
@@ -30,6 +31,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 public class Users {
+
 	
 	private String phone;
 	@Id @Column(name="user_id")
@@ -44,15 +46,18 @@ public class Users {
 	@Enumerated(EnumType.STRING)
 	private Authority authority;
 	
-	@OneToMany(mappedBy = "user")
-	private List<DealHistory> dealHistory;
-	@OneToMany(mappedBy = "user")
-	private List<ChatMain> chatMain;
+	private String imgpath;
+	
 	@OneToMany(mappedBy = "user")
 	private List<Notice> notice;
 	@OneToMany(mappedBy = "user")
 	private List<Qna> qna;
 	@OneToMany(mappedBy = "user")
 	private List<Report> report;
+	@OneToMany(mappedBy = "user")
+	private List<Deal> deals = new ArrayList<>();
+	
+	@OneToOne(mappedBy = "user")
+	private QuickChat quickChat;
 	
 }
