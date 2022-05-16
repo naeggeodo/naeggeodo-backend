@@ -12,34 +12,46 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+
 import com.naeggeodo.entity.chat.QuickChat;
+
 import com.naeggeodo.entity.deal.Deal;
 import com.naeggeodo.entity.post.Notice;
 import com.naeggeodo.entity.post.Qna;
 import com.naeggeodo.entity.post.Report;
 
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@Data
+@NoArgsConstructor
 @Entity
 public class Users {
+
 	
 	public Users() {}
+
+
 	
 	@Id @Column(name="user_id")
 	private String id;
 	
-	private String password;
-	private String token;
+
+//	private String password;
+//	private String token;
+
 	private String phone;
+	private String email;
 	private String addr;
 	private String nickname;
+	@JsonDeserialize(using=LocalDateTimeDeserializer.class)
 	private LocalDateTime joindate;
 	private LocalDateTime withdrawalDate;
-	@Enumerated(EnumType.STRING)
-	private TosCheck tosCheck;
 	@Enumerated(EnumType.STRING)
 	private Authority authority;
 	
