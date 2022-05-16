@@ -46,10 +46,4 @@ public class MySubProtocolHandler extends SubProtocolWebSocketHandler{
 		super.afterConnectionClosed(session, closeStatus);
 	}
 	
-	
-
-
-	
-	
-	
 }

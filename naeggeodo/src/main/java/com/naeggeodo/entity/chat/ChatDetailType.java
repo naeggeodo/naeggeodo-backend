@@ -1,5 +1,5 @@
 package com.naeggeodo.entity.chat;
 
 public enum ChatDetailType {
-	TEXT,IMAGE,WELCOME,EXIT,CNT,BAN,ALERT
+	TEXT,IMAGE,WELCOME,EXIT,CNT,BAN,ALERT,SYSTEM
 }

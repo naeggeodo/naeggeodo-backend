@@ -2,52 +2,32 @@ package com.naeggeodo.repository;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import org.springframework.stereotype.Repository;
-
+import com.naeggeodo.entity.chat.BanState;
 import com.naeggeodo.entity.chat.ChatUser;
 
-import lombok.RequiredArgsConstructor;
-
-@Repository
-@RequiredArgsConstructor
-public class ChatUserRepository {
-	private final EntityManager em;
+public interface ChatUserRepository extends JpaRepository<ChatUser, Long>{
 	
-	public void save(ChatUser chatUser) {
-		em.persist(chatUser);
-	}
+	public ChatUser findByChatMainIdAndUserId(Long chatMain_id,String user_id);
 	
-	public ChatUser findByChatMainAndUserId(Long chatMain_id,String user_id) {
-		return em.createQuery("SELECT c FROM ChatUser c WHERE c.chatMain.id = :chatMain_id AND c.user.id = :user_id",ChatUser.class)
-				.setParameter("chatMain_id", chatMain_id).setParameter("user_id", user_id).getSingleResult();
-	}
+	public List<ChatUser> findByChatMainId(Long chatMain_id);
 	
-	public List<ChatUser> findByChatMainId(Long chatMain_id){
-		return em.createQuery("SELECT c FROM ChatUser c WHERE c.chatMain.id = :chatMain_id",ChatUser.class)
-				.setParameter("chatMain_id", chatMain_id).getResultList();
-	}
+	public Long countByChatMainIdAndUserId(Long chatMain_id,String user_id);
 	
-	//입장해있었는지 체크
-	public Long check(Long chatMain_id,String user_id) {
-		return em.createQuery("SELECT COUNT(*) FROM ChatUser c WHERE c.chatMain.id = :chatMain_id AND c.user.id =:user_id",Long.class)
-		.setParameter("chatMain_id", chatMain_id).setParameter("user_id", user_id).getSingleResult();
-	}
+	public void deleteByChatMainIdAndUserId(Long chatMain_id,String user_id);
 	
-	//퇴장처리 (삭제)
-	public void deleteById(Long chatMain_id,String user_id) {
-		em.createQuery("DELETE FROM ChatUser c WHERE c.chatMain.id = :chatMain_id AND c.user.id =:user_id")
-		.setParameter("chatMain_id", chatMain_id).setParameter("user_id", user_id).executeUpdate();
-	}
+	public void deleteBySessionId(String session_id);
 	
-	public void deleteBySessionId(String session_id) {
-		em.createQuery("DELETE FROM ChatUser c WHERE c.session_id = :session_id").setParameter("session_id", session_id).executeUpdate();
-	}
+	public String findSessionIdByChatMainIdAndUserId(Long chatMain_id,String user_id);
 	
-	//강퇴 하기위한 session_id select하기
-	public String getSession_id(Long chatMain_id,String user_id) {
-		return em.createQuery("SELECT c.session_id FROM ChatUser c WHERE c.chatMain.id = :chatMain_id AND c.user.id = :user_id",String.class)
-				.setParameter("chatMain_id", chatMain_id).setParameter("user_id", user_id).getSingleResult();
-	}
+	List<ChatUser> findByChatMainIdAndBanState(Long chatMain_id,BanState banState);
+	
+	@Modifying
+	@Query("UPDATE ChatUser c SET c.sessionId = :newSessionId WHERE c.sessionId = :oldSessionId")
+	public void updateSessionId(@Param("newSessionId")String newSessionId,@Param("oldSessionId")String oldSessionId);
+	
 }

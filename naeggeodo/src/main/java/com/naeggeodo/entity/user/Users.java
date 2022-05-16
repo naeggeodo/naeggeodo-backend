@@ -10,13 +10,11 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.naeggeodo.entity.chat.ChatDetail;
+import com.naeggeodo.entity.chat.QuickChat;
 
-import com.naeggeodo.entity.chat.ChatMain;
 import com.naeggeodo.entity.deal.Deal;
 import com.naeggeodo.entity.post.Notice;
 import com.naeggeodo.entity.post.Qna;
@@ -35,11 +33,10 @@ import lombok.Setter;
 @Entity
 public class Users {
 
-	/*
-	 * @Builder public Users(String id, String phone, String nickname) { this.id =
-	 * id; this.phone = phone; this.nickname = nickname; }
-	 */
 	
+	public Users() {}
+
+
 	
 	@Id @Column(name="user_id")
 	private String id;
@@ -61,8 +58,6 @@ public class Users {
 	private String imgpath;
 	
 	@OneToMany(mappedBy = "user")
-	private List<ChatMain> chatMain;
-	@OneToMany(mappedBy = "user")
 	private List<Notice> notice;
 	@OneToMany(mappedBy = "user")
 	private List<Qna> qna;
@@ -70,5 +65,8 @@ public class Users {
 	private List<Report> report;
 	@OneToMany(mappedBy = "user")
 	private List<Deal> deals = new ArrayList<>();
+	
+	@OneToOne(mappedBy = "user")
+	private QuickChat quickChat;
 	
 }

@@ -1,7 +1,10 @@
 package com.naeggeodo.dto;
 
-import com.naeggeodo.entity.chat.Category;
+import java.util.List;
 
+
+import com.naeggeodo.entity.chat.Category;
+import com.naeggeodo.entity.chat.OrderTimeType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,4 +19,6 @@ public class ChatRoomDTO {
 	private String place;
 	private String title;
 	private String user_id;
+	private OrderTimeType orderTimeType;
+	private List<String> tag;
 }

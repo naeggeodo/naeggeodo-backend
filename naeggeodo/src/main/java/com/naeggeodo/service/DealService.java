@@ -22,8 +22,8 @@ public class DealService {
 	
 	@Transactional
 	public void createDeal(Long chatMain_id, String user_id) {
-		Users user = userRepository.findOne(user_id);
-		ChatMain chatMain = chatMainRepository.findOne(chatMain_id);
+		Users user = userRepository.findById(user_id).get();
+		ChatMain chatMain = chatMainRepository.findById(chatMain_id).get();
 		Deal deal = Deal.create(user, chatMain);
 		dealRepository.save(deal);
 	}

@@ -11,9 +11,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
+
+import org.hibernate.annotations.DynamicUpdate;
+import org.json.JSONObject;
 
 import com.naeggeodo.entity.user.Users;
+import com.naeggeodo.interfaces.JSONConverterAdapter;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -21,7 +24,8 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class ChatUser {
+@DynamicUpdate
+public class ChatUser extends JSONConverterAdapter{
 	@Id @GeneratedValue
 	@Column(name="chatUser_id")
 	private Long id;
@@ -30,13 +34,16 @@ public class ChatUser {
 	@JoinColumn(name = "user_id")
 	private Users user;
 	
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "chatmain_id")
 	private ChatMain chatMain;
 	
 	private LocalDateTime enterDate;
 	
-	private String session_id;
+	private String sessionId;
+	
+	@Enumerated(EnumType.STRING)
+	private BanState banState;
 	
 	@Enumerated(EnumType.STRING)
 	private RemittanceState state;
@@ -46,8 +53,9 @@ public class ChatUser {
 		chatUser.setUser(user);
 		chatUser.setChatMain(chatMain);
 		chatUser.setEnterDate(LocalDateTime.now());
-		chatUser.setSession_id(session_id);
+		chatUser.setSessionId(session_id);
 		chatUser.setState(RemittanceState.N);
+		chatUser.setBanState(BanState.ALLOWED);
 		return chatUser;
 	}
 	
@@ -55,4 +63,13 @@ public class ChatUser {
 		this.chatMain = chatMain;
 		chatMain.getChatUser().add(this);
 	}
+
+	@Override
+	public JSONObject toJSON() throws Exception {
+		JSONObject json = new JSONObject();
+		json.put("user_id",this.user.getId() );
+		json.put("remittanceState",this.state.name());
+		return json;
+	}
+	
 }
