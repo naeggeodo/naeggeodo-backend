@@ -22,7 +22,6 @@ import com.naeggeodo.jwt.JwtTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class OAuthController {
@@ -45,10 +44,10 @@ public class OAuthController {
     }
     
     @RequestMapping(value = "oauth/getInfo/{provider}")
-    public String OAuthLogin(@RequestParam("code") String code, @PathVariable String provider) throws JSONException, Exception {
+    public ResponseEntity<?> OAuthLogin(@RequestParam("code") String code, @PathVariable String provider) throws JSONException, Exception {
 
-    	return new ObjectMapper().writeValueAsString(
-    			jwtService.createJwtToken(service.getAuth(code, provider)));
+    	return ResponseEntity.ok(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(
+    			jwtService.createJwtToken(service.getAuth(code, provider))));
     }
     
     @PostMapping(value = "jwt/getUserId")

@@ -1,4 +1,4 @@
-package com.naeggeodo.oauth;
+package com.naeggeodo.oauth.dto;
 
 public interface OAuthDto {
 	

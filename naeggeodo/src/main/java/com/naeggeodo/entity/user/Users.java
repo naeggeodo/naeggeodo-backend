@@ -27,23 +27,14 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Data
 @NoArgsConstructor
 @Entity
 public class Users {
-
-	/*
-	 * @Builder public Users(String id, String phone, String nickname) { this.id =
-	 * id; this.phone = phone; this.nickname = nickname; }
-	 */
 	
-	
+	private String phone;
 	@Id @Column(name="user_id")
 	private String id;
-	
-//	private String password;
-//	private String token;
-	private String phone;
+
 	private String email;
 	private String addr;
 	private String nickname;

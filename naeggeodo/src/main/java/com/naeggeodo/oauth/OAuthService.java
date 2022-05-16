@@ -69,8 +69,6 @@ public class OAuthService {
     	
     	String responseBody = get(provider.getUserInfoUrl(),requestHeaders);
     	
-    	logger.info("responseBody : "+responseBody);
-    	
     	ObjectMapper objectMapper = new ObjectMapper();
     	objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);//해당 필드가 없을경우 무시
     	new Users().setJoindate(LocalDateTime.now());

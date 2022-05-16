@@ -1,4 +1,4 @@
-package com.naeggeodo.oauth;
+package com.naeggeodo.oauth.dto;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.naeggeodo.entity.user.Users;
