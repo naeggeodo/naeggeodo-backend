@@ -10,13 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.naeggeodo.exception.StompErrorCode;
 import com.naeggeodo.repository.ChatMainRepository;
-import com.naeggeodo.repository.ChatUserRepository;
+import com.naeggeodo.entity.chat.BanState;
 import com.naeggeodo.entity.chat.ChatMain;
-import com.naeggeodo.entity.chat.ChatState;
 import com.naeggeodo.entity.chat.ChatUser;
 import com.naeggeodo.exception.CustomWebSocketException;
-import com.naeggeodo.service.ChatMainService;
-import com.naeggeodo.service.ChatUserService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +42,7 @@ public class StompInterceptor implements ChannelInterceptor{
 			ChatMain chatMain =  chatMainRepository.findChatMainEntityGraph(chatMain_id);
 			ChatUser enteredChatUser = chatMain.findChatUserBySender(sender);
 			
+			
 			if(chatMain.isFull()) {
 				if(enteredChatUser != null) {
 					String oldSessionId = enteredChatUser.getSessionId();
@@ -62,6 +60,13 @@ public class StompInterceptor implements ChannelInterceptor{
 			if(!chatMain.canEnter()) {
 				log.debug("throw CustomWebSocketException Code = {}",StompErrorCode.INVALID_STATE);
 				throw new CustomWebSocketException(StompErrorCode.INVALID_STATE.name());
+			}
+			
+			if(enteredChatUser !=null) {
+				if(BanState.BANNED.equals(enteredChatUser.getBanState())) {
+					log.debug("throw CustomWebSocketException Code = {}",StompErrorCode.INVALID_STATE);
+					throw new CustomWebSocketException(StompErrorCode.BANNED_CHAT_USER.name());
+				}
 			}
 		}
 		System.out.println("=========================end===============================");

@@ -27,6 +27,16 @@ public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 	
 	public List<ChatMain> findByStateAndUserId(ChatState state,String user_id);
 	
+//	@Query(value = "SELECT cm.* FROM chat_main cm \r\n"
+//			+ "left join chat_user cu on cu.chatmain_id = cm.chatmain_id \r\n"
+//			+ "LEFT join tag t on  t.chatmain_id = cm.chatmain_id WHERE t.name =:name ",nativeQuery = true)
+//	public List<ChatMain> findByTagName(@Param("name") String tagName);
+	
 	@EntityGraph(attributePaths = {"chatUser"})
 	public List<ChatMain> findByTagName(String tagName);
+	
+	@EntityGraph(attributePaths = {"chatUser"})
+	public List<ChatMain> findByTagNameOrTitleContains(String tagName,String title);
+	
+	
 }

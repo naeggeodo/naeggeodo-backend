@@ -9,11 +9,9 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
-import com.naeggeodo.entity.chat.ChatMain;
 import com.naeggeodo.entity.chat.QuickChat;
 import com.naeggeodo.entity.deal.Deal;
 import com.naeggeodo.entity.post.Notice;

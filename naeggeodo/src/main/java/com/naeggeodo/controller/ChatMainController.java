@@ -1,12 +1,9 @@
 package com.naeggeodo.controller;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -18,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.naeggeodo.dto.ChatRoomDTO;
+import com.naeggeodo.entity.chat.BanState;
 import com.naeggeodo.entity.chat.Category;
 import com.naeggeodo.entity.chat.ChatMain;
 import com.naeggeodo.entity.chat.ChatState;
@@ -165,7 +163,7 @@ public class ChatMainController {
 	@GetMapping(value = "/chat/rooms/tag/most-wanted",produces = "application/json")
 	@Transactional(readOnly = true)
 	public String getMostWantedTagList() throws Exception {
-		List<String> list = tagRepository.findTop10Tag(PageRequest.of(0, 10));
+		List<String> list = tagRepository.findTop10Tag();
 		return MyUtility.convertStringListToJSONObject(list, "tags").toString();
 	}
 	@GetMapping(value="/chat/rooms/tag/{tag}",produces = "application/json")
@@ -173,5 +171,19 @@ public class ChatMainController {
 	public String getChatListByTag(@PathVariable("tag")String tag) throws Exception {
 		List<ChatMain> list = chatMainRepository.findByTagName(tag);
 		return MyUtility.convertListToJSONobj(list, "chat-room").toString();
+	}
+	@GetMapping(value="/chat/rooms/search/{keyWord}",produces = "application/json")
+	@Transactional(readOnly = true)
+	public String getChatListByKeyWord(@PathVariable("keyWord")String keyWord) throws Exception {
+		List<ChatMain> list = chatMainRepository.findByTagNameOrTitleContains(keyWord, keyWord);
+		return MyUtility.convertListToJSONobj(list, "chat-room").toString();
+	}
+	
+	@GetMapping(value="/chat/rooms/{chatMain_id}/banned-user",produces = "application/json")
+	@Transactional(readOnly = true)
+	public String getBannedChatUserList(@PathVariable("chatMain_id")String chatMain_idstr) throws Exception {
+		Long chatMain_id = Long.parseLong(chatMain_idstr);
+		List<ChatUser> list = chatUserRepository.findByChatMainIdAndBanState(chatMain_id, BanState.BANNED);
+		return MyUtility.convertListToJSONobj(list, "users").toString();
 	}
 }

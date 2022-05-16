@@ -1,9 +1,7 @@
 package com.naeggeodo.entity.chat;
 
-import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -13,17 +11,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.DynamicUpdate;
 import org.json.JSONObject;
 
 import com.naeggeodo.entity.user.Users;
-import com.naeggeodo.interfaces.JSONConverter;
 import com.naeggeodo.interfaces.JSONConverterAdapter;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -49,6 +43,9 @@ public class ChatUser extends JSONConverterAdapter{
 	private String sessionId;
 	
 	@Enumerated(EnumType.STRING)
+	private BanState banState;
+	
+	@Enumerated(EnumType.STRING)
 	private RemittanceState state;
 	//생성
 	public static ChatUser create(Users user,ChatMain chatMain,String session_id) {
@@ -58,6 +55,7 @@ public class ChatUser extends JSONConverterAdapter{
 		chatUser.setEnterDate(LocalDateTime.now());
 		chatUser.setSessionId(session_id);
 		chatUser.setState(RemittanceState.N);
+		chatUser.setBanState(BanState.ALLOWED);
 		return chatUser;
 	}
 	

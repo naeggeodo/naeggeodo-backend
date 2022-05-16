@@ -17,7 +17,6 @@ import javax.persistence.ManyToOne;
 import org.json.JSONObject;
 
 import com.naeggeodo.entity.user.Users;
-import com.naeggeodo.interfaces.JSONConverter;
 import com.naeggeodo.interfaces.JSONConverterAdapter;
 
 import lombok.Getter;

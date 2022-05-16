@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.naeggeodo.entity.chat.BanState;
 import com.naeggeodo.entity.chat.ChatUser;
 
 public interface ChatUserRepository extends JpaRepository<ChatUser, Long>{
@@ -23,10 +24,10 @@ public interface ChatUserRepository extends JpaRepository<ChatUser, Long>{
 	
 	public String findSessionIdByChatMainIdAndUserId(Long chatMain_id,String user_id);
 	
+	List<ChatUser> findByChatMainIdAndBanState(Long chatMain_id,BanState banState);
+	
 	@Modifying
 	@Query("UPDATE ChatUser c SET c.sessionId = :newSessionId WHERE c.sessionId = :oldSessionId")
 	public void updateSessionId(@Param("newSessionId")String newSessionId,@Param("oldSessionId")String oldSessionId);
 	
-//	@Query("SELECT cu FROM ChatUser cu WHERE cu.chatMain.id = :chatMain_id AND cu.enterDate = (SELECT MIN(cu.enterDate) FROM ChatUser cu)")
-//	public ChatUser findForChangeHost(@Param("chatMain_id")Long chatMain_id);
 }

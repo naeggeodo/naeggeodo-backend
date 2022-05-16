@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -18,21 +17,17 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.DynamicUpdate;
-import org.json.JSONException;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.naeggeodo.dto.ChatRoomDTO;
 import com.naeggeodo.entity.user.Users;
-import com.naeggeodo.interfaces.JSONConverter;
 import com.naeggeodo.interfaces.JSONConverterAdapter;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @Getter
@@ -88,7 +83,7 @@ public class ChatMain extends JSONConverterAdapter{
 	//state upadate
 	public void updateState() {
 		
-		if(this.getChatUser().size()>=this.getMaxCount()) {
+		if(isFull()) {
 			this.state = ChatState.FULL;
 			return;
 		} 
@@ -102,7 +97,14 @@ public class ChatMain extends JSONConverterAdapter{
 	// is Full
 	public boolean isFull() {
 		int maxCount = this.getMaxCount();
-		int currentCount = this.getChatUser().size();
+		int currentCount = 0;
+		if(!chatUser.isEmpty()) {
+			for (ChatUser cu : chatUser) {
+				if(BanState.ALLOWED.equals(cu.getBanState())) {
+					currentCount++;
+				}
+			}
+		}
 		if(currentCount>=maxCount) {
 			return true;
 		}
@@ -115,6 +117,18 @@ public class ChatMain extends JSONConverterAdapter{
 			return true;
 		}
 		return false;
+	}
+	
+	public int getAllowedUserCnt() {
+		int allowedUserCnt = 0;
+		if(!chatUser.isEmpty()) {
+			for (ChatUser cu : chatUser) {
+				if(BanState.ALLOWED.equals(cu.getBanState())) {
+					allowedUserCnt++;
+				}
+			}
+		}
+		return allowedUserCnt;
 	}
 	
 	
@@ -142,7 +156,7 @@ public class ChatMain extends JSONConverterAdapter{
 		if(!this.getChatUser().isEmpty()) {
     		for (ChatUser cu : this.getChatUser()) {
     			if(tempTime.isAfter(cu.getEnterDate())) {
-    				if(!cu.getUser().getId().equals(this.getUser().getId())) {
+    				if(!cu.getUser().getId().equals(this.getUser().getId()) && BanState.ALLOWED.equals(cu.getBanState())) {
     					tempTime = cu.getEnterDate();
         				chatUser = cu;	
     				}
@@ -172,7 +186,8 @@ public class ChatMain extends JSONConverterAdapter{
 			
 			
 		}
-		json.put("currentCount", this.chatUser.size());
+		json.put("currentCount",this.getAllowedUserCnt());
+		json.put("tags", tagsToJSONArrayString());
 		return json;
 	}
 	
@@ -203,7 +218,15 @@ public class ChatMain extends JSONConverterAdapter{
 			
 			
 		}
+		json.put("tags", tagsToJSONArrayString());
 		return json;
 	}
 	
+	private String tagsToJSONArrayString() {
+		JSONArray arr_json = new JSONArray();
+		for (Tag t : tag) {
+			arr_json.put(t.getName());
+		}
+		return arr_json.toString();
+	}
 }

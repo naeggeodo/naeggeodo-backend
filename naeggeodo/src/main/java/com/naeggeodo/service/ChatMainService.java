@@ -3,7 +3,6 @@ package com.naeggeodo.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,15 +11,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.naeggeodo.dto.ChatRoomDTO;
 import com.naeggeodo.entity.chat.Category;
 import com.naeggeodo.entity.chat.ChatMain;
-import com.naeggeodo.entity.chat.ChatState;
-import com.naeggeodo.entity.chat.QuickChat;
 import com.naeggeodo.entity.chat.Tag;
 import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.repository.ChatMainRepository;
-import com.naeggeodo.repository.QuickChatRepository;
 import com.naeggeodo.repository.TagRepository;
 import com.naeggeodo.repository.UserRepository;
-import com.naeggeodo.util.MyUtility;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,7 +27,6 @@ public class ChatMainService {
 	private final ChatMainRepository chatMainRepository;
 	private final CloudinaryService cloudinaryService;
 	private final UserRepository userRepository;
-	private final QuickChatRepository quickChatRepository;
 	private final TagRepository tagRepository;
 	
 	//파라미터 2개일때 param[0] -> category , param[1] -> BuildingCode

@@ -13,16 +13,13 @@ import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.json.JSONObject;
 
 import com.naeggeodo.entity.user.Users;
-import com.naeggeodo.interfaces.JSONConverter;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter

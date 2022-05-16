@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.naeggeodo.dto.MessageDTO;
+import com.naeggeodo.entity.chat.BanState;
 import com.naeggeodo.entity.chat.ChatDetailType;
 import com.naeggeodo.entity.chat.ChatMain;
 import com.naeggeodo.entity.chat.ChatState;
@@ -25,8 +26,6 @@ import com.naeggeodo.repository.ChatUserRepository;
 import com.naeggeodo.repository.QuickChatRepository;
 import com.naeggeodo.repository.UserRepository;
 import com.naeggeodo.service.ChatDetailService;
-import com.naeggeodo.service.ChatMainService;
-import com.naeggeodo.service.ChatUserService;
 import com.naeggeodo.util.MyUtility;
 
 import lombok.RequiredArgsConstructor;
@@ -145,8 +144,9 @@ public class StompController {
     	}
     	
     	sessionHandler.close(targetChatUser.getSessionId());
-    	chatUserRepository.delete(targetChatUser);
-    	chatMain.removeChatUser(targetChatUser);
+    	targetChatUser.setBanState(BanState.BANNED);
+    	//chatUserRepository.delete(targetChatUser);
+    	//chatMain.removeChatUser(targetChatUser);
     	message.setContents(bannedUser+"님이 강퇴 당하셨습니다.");
     	chatDetailService.save(message);
     	
@@ -180,7 +180,7 @@ public class StompController {
     	
     	JSONObject json = new JSONObject();
     	json = MyUtility.convertListToJSONobj(chatUser, "user");
-    	json.put("currentCount", chatUser.size());
+    	json.put("currentCount", chatMain.getAllowedUserCnt());
     	
     	MessageDTO messageDto = new MessageDTO();
     	messageDto.setChatMain_id(chatMain.getId());

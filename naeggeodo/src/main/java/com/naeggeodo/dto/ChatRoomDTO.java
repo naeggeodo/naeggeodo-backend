@@ -2,7 +2,6 @@ package com.naeggeodo.dto;
 
 import java.util.List;
 
-import org.json.JSONArray;
 
 import com.naeggeodo.entity.chat.Category;
 import com.naeggeodo.entity.chat.OrderTimeType;

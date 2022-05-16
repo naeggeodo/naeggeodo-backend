@@ -2,20 +2,16 @@ package com.naeggeodo.service;
 
 import java.util.List;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.naeggeodo.dto.MessageDTO;
 import com.naeggeodo.entity.chat.ChatMain;
 import com.naeggeodo.entity.chat.ChatUser;
-import com.naeggeodo.entity.chat.QuickChat;
 import com.naeggeodo.entity.chat.RemittanceState;
 import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.repository.ChatMainRepository;
 import com.naeggeodo.repository.ChatUserRepository;
-import com.naeggeodo.repository.QuickChatRepository;
 import com.naeggeodo.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -26,7 +22,6 @@ public class ChatUserService {
 	private final ChatUserRepository chatUserRepository;
 	private final UserRepository userRepository;
 	private final ChatMainRepository chatMainRepository;
-	private final QuickChatRepository quickChatRepository;
 	
 	// dto로 저장
 	@Transactional
