@@ -36,6 +36,11 @@ import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.oauth.config.InMemoryProviderRepository;
 import com.naeggeodo.oauth.config.OauthProvider;
 import com.naeggeodo.oauth.config.OauthTokenResponse;
+import com.naeggeodo.oauth.dto.KakaoOAuthDto;
+import com.naeggeodo.oauth.dto.NaverOAuthDto;
+import com.naeggeodo.oauth.dto.OAuthDto;
+import com.naeggeodo.oauth.dto.OAuthDtoMapper;
+import com.naeggeodo.oauth.dto.SimpleUser;
 import com.naeggeodo.user.UserRepository;
 
 import lombok.AllArgsConstructor;
@@ -49,7 +54,7 @@ public class OAuthService {
     private OAuthDtoMapper oauthMapper;
 
     @Transactional
-    public Users getAuth(String code, String providerName) throws JSONException, Exception {
+    public SimpleUser getAuth(String code, String providerName) throws JSONException, Exception {
     	Logger logger = LoggerFactory.getLogger(this.getClass());
     	Map<String, String> requestHeaders = new HashMap<>();
     	
@@ -77,10 +82,11 @@ public class OAuthService {
     	} catch (Exception e) {
     		e.printStackTrace();
     	}
-    	return getUsers(oauthUserInfo);
+    	return getUser(oauthUserInfo);
     	
     }
     
+    //prider값에따라 해당 dto 반환
     private OAuthDto setOAuthDto(String providerName) {
     	switch(providerName) {
     	case "naver":
@@ -122,18 +128,19 @@ public class OAuthService {
         return new OauthTokenResponse();
     }
     
-    private Users getUsers(OAuthDto oauthDto) {
+    private SimpleUser getUser(OAuthDto oauthDto) {
     	Users user = userRepository.findOne(oauthDto.getId());
     	
     	if(user==null) {
     		user = oauthMapper.mappingUser(oauthDto);
-    		user.setAuthority(Authority.N);
+    		user.setAuthority(Authority.MEMBER);
     		user.setJoindate(LocalDateTime.now());
     		
     		userRepository.save(user);
+    		user =  userRepository.findOne(oauthDto.getId());
     	}
     	
-    	return userRepository.findOne(oauthDto.getId());
+    	return new SimpleUser(user.getId(), user.getAddr(), user.getAuthority());
     }
     
     private String get(String apiUrl, Map<String, String> requestHeaders){

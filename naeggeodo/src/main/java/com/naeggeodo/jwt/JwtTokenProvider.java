@@ -30,7 +30,7 @@ public class JwtTokenProvider {
 
         JwtBuilder builder = Jwts.builder()
                 .setSubject(subject)
-                .setIssuer("leafcats.com")
+                .setIssuer("naeggeodo.com")
                 .setHeaderParam("typ", "JWT")
                 .signWith(SECRET_KEY);
 
@@ -38,8 +38,6 @@ public class JwtTokenProvider {
         builder.setExpiration(new Date(nowMillis + ttlMillis));
         return builder.compact();
     }
-//    권한추가지구현
-//    public String createToken(String subject,Boolean hasPermission, Errors errors) {}
  
     public static String getSubject(String token) {
         Claims claims = Jwts.parserBuilder()
@@ -57,6 +55,18 @@ public class JwtTokenProvider {
     	return claims;
     }
     
+
+    public String createRefreshToken(String payload) {
+        Claims claims = Jwts.claims().setSubject(payload);
+        Date now = new Date();
+        long validity = System.currentTimeMillis() + ttlMillis;
+        return Jwts.builder()
+                .setClaims(claims)
+                .setExpiration(new Date(validity))
+                .signWith(SECRET_KEY)
+                .compact();
+       	}
+ 
     //유효토근 검증
     public boolean validateToken(String token) {
         try {
@@ -67,5 +77,5 @@ public class JwtTokenProvider {
             return false;
         }
     }
-    
+
 }
