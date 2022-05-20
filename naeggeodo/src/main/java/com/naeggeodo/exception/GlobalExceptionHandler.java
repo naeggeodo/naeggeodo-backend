@@ -4,6 +4,7 @@ import javax.persistence.NoResultException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -35,7 +36,6 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
 	
-	
-	
+
 	
 }

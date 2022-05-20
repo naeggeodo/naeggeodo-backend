@@ -2,7 +2,8 @@ package com.naeggeodo.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.naeggeodo.dto.TargetMessageDTO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,29 +16,37 @@ import com.naeggeodo.repository.ChatMainRepository;
 import com.naeggeodo.repository.UserRepository;
 
 @Service
+@RequiredArgsConstructor
 public class ChatDetailService {
-	@Autowired
-	private ChatDetailRepository chatDetailRepository;
-	@Autowired
-	private UserRepository userRepository;
-	@Autowired
-	private ChatMainRepository chatMainRepository;
+	private final ChatDetailRepository chatDetailRepository;
+	private final UserRepository userRepository;
+	private final ChatMainRepository chatMainRepository;
 	
 	//dto 로 저장
 	@Transactional
 	public void save(MessageDTO messageDTO) {
 		System.out.println("========chatDetail save()==========");
 		Users user = userRepository.getById(messageDTO.getSender());
-		ChatMain chatmain = chatMainRepository.getById(messageDTO.getChatMain_id());
+		ChatMain chatmain = chatMainRepository.getById(messageDTO.chatMain_idToLong());
 		
 		ChatDetail chatDetail = ChatDetail.create(messageDTO.getContents(), user, chatmain, messageDTO.getType());
 		chatDetailRepository.save(chatDetail);
 		System.out.println("========chatDetail save()==========");
 	}
-	
+	@Transactional
+	public void save(TargetMessageDTO messageDTO) {
+		System.out.println("========chatDetail save()==========");
+		Users user = userRepository.getById(messageDTO.getSender());
+		ChatMain chatmain = chatMainRepository.getById(messageDTO.chatMain_idToLong());
+
+		ChatDetail chatDetail = ChatDetail.create(messageDTO.getContents(), user, chatmain, messageDTO.getType());
+		chatDetailRepository.save(chatDetail);
+		System.out.println("========chatDetail save()==========");
+	}
+
 	//기존 채팅 내역 불러오기
 	@Transactional
-	public List<ChatDetail> load(String chatMain_idstr, String user_id) throws Exception{
+	public List<ChatDetail> load(String chatMain_idstr, String user_id){
 		Long chatMain_id = Long.parseLong(chatMain_idstr);
 		
 		return chatDetailRepository.load(chatMain_id, user_id);

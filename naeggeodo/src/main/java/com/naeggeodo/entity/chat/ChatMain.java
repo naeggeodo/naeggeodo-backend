@@ -1,5 +1,6 @@
 package com.naeggeodo.entity.chat;
 
+import java.awt.peer.ScrollbarPeer;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -97,26 +98,15 @@ public class ChatMain extends JSONConverterAdapter{
 	// is Full
 	public boolean isFull() {
 		int maxCount = this.getMaxCount();
-		int currentCount = 0;
-		if(!chatUser.isEmpty()) {
-			for (ChatUser cu : chatUser) {
-				if(BanState.ALLOWED.equals(cu.getBanState())) {
-					currentCount++;
-				}
-			}
-		}
-		if(currentCount>=maxCount) {
-			return true;
-		}
-		return false;
+		int currentCount = getAllowedUserCnt();
+
+
+		return currentCount >= maxCount;
 	}
 	
 	// 입장가능?
 	public boolean canEnter() {
-		if(this.state==ChatState.CREATE||this.state==ChatState.FULL) {
-			return true;
-		}
-		return false;
+		return this.state == ChatState.CREATE || this.state == ChatState.FULL;
 	}
 	
 	public int getAllowedUserCnt() {
@@ -174,17 +164,15 @@ public class ChatMain extends JSONConverterAdapter{
 			field.setAccessible(true);
 			if(field.get(this) instanceof Users) {
 				json.put("user_id", ((Users) field.get(this)).getId());
-			}else if(field.get(this) instanceof List) {
-				continue;
 			}else if(field.get(this) instanceof LocalDateTime) {
 				json.put(field.getName(), ((LocalDateTime)field.get(this)).toString());
 			}else if(field.get(this) instanceof Enum) {
-				json.put(field.getName(),((Enum)field.get(this)).name());
-			}else {
+				json.put(field.getName(),((Enum<?>)field.get(this)).name());
+			}else if(!(field.get(this) instanceof List)){
 				json.put(field.getName(), field.get(this));
 			}
-			
-			
+
+
 		}
 		json.put("currentCount",this.getAllowedUserCnt());
 		json.put("tags", tagsToJSONArrayString());
@@ -206,22 +194,20 @@ public class ChatMain extends JSONConverterAdapter{
 			field.setAccessible(true);
 			if(field.get(this) instanceof Users) {
 				json.put("user_id", ((Users) field.get(this)).getId());
-			}else if(field.get(this) instanceof List) {
-				continue;
 			}else if(field.get(this) instanceof LocalDateTime) {
 				json.put(field.getName(), ((LocalDateTime)field.get(this)).toString());
 			}else if(field.get(this) instanceof Enum) {
-				json.put(field.getName(),((Enum)field.get(this)).name());
-			}else {
+				json.put(field.getName(),((Enum<?>)field.get(this)).name());
+			}else if(!(field.get(this) instanceof List)){
 				json.put(field.getName(), field.get(this));
 			}
-			
-			
+
+
 		}
 		json.put("tags", tagsToJSONArrayString());
 		return json;
 	}
-	
+
 	private String tagsToJSONArrayString() {
 		JSONArray arr_json = new JSONArray();
 		for (Tag t : tag) {

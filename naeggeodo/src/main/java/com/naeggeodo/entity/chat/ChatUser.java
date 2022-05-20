@@ -65,7 +65,7 @@ public class ChatUser extends JSONConverterAdapter{
 	}
 
 	@Override
-	public JSONObject toJSON() throws Exception {
+	public JSONObject toJSON() {
 		JSONObject json = new JSONObject();
 		json.put("user_id",this.user.getId() );
 		json.put("remittanceState",this.state.name());

@@ -7,7 +7,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.naeggeodo.exception.CustomHttpException;
+import com.naeggeodo.exception.ErrorCode;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,10 +18,10 @@ import com.cloudinary.utils.ObjectUtils;
 import com.naeggeodo.config.CloudinaryConfig;
 
 @Service
+@RequiredArgsConstructor
 public class CloudinaryService {
 	
-	@Autowired
-	private CloudinaryConfig cloudinaryConfig;
+	private final CloudinaryConfig cloudinaryConfig;
 	
 	public String upload(MultipartFile file,String folder) {
 		
@@ -35,10 +37,11 @@ public class CloudinaryService {
 							)
 					
 					);
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			throw new CustomHttpException(ErrorCode.UPLOAD_FAIL);
 		}
-		return (String)uploadResult.get("url");
+		System.out.println(uploadResult.get("url").toString());
+		return uploadResult.get("url").toString();
 	}
 	
 	

@@ -13,9 +13,9 @@ public enum ErrorCode {
 	INVALID_FORMAT(HttpStatus.BAD_REQUEST,"올바르지 않은 요청입니다."),
 	
 	// 404
-	RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND,"리소스를 찾을수 없습니다.")
-	
-	
+	RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND,"리소스를 찾을수 없습니다."),
+
+	UPLOAD_FAIL(HttpStatus.UNSUPPORTED_MEDIA_TYPE,"업로드실패")
 	;
 	private final HttpStatus httpStatus;
     private final String detail;
