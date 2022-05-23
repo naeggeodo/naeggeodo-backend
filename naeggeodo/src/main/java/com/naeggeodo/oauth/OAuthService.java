@@ -16,7 +16,6 @@ import javax.transaction.Transactional;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -33,6 +32,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.naeggeodo.entity.user.Authority;
 import com.naeggeodo.entity.user.Users;
+import com.naeggeodo.jwt.JwtTokenProvider;
 import com.naeggeodo.oauth.config.InMemoryProviderRepository;
 import com.naeggeodo.oauth.config.OauthProvider;
 import com.naeggeodo.oauth.config.OauthTokenResponse;
@@ -44,8 +44,9 @@ import com.naeggeodo.oauth.dto.SimpleUser;
 import com.naeggeodo.user.UserRepository;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class OAuthService {
@@ -84,6 +85,45 @@ public class OAuthService {
     	
     }
     
+    public OauthTokenResponse getTokenTest(String code, String providerName) throws JsonMappingException, JsonProcessingException {
+    	Logger logger = LoggerFactory.getLogger(this.getClass());
+    	
+    	OAuthDto oauthUserInfo = setOAuthDto(providerName);    	
+    	OauthProvider provider = inMemoryProviderRepository.findByProviderName(providerName);//application.yml에 등록된 oauth2 정보
+
+    	logger.info(code);
+    	
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        HttpEntity request = new HttpEntity<>(headers);
+
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(provider.getTokenUrl())
+                .queryParam("grant_type", "authorization_code")
+                .queryParam("client_id", provider.getClientId())
+//                .queryParam("redirect_uri", provider.getRedirectUrl())
+                .queryParam("redirect_uri", "http://localhost:8080/login/getToken/kakao")
+                .queryParam("code", code)
+                .queryParam("client_secret", provider.getClientSecret());
+
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+                uriComponentsBuilder.toUriString(),
+                HttpMethod.GET,
+                request,
+                String.class
+        );
+        log.info(responseEntity.getBody());
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        
+        if (responseEntity.getStatusCode() == HttpStatus.OK) {
+            return mapper.readValue(responseEntity.getBody(), OauthTokenResponse.class);
+        }
+        return new OauthTokenResponse();
+    	
+    }
+    
     //prider값에따라 해당 dto 반환
     private OAuthDto setOAuthDto(String providerName) {
     	switch(providerName) {
@@ -117,6 +157,7 @@ public class OAuthService {
                 request,
                 String.class
         );
+        log.info(responseEntity.getBody());
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         
