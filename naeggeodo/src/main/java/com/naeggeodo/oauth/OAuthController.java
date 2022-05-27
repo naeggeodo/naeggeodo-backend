@@ -1,13 +1,14 @@
 package com.naeggeodo.oauth;
 
-import java.io.IOException;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -25,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.naeggeodo.jwt.JwtTokenProvider;
 import com.naeggeodo.jwt.JwtTokenService;
 import com.naeggeodo.jwt.dto.RefreshTokenRequest;
+import com.naeggeodo.jwt.dto.RefreshTokenResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,18 +40,22 @@ public class OAuthController {
     private final JwtTokenService jwtService;
     
     //소셜로그인으로부터 인증코드를 받아와 OAuthLogin으로 redirecte
-    @RequestMapping(value = "login/{provider}")
     public void getCode(@PathVariable String provider, HttpServletResponse response, HttpServletRequest request) {
     	//url에 필요한 데이터
     }
-    
-    @GetMapping(value = "login/OAuth/{provider}")
-    public ResponseEntity<?> OAuthCallback(){
-    	return ResponseEntity.ok("ok");
+    @GetMapping(value= "login/OAuth/{provider}")
+    public ResponseEntity<?> OAuthCode(@RequestParam String code, @PathVariable String provider) throws JSONException, Exception {
+    	log.info(code);
+    	
+    	
+    	return ResponseEntity.ok(code);
+    	
     }
-    
+
+
     @PostMapping(value = "login/OAuth/{provider}")
-    public ResponseEntity<?> OAuthLogin(@RequestParam("code") String code, @PathVariable String provider) throws JSONException, Exception {
+    public ResponseEntity<?> OAuthLogin(@RequestParam String code, @PathVariable String provider) throws JSONException, Exception {
+    	log.info(code);
     	
     	MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         Map<String, String> map = new ObjectMapper().convertValue(jwtService.createJwtToken(service.getAuth(code, provider)), new TypeReference<Map<String, String>>() {}); // (3)
@@ -63,20 +69,8 @@ public class OAuthController {
 
 //    @PostMapping("/refreshtoken")
 //    public ResponseEntity<?> refreshtoken(@RequestBody RefreshTokenRequest request) {
-//        String requestRefreshToken = request.getRefreshToken();
-//        
-//        if(jwtToken.validateToken(requestRefreshToken)) {
-//    	  
-//        }
-//      return refreshTokenService.findByToken(requestRefreshToken)
-//          .map(refreshTokenService::verifyExpiration)
-//          .map(RefreshToken::getUser)
-//          .map(user -> {
-//            String token = jwtUtils.generateTokenFromUsername(user.getUsername());
-//            return ResponseEntity.ok(new TokenRefreshResponse(token, requestRefreshToken));
-//          })
-//          .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
-//              "Refresh token is not in database!"));
-//    
+//    	RefreshTokenResponse jwtResponse = service.refreshToken(request.getRefreshToken());
+//    	
+//    	return ResponseEntity.ok(jwtResponse);
 //    }
 }
