@@ -57,13 +57,14 @@ public class OAuthController {
     public ResponseEntity<?> OAuthLogin(@RequestBody Map<String,String> request, @PathVariable String provider) throws JSONException, Exception {
     	log.info(request.get("code"));
     	
-    	MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        Map<String, String> map = new ObjectMapper().convertValue(jwtService.createJwtToken(service.getAuth(request.get("code"), provider)), new TypeReference<Map<String, String>>() {}); // (3)
-        params.setAll(map);
-
-    	HttpHeaders header = new HttpHeaders(params);
-    	
-    	return ResponseEntity.ok().headers(header).body("ok");
+//    	MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+//        Map<String, String> map = new ObjectMapper().convertValue(jwtService.createJwtToken(service.getAuth(request.get("code"), provider)), new TypeReference<Map<String, String>>() {}); // (3)
+//        params.setAll(map);
+//
+//    	HttpHeaders header = new HttpHeaders(params);
+//    	
+        return ResponseEntity.ok(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(
+                jwtService.createJwtToken(service.getAuth(request.get("code"), provider))));
     	
     }
 
