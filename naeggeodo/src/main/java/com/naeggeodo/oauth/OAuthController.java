@@ -45,7 +45,7 @@ public class OAuthController {
     }
     @GetMapping(value= "login/OAuth/{provider}")
     public ResponseEntity<?> OAuthCode(@RequestParam String code, @PathVariable String provider) throws JSONException, Exception {
-    	log.info(code);
+    	log.info("OAUthCode : "+code);
     	
     	
     	return ResponseEntity.ok(code);
@@ -54,11 +54,11 @@ public class OAuthController {
 
 
     @PostMapping(value = "login/OAuth/{provider}")
-    public ResponseEntity<?> OAuthLogin(@RequestParam String code, @PathVariable String provider) throws JSONException, Exception {
-    	log.info(code);
+    public ResponseEntity<?> OAuthLogin(@RequestBody Map<String,String> request, @PathVariable String provider) throws JSONException, Exception {
+    	log.info(request.get("code"));
     	
     	MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        Map<String, String> map = new ObjectMapper().convertValue(jwtService.createJwtToken(service.getAuth(code, provider)), new TypeReference<Map<String, String>>() {}); // (3)
+        Map<String, String> map = new ObjectMapper().convertValue(jwtService.createJwtToken(service.getAuth(request.get("code"), provider)), new TypeReference<Map<String, String>>() {}); // (3)
         params.setAll(map);
 
     	HttpHeaders header = new HttpHeaders(params);
