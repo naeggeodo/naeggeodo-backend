@@ -3,10 +3,7 @@ package com.naeggeodo.controller;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.naeggeodo.dto.AddressDTO;
 import com.naeggeodo.entity.user.Users;
@@ -29,5 +26,11 @@ public class UserController {
 		user.updateAddress(dto.getAddress(), dto.getZonecode(), dto.getBuildingCode());
 		return user.AddresstoJSON().toString();
 	}
-	
+
+	@Transactional
+	@GetMapping(value="/user/{user_id}/address",produces = "application/json")
+	public String getAddress(@PathVariable("user_id")String user_id){
+		AddressDTO dto = userRepository.findAddressDTOById(user_id);
+		return dto.toJSON().toString();
+	}
 }

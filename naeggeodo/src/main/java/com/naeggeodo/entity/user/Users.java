@@ -37,7 +37,7 @@ public class Users{
 	private String zonecode;
 	// buildingcode
 	private String buildingCode;
-	
+	private String email;
 	
 	private String nickname;
 	private LocalDateTime joindate;

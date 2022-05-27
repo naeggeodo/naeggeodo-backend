@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -52,24 +53,26 @@ public class ChatMainController {
 			@RequestParam(name= "buildingCode",required = true)String buildingCode) throws Exception {
 		if(category==null) {
 			//전체조회시
-			JSONObject json = MyUtility.convertListToJSONobj(chatMainRepository.findByBuildingCode(buildingCode), "chat-room");
+			JSONObject json = MyUtility.convertListToJSONobj(chatMainRepository.findByBuildingCode(buildingCode), "chatRoom");
 			return ResponseEntity.ok(json.toMap());
-			//return MyUtility.convertListToJSONobj(chatMainRepository.findByBuildingCode(buildingCode), "chat-room").toString();
+			//return MyUtility.convertListToJSONobj(chatMainRepository.findByBuildingCode(buildingCode), "chatRoom").toString();
 		} else {
 			//카테고리 조회시
 			Category categoryEnum = Category.valueOf(category.toUpperCase());
-			JSONObject json = MyUtility.convertListToJSONobj(chatMainRepository.findByCategoryAndBuildingCode(categoryEnum, buildingCode), "chat-room");
+			JSONObject json = MyUtility.convertListToJSONobj(chatMainRepository.findByCategoryAndBuildingCode(categoryEnum, buildingCode), "chatRoom");
 			return ResponseEntity.ok(json.toMap());
 			//return new ResponseEntity<Object>(json,HttpStatus.OK);
-			//return MyUtility.convertListToJSONobj(chatMainRepository.findByCategoryAndBuildingCode(categoryEnum, buildingCode), "chat-room").toString();
+			//return MyUtility.convertListToJSONobj(chatMainRepository.findByCategoryAndBuildingCode(categoryEnum, buildingCode), "chatRoom").toString();
 		}
 	}
 	
 	//채팅방 생성
 	@PostMapping(value= "/chat-rooms",produces ="application/json" )
+	@Transactional(propagation = Propagation.REQUIRED)
 	public ResponseEntity<Object> createChatRoom(@RequestPart(name = "chat") ChatRoomDTO chat,@RequestPart MultipartFile file) {
-		System.out.println(chat.getTag());
+		Long startTime = System.currentTimeMillis();
 		JSONObject json = chatMainService.createChatRoom(chat, file);
+		System.out.println("==============소요시간===="+(System.currentTimeMillis()-startTime));
 		return ResponseEntity.ok(json.toMap());
 	}
 //	@PostMapping(value= "/chat/rooms",produces ="application/json" )
@@ -145,7 +148,7 @@ public class ChatMainController {
 	@Transactional(readOnly = true)
 	@GetMapping(value="/chat-rooms/progressing/user/{user_id}",produces = "application/json")
 	public ResponseEntity<Object> getProgressingChatList(@PathVariable(name="user_id") String user_id) throws Exception {
-		JSONObject json = MyUtility.convertListToJSONobj(chatMainRepository.findByUserIdInChatUser(user_id), "chat-room");
+		JSONObject json = MyUtility.convertListToJSONobj(chatMainRepository.findByUserIdInChatUser(user_id), "chatRoom");
 		return ResponseEntity.ok(json.toMap());
 	}
 	
@@ -158,9 +161,9 @@ public class ChatMainController {
 		List<ChatMain> list = chatMainRepository.findByStateAndUserId(chatState, user_id);
 		JSONObject json;
 		if(ChatState.END.equals(chatState)) {
-			json = MyUtility.convertListToJSONobjIgnoringCurrentCount(list, "chat-room");
+			json = MyUtility.convertListToJSONobjIgnoringCurrentCount(list, "chatRoom");
 		} else {
-			json = MyUtility.convertListToJSONobj(list, "chat-room");
+			json = MyUtility.convertListToJSONobj(list, "chatRoom");
 		}
 		
 		
@@ -186,14 +189,14 @@ public class ChatMainController {
 	@Transactional(readOnly = true)
 	public ResponseEntity<Object> getChatListByTag(@PathVariable("tag")String tag) throws Exception {
 		List<ChatMain> list = chatMainRepository.findByTagName(tag);
-		JSONObject json = MyUtility.convertListToJSONobj(list, "chat-room");
+		JSONObject json = MyUtility.convertListToJSONobj(list, "chatRoom");
 		return ResponseEntity.ok(json.toMap());
 	}
 	@GetMapping(value="/chat-rooms/search/{keyWord}",produces = "application/json")
 	@Transactional(readOnly = true)
 	public ResponseEntity<Object> getChatListByKeyWord(@PathVariable("keyWord")String keyWord) throws Exception {
 		List<ChatMain> list = chatMainRepository.findByTagNameOrTitleContains(keyWord, keyWord);
-		JSONObject json = MyUtility.convertListToJSONobj(list, "chat-room");
+		JSONObject json = MyUtility.convertListToJSONobj(list, "chatRoom");
 		return ResponseEntity.ok(json.toMap());
 	}
 	

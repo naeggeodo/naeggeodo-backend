@@ -1,59 +1,75 @@
 package com.naeggeodo.oauth;
 
-import java.io.IOException;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.naeggeodo.jwt.JwtTokenProvider;
+import com.naeggeodo.jwt.JwtTokenService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class OAuthController {
     private final OAuthService service;
-    private final JwtTokenProvider jwtToken;    
-    
-    //소셜로그인으로부터 인증코드를 받아와서 
-    @RequestMapping(value = "login/OAuth/{provider}")
-    public void getCode(@PathVariable String provider, HttpServletResponse response) {
-    	String uri = service.getOAuthLoginUrl(provider); 
+    private final JwtTokenProvider jwtToken;
+    private final JwtTokenService jwtService;
 
-    	try {
-			response.sendRedirect(uri);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    //소셜로그인으로부터 인증코드를 받아와 OAuthLogin으로 redirecte
+    public void getCode(@PathVariable String provider, HttpServletResponse response, HttpServletRequest request) {
+        //url에 필요한 데이터
     }
-    
-    
-    @RequestMapping(value = "oauth/getInfo/{provider}")
-    public @ResponseBody ResponseEntity<?> OAuthLogin(@RequestParam("code") String code, @PathVariable String provider) throws JSONException, Exception {
+    @GetMapping(value= "login/OAuth/{provider}")
+    public ResponseEntity<?> OAuthCode(@RequestParam String code, @PathVariable String provider) throws JSONException, Exception {
+        log.info("OAUthCode : "+code);
 
-    	String OAuthcode = service.getOAuthLoginUrl(provider);
-    	
-    	return ResponseEntity.ok(jwtToken.createToken(
-    			new JSONObject().put("userId",service.getAuth(code, provider).getId()).toString()));
+
+        return ResponseEntity.ok(code);
+
     }
-    
-    @PostMapping(value = "jwt/getUserId")
-    public ResponseEntity<?> jwtUserTest(@RequestParam("token")String token){
-    	Logger logger = LoggerFactory.getLogger(this.getClass().getName());
-    	logger.info(jwtToken.getSubject(token));
-    	
-    	return ResponseEntity.ok(jwtToken.getSubject(token));
+
+
+    @PostMapping(value = "login/OAuth/{provider}")
+    public ResponseEntity<?> OAuthLogin(@RequestBody Map<String,String> request, @PathVariable String provider) throws JSONException, Exception {
+        log.info(request.get("code"));
+
+//    	MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+//        Map<String, String> map = new ObjectMapper().convertValue(jwtService.createJwtToken(service.getAuth(request.get("code"), provider)), new TypeReference<Map<String, String>>() {}); // (3)
+//        params.setAll(map);
+//
+//    	HttpHeaders header = new HttpHeaders(params);
+//
+        return ResponseEntity.ok(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(
+                jwtService.createJwtToken(service.getAuth(request.get("code"), provider))));
+
     }
+
+//    @PostMapping("/refreshtoken")
+//    public ResponseEntity<?> refreshtoken(@RequestBody RefreshTokenRequest request) {
+//    	RefreshTokenResponse jwtResponse = service.refreshToken(request.getRefreshToken());
+//
+//    	return ResponseEntity.ok(jwtResponse);
+//    }
 }

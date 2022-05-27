@@ -1,13 +1,12 @@
 package com.naeggeodo.oauth.config;
 
-import java.util.Map;
-
+import lombok.Getter;
+import lombok.ToString;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import lombok.Getter;
-import lombok.ToString;
+import java.util.Map;
 
 @ToString
 @Getter

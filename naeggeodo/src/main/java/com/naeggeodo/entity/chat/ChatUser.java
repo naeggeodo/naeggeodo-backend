@@ -47,6 +47,7 @@ public class ChatUser extends JSONConverterAdapter{
 	
 	@Enumerated(EnumType.STRING)
 	private RemittanceState state;
+
 	//생성
 	public static ChatUser create(Users user,ChatMain chatMain,String session_id) {
 		ChatUser chatUser = new ChatUser();

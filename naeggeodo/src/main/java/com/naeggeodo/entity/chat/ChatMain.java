@@ -1,22 +1,13 @@
 package com.naeggeodo.entity.chat;
 
-import java.awt.peer.ScrollbarPeer;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 
+//import com.naeggeodo.listener.ChatMainListener;
 import org.hibernate.annotations.DynamicUpdate;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -36,6 +27,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicUpdate
+//@EntityListeners(ChatMainListener.class)
 public class ChatMain extends JSONConverterAdapter{
 
 	
@@ -73,7 +65,8 @@ public class ChatMain extends JSONConverterAdapter{
 	
 	@OneToMany(mappedBy = "chatMain")
 	private List<Tag> tag = new ArrayList<>();
-	
+
+
 	//생성
 	public static ChatMain create(ChatRoomDTO dto) {
 		return ChatMain.builder().title(dto.getTitle()).createDate(LocalDateTime.now())
