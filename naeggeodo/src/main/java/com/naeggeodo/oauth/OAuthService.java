@@ -20,7 +20,6 @@ import com.naeggeodo.oauth.config.OauthProvider;
 import com.naeggeodo.oauth.dto.KakaoOAuthDto;
 import com.naeggeodo.oauth.dto.NaverOAuthDto;
 import com.naeggeodo.oauth.dto.OAuthDto;
-import com.naeggeodo.oauth.dto.OAuthDtoMapper;
 import com.naeggeodo.oauth.dto.OauthAuthorized;
 import com.naeggeodo.oauth.dto.SimpleUser;
 import com.naeggeodo.repository.UserRepository;
@@ -33,27 +32,30 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class OAuthService {
 
+	@Autowired
     private InMemoryProviderRepository inMemoryProviderRepository;
+	@Autowired
 	private SocialLogin oauthDetail;
     private UserRepository userRepository;
     private OAuthDtoMapper oauthMapper;
 
+    @Transactional
     public SimpleUser getAuth(String code, String providerName) throws JSONException, Exception {
     	Map<String, String> requestHeaders = new HashMap<>();
     	
     	log.info("getAuth : ");
     	OAuthDto oauthUserInfo = setOAuthDto(providerName);    	
-    	OauthProvider provider = inMemoryProviderRepository.findByProviderName(providerName);//application.yml에 등록된 oauth2 정보
+    	OauthProvider provider = inMemoryProviderRepository.findByProviderName(providerName);//application.yml�뿉 �벑濡앸맂 oauth2 �젙蹂�
     	
     	OauthAuthorized authorization = oauthDetail.requestAccessToken(code, provider);
     	
     	requestHeaders.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-    	requestHeaders.put("Authorization", "Bearer "+authorization.getAccessToken()); //전부다 String형일 때. RestTemplate 때문에 생략가능
+    	requestHeaders.put("Authorization", "Bearer "+authorization.getAccessToken()); //�쟾遺��떎 String�삎�씪 �븣. RestTemplate �븣臾몄뿉 �깮�왂媛��뒫
     	
     	String responseBody = oauthDetail.get(provider.getUserInfoUrl(), requestHeaders);
     	
     	ObjectMapper objectMapper = new ObjectMapper();
-    	objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);//해당 필드가 없을경우 무시
+    	objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);//�빐�떦 �븘�뱶媛� �뾾�쓣寃쎌슦 臾댁떆
     	new Users().setJoindate(LocalDateTime.now());
     	try {
     		oauthUserInfo = objectMapper.readValue(
@@ -80,7 +82,7 @@ public class OAuthService {
     			);
     }
     
-    //prider값에따라 해당 dto 반환
+    //prider媛믪뿉�뵲�씪 �빐�떦 dto 諛섑솚
     private OAuthDto setOAuthDto(String providerName) {
     	switch(providerName) {
     	case "naver":

@@ -15,13 +15,14 @@ public class KakaoOAuthDto implements OAuthDto{
 	private KakaoAccount kakaoAccount;
 	
 	@Data
-	class Properties {
+	public class Properties {
 		private String nickname;
 		private String profile_image;
 		private String thumbnail_image;
 	}
 	
 	@Data
+	public
 	class KakaoAccount {
 		private boolean profile_nickname_needs_agreement;
 		private boolean has_email;
