@@ -7,7 +7,6 @@ import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
 import com.naeggeodo.repository.*;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Propagation;
@@ -59,8 +58,6 @@ public class ChatMainController {
 						(categoryEnum, buildingCode,ChatState.END), "chatRoom"
 			);
 			return ResponseEntity.ok(json.toMap());
-			//return new ResponseEntity<Object>(json,HttpStatus.OK);
-			//return MyUtility.convertListToJSONobj(chatMainRepository.findByCategoryAndBuildingCode(categoryEnum, buildingCode), "chatRoom").toString();
 		}
 	}
 	
@@ -73,17 +70,7 @@ public class ChatMainController {
 		System.out.println("==============소요시간===="+(System.currentTimeMillis()-startTime));
 		return ResponseEntity.ok(json.toMap());
 	}
-//	@PostMapping(value= "/chat/rooms",produces ="application/json" )
-//	public String createChatRoom(@RequestPart(name = "chat") Map<String, Object> map,@RequestPart MultipartFile file) {
-//		System.out.println(map.get("addr"));
-//		System.out.println(map.get("category"));
-//		System.out.println(map.get("tag"));
-//		return "hi";
-//		
-//		//JSONObject json = chatMainService.createChatRoom(chat, file);
-//		//return json.toString();
-//	}
-	
+
 	//해당 채팅방 data
 	@GetMapping(value="/chat-rooms/{chatMain_id}",produces = "application/json")
 	@Transactional(readOnly = true)
@@ -114,12 +101,6 @@ public class ChatMainController {
 
 		return ResponseEntity.ok(json.toMap());
 	}
-//	@GetMapping(value="/chat-rooms/{chatMain_id}/users",produces = "application/json")
-//	@Transactional(readOnly = true)
-//	public ResponseEntity<Object> getChatUserList(@PathVariable(name="chatMain_id")Long chatMain_id) throws Exception {
-//		JSONObject json =  MyUtility.convertListToJSONobj(chatUserRepository.findByChatMainId(chatMain_id), "users");
-//		return ResponseEntity.ok(json.toMap());
-//	}
 
 	//송금상태 변경
 	@PatchMapping(value="/chat-rooms/{chatMain_id}/users/{user_id}",produces = "application/json")

@@ -8,7 +8,6 @@ import com.naeggeodo.entity.user.Users;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 
 public interface UserRepository extends JpaRepository<Users, String>{
     @Query("select count(u.id)=2 from Users u where u.id = :id1 or u.id =:id2")
