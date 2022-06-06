@@ -4,12 +4,10 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,9 +15,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.naeggeodo.entity.user.Authority;
 import com.naeggeodo.entity.user.Users;
-
-import com.naeggeodo.jwt.dto.RefreshTokenResponse;
-
 import com.naeggeodo.oauth.config.InMemoryProviderRepository;
 import com.naeggeodo.oauth.config.OauthProvider;
 import com.naeggeodo.oauth.dto.KakaoOAuthDto;
@@ -28,7 +23,7 @@ import com.naeggeodo.oauth.dto.OAuthDto;
 import com.naeggeodo.oauth.dto.OAuthDtoMapper;
 import com.naeggeodo.oauth.dto.OauthAuthorized;
 import com.naeggeodo.oauth.dto.SimpleUser;
-
+import com.naeggeodo.repository.UserRepository;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,14 +33,11 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class OAuthService {
 
-	@Autowired
     private InMemoryProviderRepository inMemoryProviderRepository;
-	@Autowired
 	private SocialLogin oauthDetail;
     private UserRepository userRepository;
     private OAuthDtoMapper oauthMapper;
 
-    @Transactional
     public SimpleUser getAuth(String code, String providerName) throws JSONException, Exception {
     	Map<String, String> requestHeaders = new HashMap<>();
     	
@@ -114,7 +106,7 @@ public class OAuthService {
     		user = userRepository.findById(oauthDto.getId()).get();
     	}
     	
-    	return new SimpleUser(user.getId(), user.getAddr(), user.getAuthority());
+    	return new SimpleUser(user.getId(), user.getAddress(), user.getAuthority());
     }
 
 

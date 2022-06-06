@@ -9,15 +9,12 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
-
-import com.naeggeodo.interfaces.JSONConverterAdapter;
 import org.json.JSONObject;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.naeggeodo.entity.chat.QuickChat;
 
-
-import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,7 +27,6 @@ import lombok.Setter;
 public class Users{
 
 	
-	private String phone;
 	@Id @Column(name="user_id")
 	private String id;
 
@@ -39,9 +35,8 @@ public class Users{
 	private String token;
 	private String phone;
 	
-	// 텍스트 주소 ex) 서울시...
 	private String address;
-	// 우편번호
+	// �슦�렪踰덊샇
 	private String zonecode;
 	// buildingcode
 	private String buildingCode;
