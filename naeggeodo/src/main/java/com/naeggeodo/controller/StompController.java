@@ -4,11 +4,9 @@ package com.naeggeodo.controller;
 import java.util.List;
 
 import com.naeggeodo.dto.TargetMessageDTO;
-import com.naeggeodo.entity.post.Report;
 import com.naeggeodo.exception.CustomWebSocketException;
 import com.naeggeodo.exception.StompErrorCode;
 import com.naeggeodo.repository.*;
-import lombok.NonNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
@@ -33,11 +31,6 @@ import com.naeggeodo.util.MyUtility;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import javax.validation.Valid;
 
 @Slf4j
 @Controller
@@ -170,27 +163,27 @@ public class StompController {
     	chatMain.updateState();
     }
 
-	@Transactional
-	@MessageMapping("/chat/report")
-	public void report(TargetMessageDTO messageDTO,StompHeaderAccessor headers){
-
-		validateMessage(messageDTO,headers);
-
-		String sender_id = messageDTO.getSender();
-		String target_id = messageDTO.getTarget_id();
-		Users sender = null;
-		Users target = null;
-		if(userRepository.countForReport(sender_id,target_id)){
-			sender = userRepository.getById(sender_id);
-			target = userRepository.getById(target_id);
-		} else {
-			sendToUser(headers.getSessionId(),getAlertMessage("올바르지 않은 요청입니다."));
-		}
-
-
-		Report report = Report.create(sender,target,messageDTO.getContents());
-		reportRepository.save(report);
-	}
+//	@Transactional
+//	@MessageMapping("/chat/report")
+//	public void report(TargetMessageDTO messageDTO,StompHeaderAccessor headers){
+//
+//		validateMessage(messageDTO,headers);
+//
+//		String sender_id = messageDTO.getSender();
+//		String target_id = messageDTO.getTarget_id();
+//		Users sender = null;
+//		Users target = null;
+//		if(userRepository.countForReport(sender_id,target_id)){
+//			sender = userRepository.getById(sender_id);
+//			target = userRepository.getById(target_id);
+//		} else {
+//			sendToUser(headers.getSessionId(),getAlertMessage("올바르지 않은 요청입니다."));
+//		}
+//
+//
+//		Report report = Report.create(sender,target,messageDTO.getContents());
+//		reportRepository.save(report);
+//	}
     
     //quick-chat update
     @Transactional

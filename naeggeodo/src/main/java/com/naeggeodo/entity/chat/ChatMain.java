@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.persistence.*;
 
-//import com.naeggeodo.listener.ChatMainListener;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
 import org.hibernate.annotations.DynamicUpdate;

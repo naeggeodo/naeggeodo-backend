@@ -10,14 +10,13 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
 
-import com.naeggeodo.interfaces.JSONConverterAdapter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import org.json.JSONObject;
 
 import com.naeggeodo.entity.chat.QuickChat;
 
 
-import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,7 +29,6 @@ import lombok.Setter;
 public class Users{
 
 	
-	private String phone;
 	@Id @Column(name="user_id")
 	private String id;
 
@@ -49,7 +47,7 @@ public class Users{
 	
 
 	private String nickname;
-	@JsonDeserialize(using=LocalDateTimeDeserializer.class)
+	@JsonDeserialize(using= LocalDateTimeDeserializer.class)
 	private LocalDateTime joindate;
 	private LocalDateTime withdrawalDate;
 	@Enumerated(EnumType.STRING)

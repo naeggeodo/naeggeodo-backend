@@ -1,10 +1,8 @@
 package com.naeggeodo.repository;
 
 import java.util.List;
-import java.util.Map;
 
 import com.naeggeodo.dto.UserNameIdDTO;
-import com.naeggeodo.entity.user.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.naeggeodo.entity.chat.BanState;

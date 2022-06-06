@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import com.naeggeodo.jwt.dto.JwtResponse;
 import com.naeggeodo.jwt.dto.RefreshTokenResponse;
 import com.naeggeodo.oauth.dto.SimpleUser;
-import com.naeggeodo.user.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 

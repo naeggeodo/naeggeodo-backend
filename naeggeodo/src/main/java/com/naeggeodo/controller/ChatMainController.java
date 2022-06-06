@@ -7,7 +7,6 @@ import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
 import com.naeggeodo.repository.*;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Propagation;
@@ -70,7 +69,6 @@ public class ChatMainController {
 	public ResponseEntity<Object> createChatRoom(@RequestPart(name = "chat") @Valid ChatRoomDTO chat, @RequestPart MultipartFile file) {
 		Long startTime = System.currentTimeMillis();
 		JSONObject json = chatMainService.createChatRoom(chat, file);
-		System.out.println("==============소요시간===="+(System.currentTimeMillis()-startTime));
 		return ResponseEntity.ok(json.toMap());
 	}
 //	@PostMapping(value= "/chat/rooms",produces ="application/json" )
