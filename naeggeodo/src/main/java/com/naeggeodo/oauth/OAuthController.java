@@ -1,5 +1,6 @@
 package com.naeggeodo.oauth;
 
+
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.naeggeodo.jwt.JwtTokenProvider;
 import com.naeggeodo.jwt.JwtTokenService;
@@ -29,13 +31,16 @@ import com.naeggeodo.jwt.JwtTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+
 @Slf4j
+
 @RestController
 @RequiredArgsConstructor
 public class OAuthController {
     private final OAuthService service;
     private final JwtTokenProvider jwtToken;
     private final JwtTokenService jwtService;
+
 
     //소셜로그인으로부터 인증코드를 받아와 OAuthLogin으로 redirecte
     public void getCode(@PathVariable String provider, HttpServletResponse response, HttpServletRequest request) {
@@ -73,3 +78,4 @@ public class OAuthController {
 //    	return ResponseEntity.ok(jwtResponse);
 //    }
 }
+

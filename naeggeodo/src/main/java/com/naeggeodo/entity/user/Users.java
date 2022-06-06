@@ -9,23 +9,31 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
+
 import com.naeggeodo.interfaces.JSONConverterAdapter;
 import org.json.JSONObject;
 
 import com.naeggeodo.entity.chat.QuickChat;
 
+
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
+
 public class Users{
+
 	
-	public Users() {}
-	
+	private String phone;
 	@Id @Column(name="user_id")
 	private String id;
+
 	
 	private String password;
 	private String token;
@@ -39,11 +47,11 @@ public class Users{
 	private String buildingCode;
 	private String email;
 	
+
 	private String nickname;
+	@JsonDeserialize(using=LocalDateTimeDeserializer.class)
 	private LocalDateTime joindate;
 	private LocalDateTime withdrawalDate;
-	@Enumerated(EnumType.STRING)
-	private TosCheck tosCheck;
 	@Enumerated(EnumType.STRING)
 	private Authority authority;
 	

@@ -13,10 +13,12 @@ import java.util.Map;
 
 import javax.transaction.Transactional;
 
+
 import com.naeggeodo.repository.UserRepository;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -33,7 +35,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.naeggeodo.entity.user.Authority;
 import com.naeggeodo.entity.user.Users;
+
 import com.naeggeodo.jwt.JwtTokenProvider;
+
 import com.naeggeodo.oauth.config.InMemoryProviderRepository;
 import com.naeggeodo.oauth.config.OauthProvider;
 import com.naeggeodo.oauth.config.OauthTokenResponse;
@@ -42,6 +46,7 @@ import com.naeggeodo.oauth.dto.NaverOAuthDto;
 import com.naeggeodo.oauth.dto.OAuthDto;
 import com.naeggeodo.oauth.dto.OAuthDtoMapper;
 import com.naeggeodo.oauth.dto.SimpleUser;
+
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -243,3 +248,4 @@ public class OAuthService {
 
 	}
 }
+

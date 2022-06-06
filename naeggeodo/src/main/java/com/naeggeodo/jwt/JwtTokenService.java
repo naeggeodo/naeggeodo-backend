@@ -13,6 +13,7 @@ import lombok.ToString;
 public class JwtTokenService {
 	private final JwtTokenProvider jwtProvider;
 
+
 	public JwtResponse createJwtToken(SimpleUser user) {
 		String id = user.getId();
 
@@ -21,5 +22,6 @@ public class JwtTokenService {
 				"Bearer",
 				user);
 	}
+
 
 }

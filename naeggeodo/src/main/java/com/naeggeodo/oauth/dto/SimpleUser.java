@@ -1,6 +1,8 @@
 package com.naeggeodo.oauth.dto;
 
 import com.naeggeodo.entity.user.Authority;
+
+
 import lombok.Data;
 
 @Data
