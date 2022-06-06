@@ -18,7 +18,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Component
 public class JwtTokenProvider {
 	@Value("${jwt.secret-key}")
-	private static Key secretKey;
+	private String secretKey;
 //    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     Logger logger = LoggerFactory.getLogger(this.getClass());
     @Value("${jwt.access-token.expire-length}")//24시간
@@ -27,10 +27,12 @@ public class JwtTokenProvider {
     private long refreshTokenExpiredInMilliseconds;
 
     public String createToken(String subject) {
-    	LoggerFactory.getLogger(this.getClass()).info(secretKey.getFormat());
+
+    	LoggerFactory.getLogger(this.getClass()).info(secretKey);
         if (accessTokenExpiredInMilliseconds <= 0) {
             throw new RuntimeException("Expiry time must be greater than Zero : ["+accessTokenExpiredInMilliseconds+"] ");
         }
+        
         Claims claims = Jwts.claims().setSubject(subject);
 
         JwtBuilder builder = Jwts.builder()
@@ -38,7 +40,7 @@ public class JwtTokenProvider {
                 .setExpiration(new Date(accessTokenExpiredInMilliseconds))
                 .setIssuer("naeggeodo.com")
                 .setHeaderParam("typ", "JWT")
-                .signWith(secretKey, SignatureAlgorithm.HS256);
+                .signWith(SignatureAlgorithm.HS256, secretKey);
 
         return builder.compact();
     }
@@ -49,7 +51,7 @@ public class JwtTokenProvider {
     	return Jwts.builder()
     			.setClaims(claims)
     			.setExpiration(new Date(refreshTokenExpiredInMilliseconds))
-    			.signWith(secretKey, SignatureAlgorithm.HS256)
+    			.signWith(SignatureAlgorithm.HS256, secretKey)
     			.compact();
     }
 
