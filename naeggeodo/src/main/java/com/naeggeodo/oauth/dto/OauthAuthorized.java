@@ -1,4 +1,4 @@
-package com.naeggeodo.oauth.config;
+package com.naeggeodo.oauth.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -10,7 +10,7 @@ import lombok.ToString;
 @ToString
 @Getter
 @NoArgsConstructor
-public class OauthTokenResponse {
+public class OauthAuthorized {
     @JsonProperty("access_token")
     private String accessToken;
 
@@ -20,7 +20,7 @@ public class OauthTokenResponse {
     private String tokenType;
 
     @Builder
-    public OauthTokenResponse(String accessToken, String scope, String tokenType) {
+    public OauthAuthorized(String accessToken, String scope, String tokenType) {
         this.accessToken = accessToken;
         this.scope = scope;
         this.tokenType = tokenType;

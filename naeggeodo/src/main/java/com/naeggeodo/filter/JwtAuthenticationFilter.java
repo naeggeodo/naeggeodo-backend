@@ -1,24 +1,39 @@
 package com.naeggeodo.filter;
 
-import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.Objects;
+
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.naeggeodo.exception.UnauthorizedException;
+import com.naeggeodo.jwt.AuthorizationExtractor;
+import com.naeggeodo.jwt.JwtTokenProvider;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    @Override
+    @Autowired
+    private JwtTokenProvider jwtProvider;
+    
+	@Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        System.out.println("doFilter");
-       // String token = request.getHeader("Authorization");
-        //System.out.println("token : " + token);
-
-        //토큰검증 로직 추가하면됨
-        /*
-        *    토큰 검증로직 추가하여 성공시 doFilter 호출
-        *    실패시 exception throw 해서 entrypoint 에서 핸들링할것        * */
+		String token = AuthorizationExtractor.extract(request);
+		
+		if(Objects.isNull(token)) {
+			throw new UnauthorizedException("Access Token 이 존재하지 않습니다.");
+		}
+		if(!jwtProvider.validateToken(token)) {
+			throw new UnauthorizedException("유효한 토큰이 아닙니다.");
+		}
+        
         filterChain.doFilter(request,response);
     }
 }
+
