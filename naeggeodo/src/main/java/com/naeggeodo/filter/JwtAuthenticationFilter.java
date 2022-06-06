@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -19,9 +20,12 @@ import com.naeggeodo.jwt.AuthorizationExtractor;
 import com.naeggeodo.jwt.JwtTokenProvider;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    @Autowired
     private JwtTokenProvider jwtProvider;
-    
+
+	public JwtAuthenticationFilter(JwtTokenProvider jwtProvider) {
+		this.jwtProvider = jwtProvider;
+	}
+
 	@Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 		String token = AuthorizationExtractor.extract(request);
