@@ -13,16 +13,19 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtTokenService {
 	private final JwtTokenProvider jwtProvider;
+
 	private final JwtTokenRepository jwtRepository;
 	
+
 	public JwtResponse createJwtToken(SimpleUser user) {
-		  String id = user.getId();
-		  
-		  return new JwtResponse(jwtProvider.createToken(id),
-					  jwtProvider.createRefreshToken(id),
-					  "Bearer",
-					  user);
+		String id = user.getId();
+
+		return new JwtResponse(jwtProvider.createToken(id),
+				jwtProvider.createRefreshToken(id),
+				"Bearer",
+				user);
 	}
+
 
     public RefreshTokenResponse refreshToken(String token) throws Exception{
         String userId = jwtProvider.getSubject(token);
@@ -34,4 +37,5 @@ public class JwtTokenService {
         }
     	return new RefreshTokenResponse(jwtProvider.createToken(userId),token);
     }
+
 }

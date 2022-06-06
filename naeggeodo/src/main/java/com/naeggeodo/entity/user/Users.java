@@ -1,23 +1,20 @@
 package com.naeggeodo.entity.user;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.naeggeodo.entity.chat.ChatDetail;
-import com.naeggeodo.entity.chat.ChatMain;
-import com.naeggeodo.entity.deal.DealHistory;
-import com.naeggeodo.entity.post.Notice;
-import com.naeggeodo.entity.post.Qna;
-import com.naeggeodo.entity.post.Report;
+
+import com.naeggeodo.interfaces.JSONConverterAdapter;
+import org.json.JSONObject;
+
+import com.naeggeodo.entity.chat.QuickChat;
+
 
 import lombok.Builder;
 import lombok.Data;
@@ -29,14 +26,28 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-public class Users {
+
+public class Users{
+
 	
 	private String phone;
 	@Id @Column(name="user_id")
 	private String id;
 
+	
+	private String password;
+	private String token;
+	private String phone;
+	
+	// 텍스트 주소 ex) 서울시...
+	private String address;
+	// 우편번호
+	private String zonecode;
+	// buildingcode
+	private String buildingCode;
 	private String email;
-	private String addr;
+	
+
 	private String nickname;
 	@JsonDeserialize(using=LocalDateTimeDeserializer.class)
 	private LocalDateTime joindate;
@@ -44,15 +55,24 @@ public class Users {
 	@Enumerated(EnumType.STRING)
 	private Authority authority;
 	
-	@OneToMany(mappedBy = "user")
-	private List<DealHistory> dealHistory;
-	@OneToMany(mappedBy = "user")
-	private List<ChatMain> chatMain;
-	@OneToMany(mappedBy = "user")
-	private List<Notice> notice;
-	@OneToMany(mappedBy = "user")
-	private List<Qna> qna;
-	@OneToMany(mappedBy = "user")
-	private List<Report> report;
+	private String imgpath;
 	
+	@OneToOne(mappedBy = "user")
+	private QuickChat quickChat;
+	
+	public void updateAddress(String address,String zonecode,String buildingCode) {
+		this.address = address;
+		this.zonecode = zonecode;
+		this.buildingCode = buildingCode;
+	}
+
+	public JSONObject AddresstoJSON() {
+		JSONObject json = new JSONObject();
+		json.put("address", address);
+		json.put("zonecode", zonecode);
+		json.put("buildingCode", buildingCode);
+		json.put("id", id);
+		return json;
+	}
+
 }

@@ -4,10 +4,12 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +17,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.naeggeodo.entity.user.Authority;
 import com.naeggeodo.entity.user.Users;
+
 import com.naeggeodo.jwt.dto.RefreshTokenResponse;
+
 import com.naeggeodo.oauth.config.InMemoryProviderRepository;
 import com.naeggeodo.oauth.config.OauthProvider;
 import com.naeggeodo.oauth.dto.KakaoOAuthDto;
@@ -24,7 +28,7 @@ import com.naeggeodo.oauth.dto.OAuthDto;
 import com.naeggeodo.oauth.dto.OAuthDtoMapper;
 import com.naeggeodo.oauth.dto.OauthAuthorized;
 import com.naeggeodo.oauth.dto.SimpleUser;
-import com.naeggeodo.user.UserRepository;
+
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @AllArgsConstructor
 public class OAuthService {
+
 	@Autowired
     private InMemoryProviderRepository inMemoryProviderRepository;
 	@Autowired
@@ -112,5 +117,7 @@ public class OAuthService {
     	return new SimpleUser(user.getId(), user.getAddr(), user.getAuthority());
     }
 
+
    
 }
+

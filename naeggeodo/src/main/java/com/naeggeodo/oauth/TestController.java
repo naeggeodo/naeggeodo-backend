@@ -12,9 +12,11 @@ import com.naeggeodo.oauth.config.OauthConfig;
 
 import lombok.extern.slf4j.Slf4j;
 
+
 @Slf4j
 @Controller
 public class TestController {
+
 
 	@Autowired
 	private OauthConfig oauthConfig;
@@ -55,3 +57,4 @@ public class TestController {
     	}
 
 }
+
