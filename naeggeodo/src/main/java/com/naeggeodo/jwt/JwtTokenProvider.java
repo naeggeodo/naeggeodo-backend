@@ -46,7 +46,7 @@ public class JwtTokenProvider {
 
         JwtBuilder builder = Jwts.builder()
                 .setClaims(claims)
-                .setExpiration(new Date(accessTokenExpiredInMilliseconds))
+                .setExpiration(new Date(new Date().getTime()+accessTokenExpiredInMilliseconds))
                 .setIssuer("naeggeodo.com")
                 .setHeaderParam("typ", "JWT")
                 .signWith(SignatureAlgorithm.HS256, secretKey);
@@ -60,7 +60,7 @@ public class JwtTokenProvider {
     	
     	return Jwts.builder()
     			.setClaims(claims)
-    			.setExpiration(new Date(refreshTokenExpiredInMilliseconds))
+    			.setExpiration(new Date(new Date().getTime()+refreshTokenExpiredInMilliseconds))
     			.signWith(SignatureAlgorithm.HS256, secretKey)
     			.compact();
     }
