@@ -12,14 +12,16 @@ import lombok.ToString;
 @RequiredArgsConstructor
 public class JwtTokenService {
 	private final JwtTokenProvider jwtProvider;
-	
+
+
 	public JwtResponse createJwtToken(SimpleUser user) {
-		  String id = user.getId();
-		  
-		  return new JwtResponse(jwtProvider.createToken(id),
-					  jwtProvider.createRefreshToken(id),
-					  "Bearer",
-					  user);
+		String id = user.getId();
+
+		return new JwtResponse(jwtProvider.createToken(id),
+				jwtProvider.createRefreshToken(id),
+				"Bearer",
+				user);
 	}
-	
+
+
 }

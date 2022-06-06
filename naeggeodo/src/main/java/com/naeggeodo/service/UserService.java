@@ -1,5 +1,7 @@
 package com.naeggeodo.service;
 
+import com.naeggeodo.exception.CustomHttpException;
+import com.naeggeodo.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +17,7 @@ public class UserService {
 	
 	@Transactional
 	public void updateProfile(String id,String imgpath) {
-		Users user = userRepository.findById(id).get();
+		Users user = userRepository.findById(id).orElseThrow(()-> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
 		user.setImgpath(imgpath);
 	}
 	

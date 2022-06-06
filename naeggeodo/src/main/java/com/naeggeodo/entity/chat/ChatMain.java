@@ -5,17 +5,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 
+//import com.naeggeodo.listener.ChatMainListener;
+import com.naeggeodo.exception.CustomHttpException;
+import com.naeggeodo.exception.ErrorCode;
 import org.hibernate.annotations.DynamicUpdate;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -35,6 +29,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicUpdate
+//@EntityListeners(ChatMainListener.class)
 public class ChatMain extends JSONConverterAdapter{
 
 	
@@ -72,12 +67,19 @@ public class ChatMain extends JSONConverterAdapter{
 	
 	@OneToMany(mappedBy = "chatMain")
 	private List<Tag> tag = new ArrayList<>();
-	
+
+	@Enumerated(EnumType.STRING)
+	private Bookmarks bookmarks;
+
+	private LocalDateTime bookmarksDate;
 	//생성
 	public static ChatMain create(ChatRoomDTO dto) {
 		return ChatMain.builder().title(dto.getTitle()).createDate(LocalDateTime.now())
 				.buildingCode(dto.getAddr()).state(ChatState.CREATE).link(dto.getLink())
-				.place(dto.getPlace()).category(dto.getCategory()).orderTimeType(dto.getOrderTimeType()).build();
+				.place(dto.getPlace()).category(Category.valueOf(dto.getCategory()))
+				.orderTimeType(OrderTimeType.valueOf(dto.getOrderTimeType()))
+				.maxCount(dto.getMaxCount())
+				.build();
 	}
 	
 	//state upadate
@@ -92,31 +94,21 @@ public class ChatMain extends JSONConverterAdapter{
 	
 	public void changeState(ChatState state) {
 		this.state = state;
+		if(state.equals(ChatState.END)) this.bookmarks = Bookmarks.N;
 	}
 	
 	// is Full
 	public boolean isFull() {
 		int maxCount = this.getMaxCount();
-		int currentCount = 0;
-		if(!chatUser.isEmpty()) {
-			for (ChatUser cu : chatUser) {
-				if(BanState.ALLOWED.equals(cu.getBanState())) {
-					currentCount++;
-				}
-			}
-		}
-		if(currentCount>=maxCount) {
-			return true;
-		}
-		return false;
+		int currentCount = getAllowedUserCnt();
+
+
+		return currentCount >= maxCount;
 	}
 	
 	// 입장가능?
 	public boolean canEnter() {
-		if(this.state==ChatState.CREATE||this.state==ChatState.FULL) {
-			return true;
-		}
-		return false;
+		return this.state == ChatState.CREATE || this.state == ChatState.FULL;
 	}
 	
 	public int getAllowedUserCnt() {
@@ -174,17 +166,15 @@ public class ChatMain extends JSONConverterAdapter{
 			field.setAccessible(true);
 			if(field.get(this) instanceof Users) {
 				json.put("user_id", ((Users) field.get(this)).getId());
-			}else if(field.get(this) instanceof List) {
-				continue;
 			}else if(field.get(this) instanceof LocalDateTime) {
 				json.put(field.getName(), ((LocalDateTime)field.get(this)).toString());
 			}else if(field.get(this) instanceof Enum) {
-				json.put(field.getName(),((Enum)field.get(this)).name());
-			}else {
+				json.put(field.getName(),((Enum<?>)field.get(this)).name());
+			}else if(!(field.get(this) instanceof List)){
 				json.put(field.getName(), field.get(this));
 			}
-			
-			
+
+
 		}
 		json.put("currentCount",this.getAllowedUserCnt());
 		json.put("tags", tagsToJSONArrayString());
@@ -206,27 +196,38 @@ public class ChatMain extends JSONConverterAdapter{
 			field.setAccessible(true);
 			if(field.get(this) instanceof Users) {
 				json.put("user_id", ((Users) field.get(this)).getId());
-			}else if(field.get(this) instanceof List) {
-				continue;
 			}else if(field.get(this) instanceof LocalDateTime) {
 				json.put(field.getName(), ((LocalDateTime)field.get(this)).toString());
 			}else if(field.get(this) instanceof Enum) {
-				json.put(field.getName(),((Enum)field.get(this)).name());
-			}else {
+				json.put(field.getName(),((Enum<?>)field.get(this)).name());
+			}else if(!(field.get(this) instanceof List)){
 				json.put(field.getName(), field.get(this));
 			}
-			
-			
+
+
 		}
 		json.put("tags", tagsToJSONArrayString());
 		return json;
 	}
-	
+
 	private String tagsToJSONArrayString() {
 		JSONArray arr_json = new JSONArray();
 		for (Tag t : tag) {
 			arr_json.put(t.getName());
 		}
 		return arr_json.toString();
+	}
+
+	public void updateBookmarks(){
+		if(this.bookmarks.equals(Bookmarks.Y)){
+			this.bookmarksDate = null;
+			this.bookmarks = Bookmarks.N;
+		} else if(this.bookmarks.equals(Bookmarks.N)){
+			this.bookmarksDate = LocalDateTime.now();
+			this.bookmarks = Bookmarks.Y;
+		} else {
+			throw new CustomHttpException(ErrorCode.INVALID_FORMAT);
+		}
+
 	}
 }

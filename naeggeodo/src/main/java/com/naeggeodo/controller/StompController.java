@@ -3,8 +3,15 @@ package com.naeggeodo.controller;
 
 import java.util.List;
 
+import com.naeggeodo.dto.TargetMessageDTO;
+import com.naeggeodo.entity.post.Report;
+import com.naeggeodo.exception.CustomWebSocketException;
+import com.naeggeodo.exception.StompErrorCode;
+import com.naeggeodo.repository.*;
+import lombok.NonNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -21,15 +28,16 @@ import com.naeggeodo.entity.chat.ChatUser;
 import com.naeggeodo.entity.chat.QuickChat;
 import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.handler.SessionHandler;
-import com.naeggeodo.repository.ChatMainRepository;
-import com.naeggeodo.repository.ChatUserRepository;
-import com.naeggeodo.repository.QuickChatRepository;
-import com.naeggeodo.repository.UserRepository;
 import com.naeggeodo.service.ChatDetailService;
 import com.naeggeodo.util.MyUtility;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import javax.validation.Valid;
 
 @Slf4j
 @Controller
@@ -42,12 +50,15 @@ public class StompController {
     private final ChatUserRepository chatUserRepository;
     private final UserRepository userRepository;
     private final QuickChatRepository quickChatRepository;
+	private final ReportRepository reportRepository;
     
     
     //일반 메시지,이미지 보내기
     @MessageMapping("/chat/send")
-    public void sendMsg(MessageDTO message) throws Exception {
-        Long chatMain_id = message.getChatMain_id();
+    public void sendMsg(MessageDTO message,StompHeaderAccessor headers) {
+
+		validateMessage(message,headers);
+        Long chatMain_id = message.chatMain_idToLong();
     	//메시지 insert
     	chatDetailService.save(message);
     	//메시지 전송
@@ -61,8 +72,9 @@ public class StompController {
     @Transactional
     @MessageMapping("/chat/enter")
     public void enter(MessageDTO message,StompHeaderAccessor headers) throws Exception {
+		validateMessage(message,headers);
     	System.out.println("================enter===================");
-    	 Long chatMain_id = message.getChatMain_id();
+    	 Long chatMain_id = message.chatMain_idToLong();
     	 String sender = message.getSender();
     	 String session_id = headers.getSessionId();
     	 ChatMain chatMain  = chatMainRepository.findChatMainEntityGraph(chatMain_id);
@@ -79,7 +91,7 @@ public class StompController {
     	 //인원수 메시지 전송
     	 sendToAll(chatMain_id, getCountMessage(chatMain));
     	 // 채팅방 상태변경
-    	 System.out.println("=========chatMain changestate==========");
+    	 System.out.println("=========chatMain changeState==========");
     	 
     	 chatMain.updateState();
     }
@@ -87,9 +99,10 @@ public class StompController {
     //퇴장
     @MessageMapping("/chat/exit")
     @Transactional
-    public void exit(MessageDTO message) throws Exception {
+    public void exit(MessageDTO message,StompHeaderAccessor headers) throws Exception {
+		validateMessage(message,headers);
     	System.out.println("====================exit==============================");
-    	Long chatMain_id = message.getChatMain_id();
+    	Long chatMain_id = message.chatMain_idToLong();
     	String sender = message.getSender();
     	
     	ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(chatMain_id);
@@ -128,38 +141,61 @@ public class StompController {
     //개선
     @Transactional
     @MessageMapping("/chat/ban")
-    public void ban(MessageDTO message,StompHeaderAccessor headers) throws Exception {
-    	//강퇴할 사람 sessionID 가져오기
-    	String bannedUser = message.getContents();
+    public void ban(TargetMessageDTO message,StompHeaderAccessor headers) throws Exception {
+
+		validateMessage(message,headers);
+
+		//강퇴할 사람 sessionID 가져오기
+    	String target_id = message.getTarget_id();
     	String sender = message.getSender();
-    	ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(message.getChatMain_id());
-    	ChatUser targetChatUser = chatMain.findChatUserBySender(bannedUser);
+    	ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(message.chatMain_idToLong());
+    	ChatUser targetChatUser = chatMain.findChatUserBySender(target_id);
     	String senderSessionId = headers.getSessionId();
     	
     	
-    	if(!chatMain.getUser().getId().equals(sender)||bannedUser.equals(sender)) {
+    	if(!chatMain.getUser().getId().equals(sender)||target_id.equals(sender)) {
     		// 보낸 사람이 방장이 아니거나 자기자신일때
-    		sendToUser(chatMain.getId(),senderSessionId , getAlertMessage("bad request"));
+    		sendToUser(senderSessionId , getAlertMessage("bad request"));
     		return;
     	}
     	
     	sessionHandler.close(targetChatUser.getSessionId());
     	targetChatUser.setBanState(BanState.BANNED);
-    	//chatUserRepository.delete(targetChatUser);
-    	//chatMain.removeChatUser(targetChatUser);
-    	message.setContents(bannedUser+"님이 강퇴 당하셨습니다.");
+    	message.setContents(target_id+"님이 강퇴 당하셨습니다.");
     	chatDetailService.save(message);
     	
     	sendToAll(chatMain.getId(), message);
     	sendToAll(chatMain.getId(), getCountMessage(chatMain));
-    	
+
     	chatMain.updateState();
     }
+
+	@Transactional
+	@MessageMapping("/chat/report")
+	public void report(TargetMessageDTO messageDTO,StompHeaderAccessor headers){
+
+		validateMessage(messageDTO,headers);
+
+		String sender_id = messageDTO.getSender();
+		String target_id = messageDTO.getTarget_id();
+		Users sender = null;
+		Users target = null;
+		if(userRepository.countForReport(sender_id,target_id)){
+			sender = userRepository.getById(sender_id);
+			target = userRepository.getById(target_id);
+		} else {
+			sendToUser(headers.getSessionId(),getAlertMessage("올바르지 않은 요청입니다."));
+		}
+
+
+		Report report = Report.create(sender,target,messageDTO.getContents());
+		reportRepository.save(report);
+	}
     
     //quick-chat update
     @Transactional
     @MessageMapping("/chat/quick-chat/update")
-    public void updateQuickChat(MessageDTO message) {
+    public void updateQuickChat(MessageDTO message,StompHeaderAccessor headers) {
     	JSONObject json = new JSONObject(message.getContents());
     	JSONArray arr_json = new JSONArray(json.get("quickChat").toString());
     	String user_id = json.getString("user_id");
@@ -171,19 +207,18 @@ public class StompController {
     	contents_json.put("user_id", user_id);
     	message.setContents(contents_json.toString());
     	message.setType(ChatDetailType.SYSTEM);
-    	sendToUser(message.getChatMain_id(), user_id, message);
+    	sendToUser(headers.getSessionId(), message);
     }
     // 인원수 메시지 get 
     // 개선하기전!!!!
     private MessageDTO getCountMessage(ChatMain chatMain) throws Exception {
     	List<ChatUser> chatUser = chatMain.getChatUser();
     	
-    	JSONObject json = new JSONObject();
-    	json = MyUtility.convertListToJSONobj(chatUser, "user");
+		JSONObject json = MyUtility.convertListToJSONobj(chatUser, "user");
     	json.put("currentCount", chatMain.getAllowedUserCnt());
     	
     	MessageDTO messageDto = new MessageDTO();
-    	messageDto.setChatMain_id(chatMain.getId());
+    	messageDto.setChatMain_id(String.valueOf(chatMain.getId()));
     	messageDto.setContents(json.toString());
     	messageDto.setType(ChatDetailType.CNT);
     	return messageDto;
@@ -201,24 +236,44 @@ public class StompController {
     private void sendToAll(Long chatMain_id,MessageDTO dto) {
     	simpMessagingTemplate.convertAndSend("/topic/"+chatMain_id,dto);
     }
-    
+    private void sendToAll(Long chatMain_id,TargetMessageDTO dto) {
+    	simpMessagingTemplate.convertAndSend("/topic/"+chatMain_id,dto);
+    }
+
     // 개인 send
     // https://stackoverflow.com/questions/34929578/spring-websocket-sendtosession-send-message-to-specific-session
-    private void sendToUser(Long chatMain_id,String sessionId,MessageDTO dto) {
+    private void sendToUser(String sessionId,MessageDTO dto) {
         StompHeaderAccessor headers = StompHeaderAccessor.create(StompCommand.MESSAGE);
         headers.setSessionId(sessionId);
-        simpMessagingTemplate.convertAndSendToUser(sessionId, "/queue/"+chatMain_id, dto,  headers.getMessageHeaders());
+        simpMessagingTemplate.convertAndSendToUser(sessionId, "/queue/"+sessionId, dto,  headers.getMessageHeaders());
     }
     //개인 send 오버로딩 (deprecated)
     @Deprecated
-    private void sendToUser(Long chatMain_id,String sessionId,String message) {
+    private void sendToUser(String sessionId, String message) {
     	StompHeaderAccessor headers = StompHeaderAccessor.create(StompCommand.MESSAGE);
     	headers.setSessionId(sessionId);
-    	simpMessagingTemplate.convertAndSendToUser(sessionId, "/queue/"+chatMain_id, message,  headers.getMessageHeaders());
+    	simpMessagingTemplate.convertAndSendToUser(sessionId, "/queue/"+sessionId, message,  headers.getMessageHeaders());
     }
-    
-    
-    //추가됨
-    
-    
+
+	private void validateMessage(MessageDTO dto,StompHeaderAccessor headers){
+		String chatMain_id = dto.getChatMain_id();
+		String sender = dto.getSender();
+
+		if(chatMain_id!=null&&sender!=null){
+			chatMain_id = chatMain_id.trim();
+			sender  = sender.trim();
+		}
+		if(chatMain_id==null||chatMain_id.equals(""))
+			throw new CustomWebSocketException(StompErrorCode.BAD_REQUEST.name(),headers);
+		if(sender==null||sender.equals(""))
+			throw new CustomWebSocketException(StompErrorCode.BAD_REQUEST.name(),headers);
+	}
+
+    @MessageExceptionHandler(CustomWebSocketException.class)
+	public void handleMessageException(CustomWebSocketException e){
+		if(e.getHeaders()!=null) sendToUser(e.getHeaders().getSessionId(),getAlertMessage(e.getMsg()));
+	}
+	@MessageExceptionHandler(NullPointerException.class)
+	public void handleMessageException(NullPointerException e){}
+
 }

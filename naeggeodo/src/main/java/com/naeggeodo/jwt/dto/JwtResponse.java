@@ -25,6 +25,6 @@ public class JwtResponse {
 //		this.userId = user.getId();
 //		this.addr = user.getAddress();
 	}
-	
+
 }
  

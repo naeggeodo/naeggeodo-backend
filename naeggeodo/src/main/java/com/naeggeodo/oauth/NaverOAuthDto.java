@@ -1,5 +1,7 @@
-package com.naeggeodo.oauth.dto;
+package com.naeggeodo.oauth;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
+import com.naeggeodo.entity.user.Users;
 
 import lombok.Data;
 

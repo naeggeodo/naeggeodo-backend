@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import com.naeggeodo.entity.chat.Category;
 import com.naeggeodo.interfaces.JSONConverter;
 
+
 public class MyUtility {
 	public static int getFileSizeInBase64StringWithKB(String base64String) {
 		double stringLength = base64String.length() - "data:image/png;base64,".length();
@@ -17,12 +18,12 @@ public class MyUtility {
 	}
 	
 	
-	// convert List<Entity> -> JSONObeject using JSONConverter.toJSON() 
+	// convert List<Entity> -> JSONObject using JSONConverter.toJSON()
 	public static <T extends JSONConverter> JSONObject convertListToJSONobj(List<T> list,String key) throws Exception {
 		JSONObject jsonResult = new JSONObject();
 		JSONArray arr_json = new JSONArray();
 		for (int i = 0; i < list.size(); i++) {
-			JSONConverter toJson = (JSONConverter)list.get(i);
+			JSONConverter toJson = list.get(i);
 			JSONObject json = toJson.toJSON();
 			json.put("idx", i);
 			arr_json.put(json);
@@ -37,7 +38,7 @@ public class MyUtility {
 		JSONObject jsonResult = new JSONObject();
 		JSONArray arr_json = new JSONArray();
 		for (int i = 0; i < list.size(); i++) {
-			JSONConverter toJson = (JSONConverter)list.get(i);
+			JSONConverter toJson = list.get(i);
 			JSONObject json = toJson.toJSONIgnoringCurrentCount();
 			json.put("idx", i);
 			arr_json.put(json);
@@ -62,7 +63,7 @@ public class MyUtility {
 		return jsonResult;
 	}
 	
-	public static JSONObject convertCategoryToJSONobj(String key) throws Exception{
+	public static JSONObject convertCategoryToJSONobj(String key){
 		JSONObject jsonResult = new JSONObject();
 		JSONArray arr_json = new JSONArray();
 		

@@ -42,8 +42,4 @@ public class Deal {
 		return deal;
 	}
 	
-	public void setUser(Users user) {
-		this.user = user;
-		user.getDeals().add(this);
-	}
 }
