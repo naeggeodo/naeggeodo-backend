@@ -1,5 +1,6 @@
 package com.naeggeodo.exception;
 
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
 
 import org.springframework.http.HttpStatus;
@@ -17,25 +18,28 @@ public class GlobalExceptionHandler {
 		return ErrorResponse.toResponseEntity(e.getErrorCode());
 	}
 	
-	@ExceptionHandler(value= {NumberFormatException.class})
+	@ExceptionHandler(value= {NumberFormatException.class,NullPointerException.class})
 	protected ResponseEntity<ErrorResponse> handleNumberFormatException(NumberFormatException e){
-		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		return ErrorResponse.toResponseEntity(ErrorCode.INVALID_FORMAT);
 	}
 	
 	@ExceptionHandler(value= {IllegalArgumentException.class})
 	protected ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e){
-		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		return ErrorResponse.toResponseEntity(ErrorCode.INVALID_FORMAT);
 	}
 	
-	@ExceptionHandler(value= {NoResultException.class})
+	@ExceptionHandler(value= {NoResultException.class, EntityNotFoundException.class})
 	protected ResponseEntity<ErrorResponse> handleNoResultException(NoResultException e){
-		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		return ErrorResponse.toResponseEntity(ErrorCode.RESOURCE_NOT_FOUND);
 	}
 	@ExceptionHandler(value= {HttpMediaTypeNotSupportedException.class})
 	protected ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e){
-		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		return ErrorResponse.toResponseEntity(ErrorCode.INVALID_FORMAT);
 	}
-	
 
+	@ExceptionHandler(value= {Exception.class})
+	protected ResponseEntity<ErrorResponse> handleException(Exception e){
+		return ErrorResponse.toResponseEntity(ErrorCode.UNKNOWN_ERROR);
+	}
 	
 }

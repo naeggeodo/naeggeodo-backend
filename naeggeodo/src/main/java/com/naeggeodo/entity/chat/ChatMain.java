@@ -8,6 +8,8 @@ import java.util.List;
 import javax.persistence.*;
 
 //import com.naeggeodo.listener.ChatMainListener;
+import com.naeggeodo.exception.CustomHttpException;
+import com.naeggeodo.exception.ErrorCode;
 import org.hibernate.annotations.DynamicUpdate;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -66,12 +68,18 @@ public class ChatMain extends JSONConverterAdapter{
 	@OneToMany(mappedBy = "chatMain")
 	private List<Tag> tag = new ArrayList<>();
 
+	@Enumerated(EnumType.STRING)
+	private Bookmarks bookmarks;
 
+	private LocalDateTime bookmarksDate;
 	//생성
 	public static ChatMain create(ChatRoomDTO dto) {
 		return ChatMain.builder().title(dto.getTitle()).createDate(LocalDateTime.now())
 				.buildingCode(dto.getAddr()).state(ChatState.CREATE).link(dto.getLink())
-				.place(dto.getPlace()).category(dto.getCategory()).orderTimeType(dto.getOrderTimeType()).build();
+				.place(dto.getPlace()).category(Category.valueOf(dto.getCategory()))
+				.orderTimeType(OrderTimeType.valueOf(dto.getOrderTimeType()))
+				.maxCount(dto.getMaxCount())
+				.build();
 	}
 	
 	//state upadate
@@ -86,6 +94,7 @@ public class ChatMain extends JSONConverterAdapter{
 	
 	public void changeState(ChatState state) {
 		this.state = state;
+		if(state.equals(ChatState.END)) this.bookmarks = Bookmarks.N;
 	}
 	
 	// is Full
@@ -207,5 +216,18 @@ public class ChatMain extends JSONConverterAdapter{
 			arr_json.put(t.getName());
 		}
 		return arr_json.toString();
+	}
+
+	public void updateBookmarks(){
+		if(this.bookmarks.equals(Bookmarks.Y)){
+			this.bookmarksDate = null;
+			this.bookmarks = Bookmarks.N;
+		} else if(this.bookmarks.equals(Bookmarks.N)){
+			this.bookmarksDate = LocalDateTime.now();
+			this.bookmarks = Bookmarks.Y;
+		} else {
+			throw new CustomHttpException(ErrorCode.INVALID_FORMAT);
+		}
+
 	}
 }

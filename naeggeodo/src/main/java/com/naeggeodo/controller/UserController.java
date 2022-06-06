@@ -11,6 +11,8 @@ import com.naeggeodo.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import javax.validation.Valid;
+
 @RestController
 @RequiredArgsConstructor
 public class UserController {
@@ -20,7 +22,7 @@ public class UserController {
 	@Transactional
 	@PatchMapping(value="/user/{user_id}/address",produces = "application/json")
 	public String updateAddress(@PathVariable("user_id")String user_id
-								,@RequestBody AddressDTO dto) throws Exception {
+								,@RequestBody @Valid AddressDTO dto) throws Exception {
 		Users user = userRepository.findById(user_id).
 					orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
 		user.updateAddress(dto.getAddress(), dto.getZonecode(), dto.getBuildingCode());

@@ -14,9 +14,9 @@ import com.naeggeodo.entity.chat.ChatState;
 
 public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 	@EntityGraph(attributePaths = {"chatUser"})
-	List<ChatMain> findByCategoryAndBuildingCode(Category category,String buildingCode);
+	List<ChatMain> findByCategoryAndBuildingCodeAndStateNot(Category category,String buildingCode,ChatState state);
 	@EntityGraph(attributePaths = {"chatUser"})
-	List<ChatMain> findByBuildingCode(String buildingCode);
+	List<ChatMain> findByBuildingCodeAndStateNot(String buildingCode,ChatState state);
 	
 	@Query("SELECT cm FROM ChatMain cm join ChatUser cu on cm.id = cu.chatMain.id WHERE cu.user.id = :user_id")
 	@EntityGraph(attributePaths = {"chatUser"})
@@ -34,13 +34,19 @@ public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 //	public List<ChatMain> findByTagName(@Param("name") String tagName);
 	
 	@EntityGraph(attributePaths = {"chatUser"})
-	List<ChatMain> findByTagName(String tagName);
+	List<ChatMain> findByTagNameAndStateNot(String tagName,ChatState state);
 	
 	@EntityGraph(attributePaths = {"chatUser"})
-	List<ChatMain> findByTagNameOrTitleContains(String tagName,String title);
+	List<ChatMain> findByTagNameOrTitleContainsAndStateNot(String tagName,String title,ChatState state);
 
 	@Modifying
 	@Query("update ChatMain c set c.imgPath = :imgPath where c.id = :chatMain_id")
 	void updateForImgPath(@Param("imgPath")String imgPath,@Param("chatMain_id")Long id);
-	
+
+
+	@Query(value = "(SELECT * from chat_main cm WHERE bookmarks = \"Y\" AND user_id = :user_id ORDER BY bookmarks_date LIMIT 10 )\n" +
+			"UNION \n" +
+			"(SELECT * from chat_main cm WHERE state = 'END' AND user_id = :user_id ORDER BY create_date)",nativeQuery = true)
+	List<ChatMain> findOrderList(@Param("user_id")String user_id);
+
 }
