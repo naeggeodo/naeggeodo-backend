@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<meta charset="UTF-8">
+	<title>Chating</title>
+	<style>
+		*{
+			margin:0;
+			padding:0;
+		}
+		.container{
+			width: 500px;
+			margin: 0 auto;
+			padding: 25px
+		}
+		.container h1{
+			text-align: left;
+			padding: 5px 5px 5px 15px;
+			color: #FFBB00;
+			border-left: 3px solid #FFBB00;
+			margin-bottom: 20px;
+		}
+		.chating{
+			background-color: #000;
+			width: 500px;
+			height: 500px;
+			overflow: auto;
+		}
+		.chating p{
+			color: #fff;
+			text-align: left;
+		}
+		input{
+			width: 330px;
+			height: 25px;
+		}
+	</style>
+</head>
+<script src="/webjars/jquery/jquery.min.js"></script>
+<script src="/webjars/sockjs-client/sockjs.min.js"></script>
+<script src="/webjars/stomp-websocket/stomp.min.js"></script>
+<script type="text/javascript">
+
+	//채팅방 id -> 변수처리 해야함
+	var chatMain_id = 1;
+	//접속한 사용자 id
+	var sender = $.ajax({
+					type:"GET",
+					url : "http://localhost:9090/getId",
+					});
+	
+	
+	//sockJs connect
+	function connect() {
+	    var socket = new SockJS('/chat');
+	    stompClient = Stomp.over(socket);
+	    
+	    //수신
+	    stompClient.connect({}, function () {
+	        stompClient.subscribe('/topic/'+chatMain_id, function (e) {
+	            showMessage(JSON.parse(e.body));
+	        });
+	    });
+	}
+	
+	connect();
+	
+	//송신
+	function send() {
+	    data = {'chatMain_id': chatMain_id, 'sender' :sender.responseText,'contents': $("#chatting").val()};
+	    stompClient.send("/app/chat/send", {}, JSON.stringify(data));
+	    $("#chatting").val('');
+	}
+
+	// msg 화면에 표시
+	function showMessage(msg){
+		$("#chating").append("<p>" + msg.sender +" : "+ msg.contents + "</p>");
+	}
+</script>
+<body>
+	<div id="container" class="container">
+		<h1>내꺼도</h1>
+		<div id="chating" class="chating">
+		</div>
+		
+		<div id="yourMsg">
+			<table class="inputTable">
+				<tr>
+					<th>메시지</th>
+					<th><input id="chatting" placeholder="보내실 메시지를 입력하세요."></th>
+					<th><button onclick="send()" id="sendBtn">보내기</button></th>
+				</tr>
+			</table>
+		</div>
+	</div>
+</body>
+</html>

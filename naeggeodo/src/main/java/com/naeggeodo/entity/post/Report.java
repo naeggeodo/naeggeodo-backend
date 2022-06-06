@@ -19,22 +19,18 @@ public class Report {
 	@JoinColumn(name="user_id")
 	private Users user;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="reported_user_id")
-	private Users reported_user;
-	
+
 	private String contents;
 	private LocalDateTime regDate;
-	@Enumerated(EnumType.STRING)
-	private State_ReportQNA state;
 
-	public static Report create(Users sender,Users target,String contents){
+	@Enumerated(EnumType.STRING)
+	private ReportType type;
+	public static Report create(Users sender,String contents,ReportType type){
 		Report report = new Report();
 		report.setUser(sender);
-		report.setReported_user(target);
-		report.setRegDate(LocalDateTime.now());
-		report.setState(State_ReportQNA.PROCESSED);
 		report.setContents(contents);
+		report.setRegDate(LocalDateTime.now());
+		report.setType(type);
 		return report;
 	}
 }
