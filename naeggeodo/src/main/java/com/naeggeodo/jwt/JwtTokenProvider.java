@@ -14,13 +14,12 @@ import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Component
 public class JwtTokenProvider {
-    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+	@Value("${jwt.secret-key}")
+	private static Key secretKey;
+//    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     Logger logger = LoggerFactory.getLogger(this.getClass());
     @Value("${jwt.access-token.expire-length}")//24시간
     private long accessTokenExpiredInMilliseconds;
@@ -28,57 +27,59 @@ public class JwtTokenProvider {
     private long refreshTokenExpiredInMilliseconds;
 
     public String createToken(String subject) {
-    	
+    	LoggerFactory.getLogger(this.getClass()).info(secretKey.getFormat());
         if (accessTokenExpiredInMilliseconds <= 0) {
             throw new RuntimeException("Expiry time must be greater than Zero : ["+accessTokenExpiredInMilliseconds+"] ");
         }
+        Claims claims = Jwts.claims().setSubject(subject);
 
         JwtBuilder builder = Jwts.builder()
-                .setSubject(subject)
+                .setClaims(claims)
+                .setExpiration(new Date(accessTokenExpiredInMilliseconds))
                 .setIssuer("naeggeodo.com")
                 .setHeaderParam("typ", "JWT")
-                .signWith(SECRET_KEY);
+                .signWith(secretKey, SignatureAlgorithm.HS256);
 
-        builder.setExpiration(new Date(accessTokenExpiredInMilliseconds));
         return builder.compact();
     }
  
-    public static String getSubject(String token) {
+    public String createRefreshToken(String subject) {
+    	Claims claims = Jwts.claims().setSubject(subject);
+    	
+    	return Jwts.builder()
+    			.setClaims(claims)
+    			.setExpiration(new Date(refreshTokenExpiredInMilliseconds))
+    			.signWith(secretKey, SignatureAlgorithm.HS256)
+    			.compact();
+    }
+
+    //대상 조회
+    public String getSubject(String token) {
         Claims claims = Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)
+                .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token).getBody();
         return claims.getSubject();
     }
     
-    public static Claims getTokenData(String token) {
+    //확인필요
+    public Claims getTokenData(String token) {
     	Claims claims = Jwts.parserBuilder()
-    			.setSigningKey(SECRET_KEY)
+    			.setSigningKey(secretKey)
     			.build()
     			.parseClaimsJws(token).getBody();
     	return claims;
     }
     
-
-    public String createRefreshToken(String payload) {
-        Claims claims = Jwts.claims().setSubject(payload);
-
-        return Jwts.builder()
-                .setClaims(claims)
-                .setExpiration(new Date(refreshTokenExpiredInMilliseconds))
-                .signWith(SECRET_KEY)
-                .compact();
-       	}
- 
     //유효토근 검증
     public boolean validateToken(String token) {
         try {
-            Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(SECRET_KEY).build().parseClaimsJws(token);
+            Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
 
             return !claims.getBody().getExpiration().before(new Date());
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }
-
+    
 }
