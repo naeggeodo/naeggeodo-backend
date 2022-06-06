@@ -9,8 +9,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 
-import javax.ws.rs.InternalServerErrorException;
+//import javax.ws.rs.InternalServerErrorException;
 
+import com.naeggeodo.exception.CustomHttpException;
+import com.naeggeodo.exception.ErrorCode;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -53,7 +55,7 @@ public class SocialLogin {
             return userResponse;
         } catch (HttpStatusCodeException e) {
         	log.info(e.getMessage());
-            throw new InternalServerErrorException();
+            throw new CustomHttpException(ErrorCode.UNKNOWN_ERROR);
         }
     }
 
