@@ -57,7 +57,7 @@ public class JwtTokenProvider {
  
     public String createRefreshToken(String subject) {
     	Claims claims = Jwts.claims().setSubject(subject);
-    	
+    	log.info(new Date(new Date().getTime()+refreshTokenExpiredInMilliseconds).toLocaleString());
     	return Jwts.builder()
     			.setClaims(claims)
     			.setExpiration(new Date(new Date().getTime()+refreshTokenExpiredInMilliseconds))
