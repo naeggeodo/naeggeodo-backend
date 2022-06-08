@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Map;
 
 
 public interface UserRepository extends JpaRepository<Users, String>{
@@ -20,9 +21,9 @@ public interface UserRepository extends JpaRepository<Users, String>{
 
     //마이페이지
     @Query(value = "(SELECT count(*) from chat_user cu WHERE user_id = :user_id AND  ban_state = 'ALLOWED') \n" +
-            "UNION \n" +
+            "UNION ALL \n" +
             "(SELECT COUNT(*) FROM deal d WHERE user_id = :user_id)\n" +
-            "UNION \n" +
+            "UNION ALL \n" +
             "(SELECT u.nickname from users u WHERE user_id = :user_id)",nativeQuery = true)
     List<Object> getMyPageCount(@Param("user_id")String user_id);
 }
