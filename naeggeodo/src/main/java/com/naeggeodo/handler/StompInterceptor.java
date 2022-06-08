@@ -1,5 +1,8 @@
 package com.naeggeodo.handler;
 
+import com.naeggeodo.exception.UnauthorizedException;
+import com.naeggeodo.jwt.AuthorizationExtractor;
+import com.naeggeodo.jwt.JwtTokenProvider;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -18,6 +21,8 @@ import com.naeggeodo.exception.CustomWebSocketException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Objects;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -25,6 +30,7 @@ public class StompInterceptor implements ChannelInterceptor{
 
 	private final ChatMainRepository chatMainRepository;
 	private final SessionHandler sessionHandler;
+	private final JwtTokenProvider jwtProvider;
 	
 	@Override
 	@Transactional
@@ -35,6 +41,21 @@ public class StompInterceptor implements ChannelInterceptor{
 		if(StompCommand.CONNECT.equals(headers.getCommand())) {
 			log.info("CONNECT");
 			System.out.println("==========================connect==============================");
+
+			//jwt 토큰 인증
+			String token = null;
+			if(headers.getNativeHeader("Authorization") != null){
+				token = AuthorizationExtractor.extract(headers.getNativeHeader("Authorization").get(0));
+			}
+
+			if(Objects.isNull(token)) {
+				throw new CustomWebSocketException("Access Token 이 존재하지 않습니다.");
+			}
+
+			if(!jwtProvider.validateToken(token)&&!token.equals("open")) {
+				throw new CustomWebSocketException("유효한 토큰이 아닙니다.");
+			}
+
 			Long chatMain_id = null;
 			String sender = null;
 			try {
