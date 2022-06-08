@@ -88,12 +88,12 @@
 	    stompClient = Stomp.over(socket);
 	   
 	    // connect(header,연결 성공시 콜백,에러발생시 콜백)
-	    stompClient.connect({'chatMain_id':chatMain_id,'sender':sender}, function () {
+	    stompClient.connect({'chatMain_id':chatMain_id,'sender':sender,'Authorization':'Bearer open'}, function () {
 			var sessionId = /\/([^\/]+)\/websocket/.exec(socket._transport.url)[1];
 			//subscribe(지정할 subscribe url,해당 url로 메시지를 받을때마다 실행할 함수)
 	        sub = stompClient.subscribe('/topic/'+chatMain_id, function (e) {
 	        	//e.body에 전송된 data가 들어있다
-        		showMessage(JSON.parse(e.body));
+        		showMessage(JSON.parse(e .body));
 	        });
 	    	//개인 메시지
 	        sub = stompClient.subscribe('/user/queue/'+sessionId, function (e) {

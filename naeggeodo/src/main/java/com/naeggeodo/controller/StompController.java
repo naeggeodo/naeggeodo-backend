@@ -4,6 +4,7 @@ package com.naeggeodo.controller;
 import java.util.List;
 
 import com.naeggeodo.dto.TargetMessageDTO;
+import com.naeggeodo.entity.deal.Deal;
 import com.naeggeodo.entity.post.Report;
 import com.naeggeodo.exception.CustomWebSocketException;
 import com.naeggeodo.exception.StompErrorCode;
@@ -44,7 +45,7 @@ public class StompController {
     private final ChatUserRepository chatUserRepository;
     private final UserRepository userRepository;
     private final QuickChatRepository quickChatRepository;
-	private final ReportRepository reportRepository;
+	private final DealRepository dealRepository;
     
     
     //일반 메시지,이미지 보내기
@@ -108,7 +109,9 @@ public class StompController {
     		nextHost = chatMain.findChatUserForChangeHost();
     		//다음방장이 null이라면 -> 혼자있으면
     		if(nextHost ==null) {
-    			chatMain.changeState(ChatState.END);
+    			chatMain.changeState(ChatState.INCOMPLETE);
+				chatUserRepository.delete(exitChatUser);
+				chatMain.removeChatUser(exitChatUser);
     			return;
     		}
     		chatMain.changeUser(nextHost.getUser());
@@ -132,7 +135,6 @@ public class StompController {
     	System.out.println("====================exit==============================");
     }
     
-    //개선
     @Transactional
     @MessageMapping("/chat/ban")
     public void ban(TargetMessageDTO message,StompHeaderAccessor headers) throws Exception {
@@ -164,6 +166,23 @@ public class StompController {
     	chatMain.updateState();
     }
 
+	//채팅종료!!
+	@Transactional
+	@MessageMapping("/chat/end")
+	public void endChat(MessageDTO message,StompHeaderAccessor headers){
+		validateMessage(message,headers);
+
+		ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(message.chatMain_idToLong());
+		List<ChatUser> chatUsers = chatMain.getChatUser();
+
+		sessionHandler.clear(chatUsers);
+		for (ChatUser cu : chatUsers) {
+			dealRepository.save(Deal.create(cu.getUser(),chatMain));
+		}
+		chatMain.changeState(ChatState.END);
+		chatUserRepository.deleteAll(chatUsers);
+		chatUsers.clear();
+	}
 
     //quick-chat update
     @Transactional
@@ -182,8 +201,7 @@ public class StompController {
     	message.setType(ChatDetailType.SYSTEM);
     	sendToUser(headers.getSessionId(), message);
     }
-    // 인원수 메시지 get 
-    // 개선하기전!!!!
+    // 인원수 메시지 get
     private MessageDTO getCountMessage(ChatMain chatMain) throws Exception {
     	List<ChatUser> chatUser = chatMain.getChatUser();
     	

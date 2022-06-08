@@ -3,8 +3,10 @@ package com.naeggeodo.handler;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.naeggeodo.entity.chat.ChatUser;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
@@ -49,6 +51,12 @@ public class SessionHandler implements StompSessionHandler{
 			
 		 }
 
+	 }
+
+	 public void clear(List<ChatUser> chatUsers){
+		 for (ChatUser cu: chatUsers) {
+			 close(cu.getSessionId());
+		 }
 	 }
 	 
 	 public boolean isExist(String session_id) {
