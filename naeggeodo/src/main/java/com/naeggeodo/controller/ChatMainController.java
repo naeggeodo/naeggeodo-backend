@@ -1,5 +1,6 @@
 package com.naeggeodo.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.naeggeodo.entity.chat.*;
@@ -42,23 +43,24 @@ public class ChatMainController {
 	public ResponseEntity<Object> getChatList(
 			@RequestParam(name = "category",required = false)String category,
 			@RequestParam(name= "buildingCode",required = true)String buildingCode) throws Exception {
+
+		JSONObject json = null;
 		if(category==null) {
 			//전체조회시
-			JSONObject json = MyUtility.convertListToJSONobj(
-					chatMainRepository.findByBuildingCodeAndStateNot
-					(buildingCode,ChatState.END), "chatRoom"
+			json = MyUtility.convertListToJSONobj(
+					chatMainRepository.findByBuildingCodeAndStateNotIn
+					(buildingCode,ChatState.insearchableList), "chatRoom"
 			);
-			return ResponseEntity.ok(json.toMap());
-			//return MyUtility.convertListToJSONobj(chatMainRepository.findByBuildingCode(buildingCode), "chatRoom").toString();
 		} else {
 			//카테고리 조회시
 			Category categoryEnum = Category.valueOf(category.toUpperCase());
-			JSONObject json = MyUtility.convertListToJSONobj(
-						chatMainRepository.findByCategoryAndBuildingCodeAndStateNot
-						(categoryEnum, buildingCode,ChatState.END), "chatRoom"
+			json = MyUtility.convertListToJSONobj(
+						chatMainRepository.findByCategoryAndBuildingCodeAndStateNotIn
+						(categoryEnum, buildingCode,ChatState.insearchableList), "chatRoom"
 			);
-			return ResponseEntity.ok(json.toMap());
 		}
+
+		return ResponseEntity.ok(json.toMap());
 	}
 	
 	//채팅방 생성
@@ -67,7 +69,6 @@ public class ChatMainController {
 	public ResponseEntity<Object> createChatRoom(@RequestPart(name = "chat") @Valid ChatRoomDTO chat, @RequestPart MultipartFile file) {
 		Long startTime = System.currentTimeMillis();
 		JSONObject json = chatMainService.createChatRoom(chat, file);
-		System.out.println("==============소요시간===="+(System.currentTimeMillis()-startTime));
 		return ResponseEntity.ok(json.toMap());
 	}
 
@@ -171,14 +172,14 @@ public class ChatMainController {
 	@GetMapping(value="/chat-rooms/tag/{tag}",produces = "application/json")
 	@Transactional(readOnly = true)
 	public ResponseEntity<Object> getChatListByTag(@PathVariable("tag")String tag) throws Exception {
-		List<ChatMain> list = chatMainRepository.findByTagNameAndStateNot(tag,ChatState.END);
+		List<ChatMain> list = chatMainRepository.findByTagNameAndStateNotIn(tag,ChatState.insearchableList);
 		JSONObject json = MyUtility.convertListToJSONobj(list, "chatRoom");
 		return ResponseEntity.ok(json.toMap());
 	}
 	@GetMapping(value="/chat-rooms/search/{keyWord}",produces = "application/json")
 	@Transactional(readOnly = true)
 	public ResponseEntity<Object> getChatListByKeyWord(@PathVariable("keyWord")String keyWord) throws Exception {
-		List<ChatMain> list = chatMainRepository.findByTagNameOrTitleContainsAndStateNot(keyWord, keyWord,ChatState.END);
+		List<ChatMain> list = chatMainRepository.findByTagNameOrTitleContainsAndStateNotIn(keyWord, keyWord,ChatState.insearchableList);
 		JSONObject json = MyUtility.convertListToJSONobj(list, "chatRoom");
 		return ResponseEntity.ok(json.toMap());
 	}

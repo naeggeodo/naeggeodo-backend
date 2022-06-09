@@ -66,7 +66,7 @@ public class Users{
 		json.put("address", address);
 		json.put("zonecode", zonecode);
 		json.put("buildingCode", buildingCode);
-		json.put("id", id);
+		json.put("user_id", id);
 		return json;
 	}
 

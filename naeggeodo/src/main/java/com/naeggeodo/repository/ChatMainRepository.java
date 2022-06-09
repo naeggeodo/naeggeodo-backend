@@ -14,9 +14,9 @@ import com.naeggeodo.entity.chat.ChatState;
 
 public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 	@EntityGraph(attributePaths = {"chatUser"})
-	List<ChatMain> findByCategoryAndBuildingCodeAndStateNot(Category category,String buildingCode,ChatState state);
+	List<ChatMain> findByCategoryAndBuildingCodeAndStateNotIn(Category category, String buildingCode, List<ChatState> state);
 	@EntityGraph(attributePaths = {"chatUser"})
-	List<ChatMain> findByBuildingCodeAndStateNot(String buildingCode,ChatState state);
+	List<ChatMain> findByBuildingCodeAndStateNotIn(String buildingCode,List<ChatState> state);
 	
 	@Query("SELECT cm FROM ChatMain cm join ChatUser cu on cm.id = cu.chatMain.id WHERE cu.user.id = :user_id")
 	@EntityGraph(attributePaths = {"chatUser"})
@@ -34,10 +34,10 @@ public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 //	public List<ChatMain> findByTagName(@Param("name") String tagName);
 	
 	@EntityGraph(attributePaths = {"chatUser"})
-	List<ChatMain> findByTagNameAndStateNot(String tagName,ChatState state);
+	List<ChatMain> findByTagNameAndStateNotIn(String tagName,List<ChatState> state);
 	
 	@EntityGraph(attributePaths = {"chatUser"})
-	List<ChatMain> findByTagNameOrTitleContainsAndStateNot(String tagName,String title,ChatState state);
+	List<ChatMain> findByTagNameOrTitleContainsAndStateNotIn(String tagName,String title,List<ChatState> state);
 
 	@Modifying
 	@Query("update ChatMain c set c.imgPath = :imgPath where c.id = :chatMain_id")

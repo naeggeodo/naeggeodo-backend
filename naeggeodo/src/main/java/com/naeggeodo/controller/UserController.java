@@ -34,8 +34,9 @@ public class UserController {
 	@Transactional
 	@GetMapping(value="/user/{user_id}/address",produces = "application/json")
 	public String getAddress(@PathVariable("user_id")String user_id){
-		AddressDTO dto = userRepository.findAddressDTOById(user_id);
-		return dto.toJSON().toString();
+		Users user = userRepository.findById(user_id).
+				orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+		return user.AddresstoJSON().toString();
 	}
 
 	@Transactional
