@@ -23,9 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 public class JwtTokenProvider {
-	@Value("${jwt.secret-key}")
-	private String secretKey;
-//    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    @Value("${jwt.secret-key}")
+    private String secretKey;
+    //    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Value("${jwt.access-token.expire-length}")//24시간
@@ -36,12 +36,12 @@ public class JwtTokenProvider {
     public String createToken(String subject) {
 
 
-    	LoggerFactory.getLogger(this.getClass()).info(secretKey);
+        LoggerFactory.getLogger(this.getClass()).info(secretKey);
         if (accessTokenExpiredInMilliseconds <= 0) {
             throw new RuntimeException("Expiry time must be greater than Zero : ["+accessTokenExpiredInMilliseconds+"] ");
 
         }
-        
+
         Claims claims = Jwts.claims().setSubject(subject);
 
         JwtBuilder builder = Jwts.builder()
@@ -54,7 +54,7 @@ public class JwtTokenProvider {
 
         return builder.compact();
     }
- 
+
     public String createRefreshToken(String subject) {
     	Claims claims = Jwts.claims().setSubject(subject);
     	log.info(new Date(new Date().getTime()+refreshTokenExpiredInMilliseconds).toLocaleString());
@@ -63,6 +63,7 @@ public class JwtTokenProvider {
     			.setExpiration(new Date(new Date().getTime()+refreshTokenExpiredInMilliseconds))
     			.signWith(SignatureAlgorithm.HS256, secretKey)
     			.compact();
+
     }
 
     //대상 조회
@@ -75,20 +76,21 @@ public class JwtTokenProvider {
         return claims.getSubject();
     }
 
-    
+
     //확인필요
     public Claims getTokenData(String token) {
-    	Claims claims = Jwts.parserBuilder()
-    			.setSigningKey(secretKey)
-    			.build()
-    			.parseClaimsJws(token).getBody();
-    	return claims;
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token).getBody();
+        return claims;
     }
-    
+
 
     //유효토근 검증
     public boolean validateToken(String token) {
         try {
+
             Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
 
             return !claims.getBody().getExpiration().before(new Date());
@@ -96,5 +98,5 @@ public class JwtTokenProvider {
             return false;
         }
     }
-    
+
 }

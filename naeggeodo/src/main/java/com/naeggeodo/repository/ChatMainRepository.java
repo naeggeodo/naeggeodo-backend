@@ -2,6 +2,7 @@ package com.naeggeodo.repository;
 
 import java.util.List;
 
+import com.naeggeodo.entity.chat.Bookmarks;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -14,9 +15,9 @@ import com.naeggeodo.entity.chat.ChatState;
 
 public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 	@EntityGraph(attributePaths = {"chatUser"})
-	List<ChatMain> findByCategoryAndBuildingCodeAndStateNot(Category category,String buildingCode,ChatState state);
+	List<ChatMain> findByCategoryAndBuildingCodeAndStateNotIn(Category category, String buildingCode, List<ChatState> state);
 	@EntityGraph(attributePaths = {"chatUser"})
-	List<ChatMain> findByBuildingCodeAndStateNot(String buildingCode,ChatState state);
+	List<ChatMain> findByBuildingCodeAndStateNotIn(String buildingCode,List<ChatState> state);
 	
 	@Query("SELECT cm FROM ChatMain cm join ChatUser cu on cm.id = cu.chatMain.id WHERE cu.user.id = :user_id")
 	@EntityGraph(attributePaths = {"chatUser"})
@@ -34,10 +35,10 @@ public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 //	public List<ChatMain> findByTagName(@Param("name") String tagName);
 	
 	@EntityGraph(attributePaths = {"chatUser"})
-	List<ChatMain> findByTagNameAndStateNot(String tagName,ChatState state);
+	List<ChatMain> findByTagNameAndStateNotIn(String tagName,List<ChatState> state);
 	
 	@EntityGraph(attributePaths = {"chatUser"})
-	List<ChatMain> findByTagNameOrTitleContainsAndStateNot(String tagName,String title,ChatState state);
+	List<ChatMain> findByTagNameOrTitleContainsAndStateNotIn(String tagName,String title,List<ChatState> state);
 
 	@Modifying
 	@Query("update ChatMain c set c.imgPath = :imgPath where c.id = :chatMain_id")
@@ -46,7 +47,13 @@ public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 
 	@Query(value = "(SELECT * from chat_main cm WHERE bookmarks = \"Y\" AND user_id = :user_id ORDER BY bookmarks_date LIMIT 10 )\n" +
 			"UNION \n" +
-			"(SELECT * from chat_main cm WHERE state = 'END' AND user_id = :user_id ORDER BY create_date)",nativeQuery = true)
+			"(SELECT * from chat_main cm WHERE state = 'END' OR state = 'INCOMPLETE' AND user_id = :user_id ORDER BY create_date)"
+			,nativeQuery = true)
 	List<ChatMain> findOrderList(@Param("user_id")String user_id);
 
+	@EntityGraph(attributePaths = {"tag"})
+	List<ChatMain> findTop10ByBookmarksAndUserIdOrderByBookmarksDate(Bookmarks bookmarks,String user_id);
+
+	@EntityGraph(attributePaths = {"tag"})
+	List<ChatMain> findByStateInAndUserIdAndBookmarksOrderByCreateDate(List<ChatState> states,String user_id,Bookmarks bookmarks);
 }

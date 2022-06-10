@@ -8,9 +8,7 @@ import java.util.List;
 
 import com.naeggeodo.config.CloudinaryConfig;
 import org.json.JSONObject;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -60,7 +58,8 @@ public class ChatMainService {
 		}
 		tagRepository.saveAll(tagList);
 		//async
-		cloudinaryService.upload(file, "chatMain/"+savedChatMain.getId(),savedChatMain.getId());
+		if(file != null)
+			cloudinaryService.upload(file, "chatMain/"+savedChatMain.getId(),savedChatMain.getId());
 		//chatMain.updateImgPath(imgpath);
 
 		JSONObject json = new JSONObject();

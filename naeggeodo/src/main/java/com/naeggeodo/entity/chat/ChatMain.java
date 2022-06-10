@@ -4,12 +4,14 @@ import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.*;
 
 //import com.naeggeodo.listener.ChatMainListener;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,6 +24,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.ObjectUtils;
 
 @Entity
 @Getter
@@ -37,6 +40,7 @@ public class ChatMain extends JSONConverterAdapter{
 	@Column(name = "chatmain_id")
 	private Long id; 
 	private String title;
+	@CreationTimestamp
 	private LocalDateTime createDate;
 	private String address;
 	private String buildingCode;
@@ -74,8 +78,8 @@ public class ChatMain extends JSONConverterAdapter{
 	private LocalDateTime bookmarksDate;
 	//생성
 	public static ChatMain create(ChatRoomDTO dto) {
-		return ChatMain.builder().title(dto.getTitle()).createDate(LocalDateTime.now())
-				.buildingCode(dto.getAddr()).state(ChatState.CREATE).link(dto.getLink())
+		return ChatMain.builder().title(dto.getTitle())
+				.address(dto.getAddress()).state(ChatState.CREATE).link(dto.getLink())
 				.place(dto.getPlace()).category(Category.valueOf(dto.getCategory()))
 				.orderTimeType(OrderTimeType.valueOf(dto.getOrderTimeType()))
 				.maxCount(dto.getMaxCount())
@@ -164,20 +168,34 @@ public class ChatMain extends JSONConverterAdapter{
 		JSONObject json = new JSONObject();
 		for (Field field : this.getClass().getDeclaredFields()) {
 			field.setAccessible(true);
-			if(field.get(this) instanceof Users) {
+			Object obj  = field.get(this);
+
+			if(ObjectUtils.isEmpty(obj)){
+				if(obj instanceof List){
+					continue;
+				}
+				if(!field.getName().equals("user")){
+					json.put(field.getName(),JSONObject.NULL);
+					continue;
+				} else {
+					json.put("user_id",JSONObject.NULL);
+				}
+			}
+
+			if(obj instanceof Users) {
 				json.put("user_id", ((Users) field.get(this)).getId());
-			}else if(field.get(this) instanceof LocalDateTime) {
+			}else if(obj instanceof LocalDateTime) {
 				json.put(field.getName(), ((LocalDateTime)field.get(this)).toString());
-			}else if(field.get(this) instanceof Enum) {
+			}else if(obj instanceof Enum) {
 				json.put(field.getName(),((Enum<?>)field.get(this)).name());
-			}else if(!(field.get(this) instanceof List)){
+			}else if(!(obj instanceof List)){
 				json.put(field.getName(), field.get(this));
 			}
 
 
 		}
 		json.put("currentCount",this.getAllowedUserCnt());
-		json.put("tags", tagsToJSONArrayString());
+		json.put("tags", tagsToJSONArray());
 		return json;
 	}
 	
@@ -194,28 +212,42 @@ public class ChatMain extends JSONConverterAdapter{
 		JSONObject json = new JSONObject();
 		for (Field field : this.getClass().getDeclaredFields()) {
 			field.setAccessible(true);
-			if(field.get(this) instanceof Users) {
-				json.put("user_id", ((Users) field.get(this)).getId());
-			}else if(field.get(this) instanceof LocalDateTime) {
+			Object obj  = field.get(this);
+
+			if(ObjectUtils.isEmpty(obj)){
+				if(obj instanceof List){
+					continue;
+				}
+				if(!field.getName().equals("user")){
+					json.put(field.getName(),JSONObject.NULL);
+					continue;
+				} else {
+					json.put("user_id",JSONObject.NULL);
+				}
+			}
+
+			if(obj instanceof Users) {
+				json.put("user_id", ((Users) obj).getId());
+			}else if(obj instanceof LocalDateTime) {
 				json.put(field.getName(), ((LocalDateTime)field.get(this)).toString());
-			}else if(field.get(this) instanceof Enum) {
+			}else if(obj instanceof Enum) {
 				json.put(field.getName(),((Enum<?>)field.get(this)).name());
-			}else if(!(field.get(this) instanceof List)){
+			}else if(!(obj instanceof List)){
 				json.put(field.getName(), field.get(this));
 			}
 
 
 		}
-		json.put("tags", tagsToJSONArrayString());
+		json.put("tags", tagsToJSONArray());
 		return json;
 	}
 
-	private String tagsToJSONArrayString() {
+	private JSONArray tagsToJSONArray() {
 		JSONArray arr_json = new JSONArray();
 		for (Tag t : tag) {
 			arr_json.put(t.getName());
 		}
-		return arr_json.toString();
+		return arr_json;
 	}
 
 	public void updateBookmarks(){

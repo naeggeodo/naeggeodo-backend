@@ -3,9 +3,6 @@ package com.naeggeodo.dto;
 import java.util.List;
 
 
-import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
-import com.naeggeodo.entity.chat.Category;
-import com.naeggeodo.entity.chat.OrderTimeType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +14,7 @@ import javax.validation.constraints.NotBlank;
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor
 public class ChatRoomDTO {
 	@NotBlank
-	private String addr;
+	private String address;
 	@NotBlank
 	private String category;
 	private String link;

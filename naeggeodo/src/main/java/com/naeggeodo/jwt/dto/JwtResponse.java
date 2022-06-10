@@ -1,10 +1,8 @@
 package com.naeggeodo.jwt.dto;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.naeggeodo.entity.user.Authority;
 import com.naeggeodo.oauth.dto.SimpleUser;
 
-import lombok.Builder;
 import lombok.ToString;
 
 @ToString
@@ -13,7 +11,6 @@ public class JwtResponse {
 	private String accessToken;
 	private String refreshToken;
 	private String type;
-//	private SimpleUser user;
 	private String user_id;
 	private String address;
 

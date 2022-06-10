@@ -5,7 +5,6 @@ import com.naeggeodo.entity.chat.ChatDetailType;
 
 import lombok.*;
 
-import javax.validation.constraints.NotBlank;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class MessageDTO {

@@ -1,9 +1,9 @@
 package com.naeggeodo.config;
 
 import com.naeggeodo.filter.JwtAuthenticationFilter;
+import com.naeggeodo.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -19,16 +19,18 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private final JwtTokenProvider jwtTokenProvider;
     @Override
     public void configure(WebSecurity web) throws Exception {
         String[] ignoreURL = {
-                "/login/OAuth/**",
+                "/login/**",
                 "/oauth/getInfo/**",
                 "/chat-rooms",
                 "/categories",
                 "/chat/**"
         };
-        web.ignoring().antMatchers(HttpMethod.GET,ignoreURL);
+        web.ignoring().antMatchers(ignoreURL);
     }
 
     @Override
@@ -40,7 +42,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/**").permitAll()
-                .and().addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .and().addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                //.exceptionHandling()
                 //.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
         ;

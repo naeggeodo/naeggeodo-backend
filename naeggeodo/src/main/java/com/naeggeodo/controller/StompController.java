@@ -4,11 +4,11 @@ package com.naeggeodo.controller;
 import java.util.List;
 
 import com.naeggeodo.dto.TargetMessageDTO;
+import com.naeggeodo.entity.deal.Deal;
 import com.naeggeodo.entity.post.Report;
 import com.naeggeodo.exception.CustomWebSocketException;
 import com.naeggeodo.exception.StompErrorCode;
 import com.naeggeodo.repository.*;
-import lombok.NonNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
@@ -33,11 +33,6 @@ import com.naeggeodo.util.MyUtility;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import javax.validation.Valid;
 
 @Slf4j
 @Controller
@@ -50,7 +45,7 @@ public class StompController {
     private final ChatUserRepository chatUserRepository;
     private final UserRepository userRepository;
     private final QuickChatRepository quickChatRepository;
-	private final ReportRepository reportRepository;
+	private final DealRepository dealRepository;
     
     
     //일반 메시지,이미지 보내기
@@ -114,7 +109,9 @@ public class StompController {
     		nextHost = chatMain.findChatUserForChangeHost();
     		//다음방장이 null이라면 -> 혼자있으면
     		if(nextHost ==null) {
-    			chatMain.changeState(ChatState.END);
+    			chatMain.changeState(ChatState.INCOMPLETE);
+				chatUserRepository.delete(exitChatUser);
+				chatMain.removeChatUser(exitChatUser);
     			return;
     		}
     		chatMain.changeUser(nextHost.getUser());
@@ -138,7 +135,6 @@ public class StompController {
     	System.out.println("====================exit==============================");
     }
     
-    //개선
     @Transactional
     @MessageMapping("/chat/ban")
     public void ban(TargetMessageDTO message,StompHeaderAccessor headers) throws Exception {
@@ -170,28 +166,24 @@ public class StompController {
     	chatMain.updateState();
     }
 
+	//채팅종료!!
 	@Transactional
-	@MessageMapping("/chat/report")
-	public void report(TargetMessageDTO messageDTO,StompHeaderAccessor headers){
+	@MessageMapping("/chat/end")
+	public void endChat(MessageDTO message,StompHeaderAccessor headers){
+		validateMessage(message,headers);
 
-		validateMessage(messageDTO,headers);
+		ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(message.chatMain_idToLong());
+		List<ChatUser> chatUsers = chatMain.getChatUser();
 
-		String sender_id = messageDTO.getSender();
-		String target_id = messageDTO.getTarget_id();
-		Users sender = null;
-		Users target = null;
-		if(userRepository.countForReport(sender_id,target_id)){
-			sender = userRepository.getById(sender_id);
-			target = userRepository.getById(target_id);
-		} else {
-			sendToUser(headers.getSessionId(),getAlertMessage("올바르지 않은 요청입니다."));
+		sessionHandler.clear(chatUsers);
+		for (ChatUser cu : chatUsers) {
+			dealRepository.save(Deal.create(cu.getUser(),chatMain));
 		}
-
-
-		Report report = Report.create(sender,target,messageDTO.getContents());
-		reportRepository.save(report);
+		chatMain.changeState(ChatState.END);
+		chatUserRepository.deleteAll(chatUsers);
+		chatUsers.clear();
 	}
-    
+
     //quick-chat update
     @Transactional
     @MessageMapping("/chat/quick-chat/update")
@@ -209,8 +201,7 @@ public class StompController {
     	message.setType(ChatDetailType.SYSTEM);
     	sendToUser(headers.getSessionId(), message);
     }
-    // 인원수 메시지 get 
-    // 개선하기전!!!!
+    // 인원수 메시지 get
     private MessageDTO getCountMessage(ChatMain chatMain) throws Exception {
     	List<ChatUser> chatUser = chatMain.getChatUser();
     	

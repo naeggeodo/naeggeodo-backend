@@ -1,45 +1,31 @@
 package com.naeggeodo.entity.deal;
 
-import java.time.LocalDateTime;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-
 import com.naeggeodo.entity.chat.ChatMain;
 import com.naeggeodo.entity.user.Users;
-
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
-@Getter
-@Setter
+import javax.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity @Getter @Setter @AllArgsConstructor @NoArgsConstructor
 public class Deal {
-	@Id @GeneratedValue
-	@Column(name ="deal_id")
-	private Long id;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "chatmain_id")
-	private ChatMain chatMain;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
-	private Users user;
-	
-	private LocalDateTime regDate;
-	
-	public static Deal create(Users user, ChatMain chatMain) {
-		Deal deal = new Deal();
-		deal.setUser(user);
-		deal.setChatMain(chatMain);
-		deal.setRegDate(LocalDateTime.now());
-		return deal;
-	}
-	
+    @Id @GeneratedValue
+    @Column(name="deal_id")
+    private Long id;
+
+    private LocalDateTime regDate;
+
+    @ManyToOne
+    @JoinColumn(name = "chatmain_id")
+    private ChatMain chatMain;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private Users user;
+
+    public static Deal create(Users user,ChatMain chatMain){
+        return new Deal(null,LocalDateTime.now(),chatMain,user);
+    }
 }

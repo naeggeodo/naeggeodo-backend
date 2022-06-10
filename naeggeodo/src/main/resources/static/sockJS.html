@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<meta charset="UTF-8">
+	<title>Chating</title>
+	<style>
+		*{
+			margin:0;
+			padding:0;
+		}
+		.container{
+			width: 500px;
+			margin: 0 auto;
+			padding: 25px
+		}
+		.container h1{
+			text-align: left;
+			padding: 5px 5px 5px 15px;
+			color: #FFBB00;
+			border-left: 3px solid #FFBB00;
+			margin-bottom: 20px;
+		}
+		.chating{
+			background-color: #000;
+			width: 500px;
+			height: 500px;
+			overflow: auto;
+		}
+		.chating p{
+			color: #fff;
+			text-align: left;
+		}
+		input{
+			width: 330px;
+			height: 25px;
+		}
+	</style>
+</head>
+<script src="/webjars/jquery/jquery.min.js"></script>
+<script src="/webjars/sockjs-client/sockjs.min.js"></script>
+<script src="/webjars/stomp-websocket/stomp.min.js"></script>
+
+<body>
+	<div id="container" class="container">
+		<h1 id="title_room"></h1>
+		<p>인원수 
+			<span id="currentCount"></span> / 
+			<span id="maxCount">2</span>
+		</p>
+		<div id="chating" class="chating">
+		</div>
+		
+		<div id="yourMsg">
+			<table class="inputTable">
+				<tr>
+					<th>메시지</th>
+					<th><input id="chatting" placeholder="보내실 메시지를 입력하세요."></th>
+					<th><button onclick="send()" id="sendBtn">보내기</button></th>
+				</tr>
+			</table>
+		</div>
+		<p><button onclick="openFile()">이미지선택</button></p>
+		<p><input type="button" value="나가기" onclick="exit()"></p>
+		<p>강퇴할 유저 id <input type="text" id ="banId" ><input type="button" value="확인" onclick="ban()"></p>
+		<p>
+			신고할 유저 id <input type="text" id ="reportId" >
+			내용<input type="text" id ="reportContents" >
+			<input type="button" value="신고하기" onclick="report()">
+		</p>
+	</div>
+<script type="text/javascript">
+
+	//채팅방 id -> 변수처리 해야함
+	var chatMain_id = prompt('채팅방 id =?');
+	//접속한 사용자 -> 변수 처리 해야함
+	var sender = prompt('유저 id =?');
+	
+	var sub;
+	
+	
+	$('#title_room').text(chatMain_id+'번 채팅방');
+	
+	
+	function connect() {
+		//StompConfig.java에 설정된 endpoint로 SockJS 객체, StompClient 객체 생성
+	    var socket = new SockJS('/chat');
+	    stompClient = Stomp.over(socket);
+	   
+	    // connect(header,연결 성공시 콜백,에러발생시 콜백)
+	    stompClient.connect({'chatMain_id':chatMain_id,'sender':sender,'Authorization':'Bearer open'}, function () {
+			var sessionId = /\/([^\/]+)\/websocket/.exec(socket._transport.url)[1];
+			//subscribe(지정할 subscribe url,해당 url로 메시지를 받을때마다 실행할 함수)
+	        sub = stompClient.subscribe('/topic/'+chatMain_id, function (e) {
+	        	//e.body에 전송된 data가 들어있다
+        		showMessage(JSON.parse(e .body));
+	        });
+	    	//개인 메시지
+	        sub = stompClient.subscribe('/user/queue/'+sessionId, function (e) {
+	        	showPrivateMessages(JSON.parse(e.body));
+	        });
+	        //사용자가 입장했다는 메시지를 전송하는 함수
+	        enter();
+	    },
+ 	    function(e){
+ 	    	//에러 콜백
+ 	    	alert(e.headers.message);
+ 	    }
+	    );
+	}
+	
+	connect();
+	
+	
+	
+	
+	//보내기 버튼 클릭시
+	function send() {
+	    data = {
+	    		'chatMain_id': chatMain_id, 
+	    		'sender' :sender,
+	    		'contents': $("#chatting").val(),
+	    		'type' : "TEXT"
+	    		};
+	    //send(메시지를 보낼 url,header,보낼 메시지)
+	    //메시지는 json을 문자열로 바꿔서 보내야 한다
+	    stompClient.send("/app/chat/send", {}, JSON.stringify(data));
+	    
+	    //입력창 값 비워주기
+	    $("#chatting").val('');
+	}
+
+	// msg 화면에 표시하는 함수
+	function showMessage(msg){
+		if(msg.type == "TEXT"){
+			$("#chating").append("<p>" + msg.sender +" : "+ msg.contents + "</p>");
+		} else if(msg.type == "IMAGE"){
+			$("#chating").append("<p>" + msg.sender + "<img src='"+msg.contents+"'width='200' height = '200'>"+"</p>");
+		} else if(msg.type == "WELCOME"||msg.type == "EXIT"){
+			$("#chating").append("<p>" + msg.sender + msg.contents+"</p>");
+		} else if(msg.type =="CNT"){
+			$('#currentCount').text(JSON.parse(msg.contents).currentCount);
+		} else if(msg.type =="BAN"){
+			$("#chating").append("<p>" + msg.contents+ "</p>");
+		}
+	}
+	
+	// 개인 메시지
+	function showPrivateMessages(msg){
+		if(msg.type =="ALERT"){
+			alert(msg.contents);
+		} else if(msg.type =="TEXT"){
+			$("#chating").append("<p>" + msg.sender +" : "+ msg.contents + "</p>");
+		}
+	}
+	
+	
+	//나가기 버튼 클릭시
+	function exit(){
+		// 누른 사용자가 방장일 경우 '방장이 나가면 방이 없어집니다.' confirm 해야함 일단 못나가게해놨음
+		
+		
+		data = {
+	    		'chatMain_id': chatMain_id, 
+	    		'sender' :sender,
+	    		'contents': '님이 퇴장하셨습니다.',
+	    		'type' : "EXIT"
+    		};
+		stompClient.send("/app/chat/exit",{},JSON.stringify(data));
+		
+		//disconnect(연결해제시 실행할 함수,header)
+// 		stompClient.disconnect(function(){
+// 			console.log('disconnected')
+// 		},{});
+		location.href="/";
+	}
+	
+	//입장시 실행할 함수
+	function enter(){
+		data = {
+	    		'chatMain_id': chatMain_id, 
+	    		'sender' :sender,
+	    		'contents': '님이 입장하셨습니다.',
+	    		'type' : "WELCOME"
+    		};
+		
+		stompClient.send("/app/chat/enter",{},JSON.stringify(data));
+		
+	}
+	
+	//이미지 선택 클릭시
+	function openFile(){
+		var input = document.createElement("input");
+		
+		input.type = "file";
+		input.accept = "image/*";
+		input.id = "uploadInput";
+		
+		input.click();
+		input.onchange = function(e){
+			processFile(event.target.files[0]);
+		};
+	}
+	
+	//파일을 파싱해서 인코딩하고 인코딩된 문자열을 메시지로 전송함
+	function processFile(file){
+		var reader = new FileReader();
+		
+		reader.onload = function(){
+			var result = reader.result;
+			data = {
+				'chatMain_id': chatMain_id,
+	    		'sender' :sender,
+	    		'contents': result,
+	    		'type' : "IMAGE"
+			};
+			stompClient.send("/app/chat/send",{},JSON.stringify(data));
+		};
+		reader.readAsDataURL(file);
+	}
+	
+	function ban(){
+		var banId = $('#banId').val();
+		
+		data = {
+				'chatMain_id': chatMain_id, 
+	    		'sender' :sender,
+	    		'contents': banId,
+				'target_id':banId,
+	    		'type' : "BAN"
+		}
+		stompClient.send("/app/chat/ban",{},JSON.stringify(data));
+	}
+	function report(){
+		var reportId = $('#reportId').val();
+		var contents = $('#reportContents').val();
+
+		data = {
+				'chatMain_id': chatMain_id,
+	    		'sender' :sender,
+	    		'contents': contents,
+				'target_id':reportId,
+	    		'type' : "BAN"
+		}
+		stompClient.send("/app/chat/report",{},JSON.stringify(data));
+	}
+
+	
+</script>
+</body>
+</html>
