@@ -58,7 +58,8 @@ public class ChatMainService {
 		}
 		tagRepository.saveAll(tagList);
 		//async
-		cloudinaryService.upload(file, "chatMain/"+savedChatMain.getId(),savedChatMain.getId());
+		if(file != null)
+			cloudinaryService.upload(file, "chatMain/"+savedChatMain.getId(),savedChatMain.getId());
 		//chatMain.updateImgPath(imgpath);
 
 		JSONObject json = new JSONObject();

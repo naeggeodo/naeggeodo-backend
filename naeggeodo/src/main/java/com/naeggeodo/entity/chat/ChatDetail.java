@@ -14,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.json.JSONObject;
 
 import com.naeggeodo.entity.user.Users;
@@ -21,6 +22,7 @@ import com.naeggeodo.interfaces.JSONConverterAdapter;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.util.ObjectUtils;
 
 @Entity
 @Getter
@@ -41,7 +43,8 @@ public class ChatDetail extends JSONConverterAdapter{
 	
 	@Lob
 	private String contents;
-	
+
+	@CreationTimestamp
 	private LocalDateTime regDate;
 	
 	@Enumerated(EnumType.STRING)
@@ -57,7 +60,6 @@ public class ChatDetail extends JSONConverterAdapter{
 		chatDetail.setChatmain(chatmain);
 		chatDetail.setUser(user);
 		chatDetail.setType(type);
-		chatDetail.setRegDate(LocalDateTime.now());
 		return chatDetail;
 	}
 	
@@ -68,16 +70,23 @@ public class ChatDetail extends JSONConverterAdapter{
 		
 		for (Field field : this.getClass().getDeclaredFields()) {
 			field.setAccessible(true);
-			if(field.get(this) instanceof Users) {
-				json.put("user_id",((Users) field.get(this)).getId());
-			}else if(field.get(this) instanceof ChatMain){
-				json.put("chatMain_id",((ChatMain) field.get(this)).getId());
-			}else if(field.get(this) instanceof LocalDateTime) {
-				json.put(field.getName(), ((LocalDateTime)field.get(this)).toString());
-			}else if(field.get(this) instanceof ChatDetailType){
-				json.put(field.getName(), ((ChatDetailType)field.get(this)).name());
+			Object obj = field.get(this);
+
+			if(ObjectUtils.isEmpty(obj)){
+				json.put(field.getName(),JSONObject.NULL);
+				continue;
+			}
+
+			if(obj instanceof Users) {
+				json.put("user_id",((Users) obj).getId());
+			}else if(obj instanceof ChatMain){
+				json.put("chatMain_id",((ChatMain) obj).getId());
+			}else if(obj instanceof LocalDateTime) {
+				json.put(field.getName(), ((LocalDateTime)obj).toString());
+			}else if(obj instanceof ChatDetailType){
+				json.put(field.getName(), ((ChatDetailType)obj).name());
 			}else {
-				json.put(field.getName(), field.get(this));
+				json.put(field.getName(), obj);
 			}
 			
 		}

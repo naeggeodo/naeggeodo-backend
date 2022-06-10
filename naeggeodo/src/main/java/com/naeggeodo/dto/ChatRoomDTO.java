@@ -14,7 +14,7 @@ import javax.validation.constraints.NotBlank;
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor
 public class ChatRoomDTO {
 	@NotBlank
-	private String addr;
+	private String address;
 	@NotBlank
 	private String category;
 	private String link;

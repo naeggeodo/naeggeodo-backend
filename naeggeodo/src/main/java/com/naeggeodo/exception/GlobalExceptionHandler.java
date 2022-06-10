@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
 	}
 	
 	@ExceptionHandler(value= {NumberFormatException.class,NullPointerException.class})
-	protected ResponseEntity<ErrorResponse> handleNumberFormatException(NumberFormatException e){
+	protected ResponseEntity<ErrorResponse> handleNumberFormatException(Exception e){
 		return ErrorResponse.toResponseEntity(ErrorCode.INVALID_FORMAT);
 	}
 	

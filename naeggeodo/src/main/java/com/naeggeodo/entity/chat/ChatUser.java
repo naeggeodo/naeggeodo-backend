@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
 import org.json.JSONObject;
 
@@ -37,7 +38,8 @@ public class ChatUser extends JSONConverterAdapter{
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "chatmain_id")
 	private ChatMain chatMain;
-	
+
+	@CreationTimestamp
 	private LocalDateTime enterDate;
 	
 	private String sessionId;
@@ -53,7 +55,6 @@ public class ChatUser extends JSONConverterAdapter{
 		ChatUser chatUser = new ChatUser();
 		chatUser.setUser(user);
 		chatUser.setChatMain(chatMain);
-		chatUser.setEnterDate(LocalDateTime.now());
 		chatUser.setSessionId(session_id);
 		chatUser.setState(RemittanceState.N);
 		chatUser.setBanState(BanState.ALLOWED);
