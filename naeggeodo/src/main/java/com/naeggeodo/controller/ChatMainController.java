@@ -36,7 +36,7 @@ public class ChatMainController {
     private final ChatMainRepository chatMainRepository;
     private final ChatMainService chatMainService;
     private final ChatUserRepository chatUserRepository;
-    private final QuickChatRepository quickChatRepository;
+
     private final TagRepository tagRepository;
 
     //채팅방 리스트
@@ -127,16 +127,6 @@ public class ChatMainController {
         return ResponseEntity.ok(chatUser.getState());
     }
 
-    //해당 유저 퀵채팅
-    @Transactional(readOnly = true)
-    @GetMapping(value = "/user/{user_id}/quick-chatting", produces = "application/json")
-    public ResponseEntity<Object> getQuickChat(@PathVariable(name = "user_id") String user_id) {
-
-        List<String> list = quickChatRepository.findByUserId(user_id).getMsgList();
-        JSONObject json = MyUtility.convertStringListToJSONObject(list, "quickChat");
-        json.put("user_id", user_id);
-        return ResponseEntity.ok(json.toMap());
-    }
 
     //참여중인 채팅방
     @Transactional(readOnly = true)
@@ -179,17 +169,17 @@ public class ChatMainController {
         return ResponseEntity.ok(json.toMap());
     }
 
-    @GetMapping(value = "/chat-rooms/tag/{tag}", produces = "application/json")
+    @GetMapping(value = "/chat-rooms/tag", produces = "application/json")
     @Transactional(readOnly = true)
-    public ResponseEntity<Object> getChatListByTag(@PathVariable("tag") String tag) throws Exception {
-        List<ChatMain> list = chatMainRepository.findByTagNameAndStateNotIn(tag, ChatState.insearchableList);
+    public ResponseEntity<Object> getChatListByTag(@RequestParam("keyWord") String keyWord) throws Exception {
+        List<ChatMain> list = chatMainRepository.findByTagNameAndStateNotIn(keyWord, ChatState.insearchableList);
         JSONObject json = MyUtility.convertListToJSONobj(list, "chatRoom");
         return ResponseEntity.ok(json.toMap());
     }
 
-    @GetMapping(value = "/chat-rooms/search/{keyWord}", produces = "application/json")
+    @GetMapping(value = "/chat-rooms/search", produces = "application/json")
     @Transactional(readOnly = true)
-    public ResponseEntity<Object> getChatListByKeyWord(@PathVariable("keyWord") String keyWord) throws Exception {
+    public ResponseEntity<Object> getChatListByKeyWord(@RequestParam("keyWord") String keyWord) throws Exception {
         List<ChatMain> list = chatMainRepository.findByTagNameOrTitleContainsAndStateNotIn(keyWord, keyWord, ChatState.insearchableList);
         JSONObject json = MyUtility.convertListToJSONobj(list, "chatRoom");
         return ResponseEntity.ok(json.toMap());
