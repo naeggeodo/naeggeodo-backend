@@ -2,6 +2,7 @@ package com.naeggeodo.repository;
 
 import java.util.List;
 
+import com.naeggeodo.entity.chat.Bookmarks;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -50,4 +51,9 @@ public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 			,nativeQuery = true)
 	List<ChatMain> findOrderList(@Param("user_id")String user_id);
 
+	@EntityGraph(attributePaths = {"tag"})
+	List<ChatMain> findTop10ByBookmarksAndUserIdOrderByBookmarksDate(Bookmarks bookmarks,String user_id);
+
+	@EntityGraph(attributePaths = {"tag"})
+	List<ChatMain> findByStateInAndUserIdAndBookmarksOrderByCreateDate(List<ChatState> states,String user_id,Bookmarks bookmarks);
 }
