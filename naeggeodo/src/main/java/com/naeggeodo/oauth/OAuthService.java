@@ -108,7 +108,7 @@ public class OAuthService {
     		user = userRepository.findById(oauthDto.getId()).get();
     	}
     	
-    	return new SimpleUser(user.getId(), user.getAddress(), user.getAuthority());
+    	return new SimpleUser(user.getId(), user.getAddress(),user.getBuildingCode(), user.getAuthority());
     }
 
 
