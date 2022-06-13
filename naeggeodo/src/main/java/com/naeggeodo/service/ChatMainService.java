@@ -1,24 +1,24 @@
 package com.naeggeodo.service;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.naeggeodo.config.CloudinaryConfig;
+import com.naeggeodo.dto.ChatRoomDTO;
+import com.naeggeodo.entity.chat.ChatMain;
+import com.naeggeodo.entity.chat.Tag;
+import com.naeggeodo.entity.user.Users;
+import com.naeggeodo.repository.ChatMainRepository;
+import com.naeggeodo.repository.TagRepository;
+import com.naeggeodo.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.naeggeodo.dto.ChatRoomDTO;
-import com.naeggeodo.entity.chat.ChatMain;
-import com.naeggeodo.entity.chat.Tag;
-import com.naeggeodo.repository.ChatMainRepository;
-import com.naeggeodo.repository.TagRepository;
-
-import lombok.RequiredArgsConstructor;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
@@ -29,6 +29,7 @@ public class ChatMainService {
 	private final ChatMainRepository chatMainRepository;
 	private final CloudinaryService cloudinaryService;
 	private final TagRepository tagRepository;
+	private final UserRepository userRepository;
 	
 	//파라미터 2개일때 param[0] -> category , param[1] -> BuildingCode
 //	@Transactional
@@ -49,7 +50,9 @@ public class ChatMainService {
 
 	@Transactional
 	public JSONObject createChatRoom(ChatRoomDTO dto,MultipartFile file) {
-		ChatMain chatMain = ChatMain.create(dto);
+		Users user = userRepository.getById(dto.getUser_id());
+
+		ChatMain chatMain = ChatMain.create(dto,user);
 		List<String> TagStringList = dto.getTag();
 		List<Tag> tagList = new ArrayList<>();
 		ChatMain savedChatMain = chatMainRepository.save(chatMain);
