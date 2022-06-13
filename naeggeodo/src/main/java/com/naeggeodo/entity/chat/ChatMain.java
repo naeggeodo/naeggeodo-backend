@@ -81,7 +81,27 @@ public class ChatMain extends JSONConverterAdapter{
 				.maxCount(dto.getMaxCount()).user(user)
 				.build();
 	}
-	
+
+	public ChatMain copy(OrderTimeType orderTimeType){
+		return   ChatMain.builder().title(this.title)
+				.buildingCode(this.buildingCode).address(this.address)
+				.state(ChatState.CREATE).link(this.link)
+				.place(this.place).category(this.category)
+				.orderTimeType(orderTimeType)
+				.maxCount(this.maxCount).user(this.user)
+				.imgPath(this.imgPath)
+				.build();
+	}
+
+	// 태그 카피
+	public List<Tag> copyTags(List<Tag> tagList){
+		List<Tag> newTagsList = new ArrayList<>();
+		for (Tag t : tagList) {
+			newTagsList.add(Tag.create(this,t.getName()));
+		}
+		return newTagsList;
+	}
+
 	//state upadate
 	public void updateState() {
 		

@@ -70,34 +70,13 @@ public class ChatMainController {
 
     // 채팅방 주문목록 리스트에서 생성
     @PostMapping(value = "/chat-rooms/{chatMain_id}/copy")
-    @Transactional
     public ResponseEntity<Object> copyChatRoom(@RequestParam("orderTimeType")String timeTypeStr,
                                                @PathVariable("chatMain_id")String chatMain_idStr){
         Long chatMain_id = Long.parseLong(chatMain_idStr);
         OrderTimeType orderTimeType = OrderTimeType.valueOf(timeTypeStr);
-        ChatMain targetChatMain =  chatMainRepository.findTagEntityGraph(chatMain_id);
 
-
-
-        ChatMain saveChatMain = ChatMain.builder().title(targetChatMain.getTitle())
-                .buildingCode(targetChatMain.getBuildingCode()).address(targetChatMain.getAddress())
-                .state(ChatState.CREATE).link(targetChatMain.getLink())
-                .place(targetChatMain.getPlace()).category(targetChatMain.getCategory())
-                .orderTimeType(orderTimeType)
-                .maxCount(targetChatMain.getMaxCount()).user(targetChatMain.getUser())
-                .imgPath(targetChatMain.getImgPath())
-                .build();
-
-        ChatMain savedChatMain = chatMainRepository.save(saveChatMain);
-
-        List<Tag> saveTags = new ArrayList<>();
-
-        for (Tag tag  : targetChatMain.getTag() ) {
-            saveTags.add(Tag.create(savedChatMain,tag.getName()));
-        }
-        tagRepository.saveAll(saveTags);
-
-        return ResponseEntity.ok("sad");
+        JSONObject json = chatMainService.copyChatRoom(chatMain_id,orderTimeType);
+        return ResponseEntity.ok(json.toMap());
     }
 
 
@@ -250,11 +229,4 @@ public class ChatMainController {
         return ResponseEntity.ok(json.toMap());
     }
 
-//	@GetMapping(value = "/chat-rooms/order-list/{user_id}",produces = "application/json")
-//	@Transactional(readOnly = true)
-//	public ResponseEntity<Object> getOrderList(@PathVariable("user_id")String user_id) throws Exception{
-//		List<ChatMain> list = chatMainRepository.findOrderList(user_id);
-//		JSONObject json = MyUtility.convertListToJSONobj(list,"chatRooms");
-//		return ResponseEntity.ok(json.toMap());
-//	}
 }

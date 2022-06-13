@@ -3,6 +3,7 @@ package com.naeggeodo.service;
 import com.naeggeodo.config.CloudinaryConfig;
 import com.naeggeodo.dto.ChatRoomDTO;
 import com.naeggeodo.entity.chat.ChatMain;
+import com.naeggeodo.entity.chat.OrderTimeType;
 import com.naeggeodo.entity.chat.Tag;
 import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.repository.ChatMainRepository;
@@ -67,6 +68,18 @@ public class ChatMainService {
 
 		JSONObject json = new JSONObject();
 		json.put("chatMain_id", savedChatMain.getId());
+		return json;
+	}
+
+	@Transactional
+	public JSONObject copyChatRoom(Long targetId, OrderTimeType orderTimeType){
+		ChatMain targetChatMain =  chatMainRepository.findTagEntityGraph(targetId);
+		ChatMain savedChatMain = chatMainRepository.save(targetChatMain.copy(orderTimeType));
+		List<Tag> saveTags = savedChatMain.copyTags(targetChatMain.getTag());
+		tagRepository.saveAll(saveTags);
+
+		JSONObject json = new JSONObject();
+		json.put("chatMain_id",savedChatMain.getId());
 		return json;
 	}
 //	@Transactional
