@@ -3,6 +3,7 @@ package com.naeggeodo.oauth;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
@@ -94,13 +95,31 @@ public class OAuthService {
     	}
     }
     
+//    @Transactional 
+//    @NotFound(action = NotFoundAction.IGNORE)
+//    private SimpleUser getUser(OAuthDto oauthDto) {
+//    	Users user = userRepository.findById(oauthDto.getId()).orElse(null);
+//    	
+//    	if(user==null) {
+//    		user = oauthMapper.mappingUser(oauthDto);
+//    		user.setAuthority(Authority.MEMBER);
+//    		user.setJoindate(LocalDateTime.now());
+//    		
+//    		userRepository.save(user);
+//    		user = userRepository.findById(oauthDto.getId()).get();
+//    	}
+//    	
+//    	return new SimpleUser(user.getId(), user.getAddress(), user.getAuthority(), user.getBuildingCode());
+//    }
+
     @Transactional 
     @NotFound(action = NotFoundAction.IGNORE)
-    private SimpleUser getUser(OAuthDto oauthDto) {
-    	Users user = userRepository.findById(oauthDto.getId()).orElse(null);
+    protected SimpleUser getUser(OAuthDto oauthDto) {
+    	Users user = userRepository.findBySocialIdAndAuthority(oauthDto.getId(), Authority.MEMBER);
     	
     	if(user==null) {
     		user = oauthMapper.mappingUser(oauthDto);
+    		user.setId(UUID.randomUUID().toString());
     		user.setAuthority(Authority.MEMBER);
     		user.setJoindate(LocalDateTime.now());
     		
@@ -108,8 +127,11 @@ public class OAuthService {
     		user = userRepository.findById(oauthDto.getId()).get();
     	}
     	
-    	return new SimpleUser(user.getId(), user.getAddress(),user.getBuildingCode(), user.getAuthority());
+
+    	return new SimpleUser(user.getId(), user.getAddress(), user.getAuthority(), user.getBuildingCode());
+
     }
+
 
 
    

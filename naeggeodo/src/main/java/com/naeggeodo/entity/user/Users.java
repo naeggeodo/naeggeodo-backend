@@ -18,19 +18,21 @@ import com.naeggeodo.entity.chat.QuickChat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
-
+@ToString
 public class Users{
 
 	
 	@Id @Column(name="user_id")
 	private String id;
 
-	
+	@Column(name="social_id")
+	private String socialId;
 	private String password;
 	private String token;
 	private String phone;
