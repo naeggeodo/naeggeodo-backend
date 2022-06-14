@@ -28,7 +28,6 @@ public class OAuthDtoMapper {
 		modelMapper.typeMap(NaverOAuthDto.class, Users.class).addMappings(mapper -> {
 			mapper.map(src -> src.getResponse().getId(), Users::setSocialId);
 			mapper.map(src -> src.getResponse().getMobile(), Users::setPhone);
-			mapper.map(src -> src.getResponse().getName(), Users::setNickname);
 			mapper.map(src -> src.getResponse().getMobile(), Users::setPhone);
 			mapper.map(src -> src.getResponse().getEmail(), Users::setEmail);
 		});
@@ -41,7 +40,6 @@ public class OAuthDtoMapper {
 		
 		modelMapper.typeMap(KakaoOAuthDto.class, Users.class).addMappings(mapper -> {
 			mapper.map(src -> src.getId(), Users::setSocialId);
-			mapper.map(src -> src.getProperties().getNickname(), Users::setNickname);
 			mapper.map(src -> src.getKakaoAccount().getEmail(), Users::setEmail);
 		});
 		
