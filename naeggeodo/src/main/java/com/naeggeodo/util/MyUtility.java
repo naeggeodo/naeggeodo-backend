@@ -33,6 +33,23 @@ public class MyUtility {
 		
 		return jsonResult;
 	}
+
+	// 참여중인 채팅방 에서만 사용
+	public static <T extends JSONConverter> JSONObject convertListToJSONobj(List<T> list,List<String> msgList,String key) throws Exception {
+		JSONObject jsonResult = new JSONObject();
+		JSONArray arr_json = new JSONArray();
+		for (int i = 0; i < list.size(); i++) {
+			JSONConverter toJson = list.get(i);
+			JSONObject json = toJson.toJSON();
+			json.put("idx", i);
+			json.put("lastestMessage",msgList.get(i));
+			arr_json.put(json);
+		}
+
+		jsonResult.put(key, arr_json);
+
+		return jsonResult;
+	}
 	
 	public static <T extends JSONConverter> JSONObject convertListToJSONobjIgnoringCurrentCount(List<T> list,String key) throws Exception {
 		JSONObject jsonResult = new JSONObject();

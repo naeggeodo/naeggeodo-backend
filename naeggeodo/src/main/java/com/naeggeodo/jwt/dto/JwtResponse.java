@@ -13,9 +13,9 @@ public class JwtResponse {
 	private String type;
 	private String user_id;
 	private String address;
+
 	private String buildingCode;
-	
-	
+
 	public JwtResponse(String accessToken, String refreshToken, String type, SimpleUser user) {
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;

@@ -16,6 +16,7 @@ public class SimpleUser {
 		super();
 		this.Id = userId;
 		this.address = address;
+		this.buildingCode = buildingCode;
 		this.authority = authority;
 		this.buildingCode = buildingCode;
 	}

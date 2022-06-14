@@ -1,28 +1,16 @@
 package com.naeggeodo.entity.chat;
 
-import java.lang.reflect.Field;
-import java.time.LocalDateTime;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-
-import org.hibernate.annotations.CreationTimestamp;
-import org.json.JSONObject;
-
 import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.interfaces.JSONConverterAdapter;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.json.JSONObject;
 import org.springframework.util.ObjectUtils;
+
+import javax.persistence.*;
+import java.lang.reflect.Field;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter

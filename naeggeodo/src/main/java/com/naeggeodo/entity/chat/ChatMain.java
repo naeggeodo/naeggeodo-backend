@@ -1,30 +1,25 @@
 package com.naeggeodo.entity.chat;
 
-import java.lang.reflect.Field;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import javax.persistence.*;
-
-//import com.naeggeodo.listener.ChatMainListener;
-import com.naeggeodo.exception.CustomHttpException;
-import com.naeggeodo.exception.ErrorCode;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.DynamicUpdate;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import com.naeggeodo.dto.ChatRoomDTO;
 import com.naeggeodo.entity.user.Users;
+import com.naeggeodo.exception.CustomHttpException;
+import com.naeggeodo.exception.ErrorCode;
 import com.naeggeodo.interfaces.JSONConverterAdapter;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicUpdate;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.util.ObjectUtils;
+
+import javax.persistence.*;
+import java.lang.reflect.Field;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -66,10 +61,10 @@ public class ChatMain extends JSONConverterAdapter{
 	
 	
 	
-	@OneToMany(mappedBy = "chatMain")
+	@OneToMany(mappedBy = "chatMain",cascade = CascadeType.MERGE)
 	private List<ChatUser> chatUser;
 	
-	@OneToMany(mappedBy = "chatMain")
+	@OneToMany(mappedBy = "chatMain",cascade = CascadeType.MERGE)
 	private List<Tag> tag = new ArrayList<>();
 
 	@Enumerated(EnumType.STRING)
@@ -77,15 +72,36 @@ public class ChatMain extends JSONConverterAdapter{
 
 	private LocalDateTime bookmarksDate;
 	//생성
-	public static ChatMain create(ChatRoomDTO dto) {
+	public static ChatMain create(ChatRoomDTO dto,Users user) {
 		return ChatMain.builder().title(dto.getTitle())
-				.address(dto.getAddress()).state(ChatState.CREATE).link(dto.getLink())
+				.buildingCode(dto.getBuildingCode()).address(dto.getAddress())
+				.state(ChatState.CREATE).link(dto.getLink())
 				.place(dto.getPlace()).category(Category.valueOf(dto.getCategory()))
 				.orderTimeType(OrderTimeType.valueOf(dto.getOrderTimeType()))
-				.maxCount(dto.getMaxCount())
+				.maxCount(dto.getMaxCount()).user(user)
 				.build();
 	}
-	
+
+	public ChatMain copy(OrderTimeType orderTimeType){
+		return   ChatMain.builder().title(this.title)
+				.buildingCode(this.buildingCode).address(this.address)
+				.state(ChatState.CREATE).link(this.link)
+				.place(this.place).category(this.category)
+				.orderTimeType(orderTimeType)
+				.maxCount(this.maxCount).user(this.user)
+				.imgPath(this.imgPath)
+				.build();
+	}
+
+	// 태그 카피
+	public List<Tag> copyTags(List<Tag> tagList){
+		List<Tag> newTagsList = new ArrayList<>();
+		for (Tag t : tagList) {
+			newTagsList.add(Tag.create(this,t.getName()));
+		}
+		return newTagsList;
+	}
+
 	//state upadate
 	public void updateState() {
 		
@@ -261,5 +277,9 @@ public class ChatMain extends JSONConverterAdapter{
 			throw new CustomHttpException(ErrorCode.INVALID_FORMAT);
 		}
 
+	}
+
+	public void updateOrderTimeType(OrderTimeType orderTimeType){
+		this.orderTimeType = orderTimeType;
 	}
 }

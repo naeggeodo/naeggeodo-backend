@@ -1,23 +1,22 @@
 package com.naeggeodo.repository;
 
-import java.util.List;
-
 import com.naeggeodo.entity.chat.Bookmarks;
+import com.naeggeodo.entity.chat.Category;
+import com.naeggeodo.entity.chat.ChatMain;
+import com.naeggeodo.entity.chat.ChatState;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.naeggeodo.entity.chat.Category;
-import com.naeggeodo.entity.chat.ChatMain;
-import com.naeggeodo.entity.chat.ChatState;
+import java.util.List;
 
 public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 	@EntityGraph(attributePaths = {"chatUser"})
-	List<ChatMain> findByCategoryAndBuildingCodeAndStateNotIn(Category category, String buildingCode, List<ChatState> state);
+	List<ChatMain> findByCategoryAndBuildingCodeAndStateNotInOrderByCreateDateDesc(Category category, String buildingCode, List<ChatState> state);
 	@EntityGraph(attributePaths = {"chatUser"})
-	List<ChatMain> findByBuildingCodeAndStateNotIn(String buildingCode,List<ChatState> state);
+	List<ChatMain> findByBuildingCodeAndStateNotInOrderByCreateDateDesc(String buildingCode,List<ChatState> state);
 	
 	@Query("SELECT cm FROM ChatMain cm join ChatUser cu on cm.id = cu.chatMain.id WHERE cu.user.id = :user_id")
 	@EntityGraph(attributePaths = {"chatUser"})
@@ -26,6 +25,10 @@ public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 	@Query("SELECT c FROM ChatMain c WHERE c.id = :id")
 	@EntityGraph(attributePaths = {"chatUser"})
 	ChatMain findChatMainEntityGraph(@Param("id") Long id);
+
+	@Query("select c from ChatMain c where c.id = :id")
+	@EntityGraph(attributePaths = {"tag"})
+	ChatMain findTagEntityGraph(@Param("id")Long id);
 	
 	List<ChatMain> findByStateAndUserId(ChatState state,String user_id);
 	

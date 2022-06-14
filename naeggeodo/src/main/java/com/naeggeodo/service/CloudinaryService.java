@@ -1,12 +1,9 @@
 package com.naeggeodo.service;
 
 
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Map;
-
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import com.naeggeodo.config.CloudinaryConfig;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
 import com.naeggeodo.repository.ChatMainRepository;
@@ -16,9 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
-import com.naeggeodo.config.CloudinaryConfig;
+import java.io.File;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -54,14 +50,8 @@ public class CloudinaryService {
 	
 	
 	private File convertMultiPartFileToFile(MultipartFile file) {
-		File convertedFile = new File(file.getOriginalFilename());
-		try(FileOutputStream fos = new FileOutputStream(convertedFile)){
-			fos.write(file.getBytes());
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
-		
-		return convertedFile;
+
+		return new File(file.getOriginalFilename());
 	}
 	
 	

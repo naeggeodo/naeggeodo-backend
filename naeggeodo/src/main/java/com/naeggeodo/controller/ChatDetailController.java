@@ -1,13 +1,11 @@
 package com.naeggeodo.controller;
 
+import com.naeggeodo.service.ChatDetailService;
+import com.naeggeodo.util.MyUtility;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.naeggeodo.service.ChatDetailService;
-import com.naeggeodo.util.MyUtility;
-
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor

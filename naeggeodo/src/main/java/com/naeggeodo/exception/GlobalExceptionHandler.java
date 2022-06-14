@@ -3,6 +3,7 @@ package com.naeggeodo.exception;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
 
+import io.jsonwebtoken.MalformedJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
@@ -35,6 +36,10 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(value= {HttpMediaTypeNotSupportedException.class})
 	protected ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e){
 		return ErrorResponse.toResponseEntity(ErrorCode.INVALID_FORMAT);
+	}
+	@ExceptionHandler(value= {MalformedJwtException.class})
+	protected ResponseEntity<ErrorResponse> handleHttpMalformedJwtException(MalformedJwtException e){
+		return ErrorResponse.toResponseEntity(ErrorCode.UNAUTHORZED);
 	}
 
 	@ExceptionHandler(value= {Exception.class})

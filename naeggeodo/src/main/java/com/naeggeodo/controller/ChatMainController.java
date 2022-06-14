@@ -1,33 +1,26 @@
 package com.naeggeodo.controller;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
+import com.naeggeodo.dto.ChatRoomDTO;
 import com.naeggeodo.entity.chat.*;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
-import com.naeggeodo.repository.*;
+import com.naeggeodo.repository.ChatDetailRepository;
+import com.naeggeodo.repository.ChatMainRepository;
+import com.naeggeodo.repository.ChatUserRepository;
+import com.naeggeodo.repository.TagRepository;
+import com.naeggeodo.service.ChatMainService;
+import com.naeggeodo.util.MyUtility;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.naeggeodo.dto.ChatRoomDTO;
-import com.naeggeodo.service.ChatMainService;
-import com.naeggeodo.util.MyUtility;
-
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,8 +29,9 @@ public class ChatMainController {
     private final ChatMainRepository chatMainRepository;
     private final ChatMainService chatMainService;
     private final ChatUserRepository chatUserRepository;
-    private final QuickChatRepository quickChatRepository;
+
     private final TagRepository tagRepository;
+    private final ChatDetailRepository chatDetailRepository;
 
     //채팅방 리스트
     @GetMapping(value = "/chat-rooms", produces = "application/json")
@@ -50,14 +44,14 @@ public class ChatMainController {
         if (category == null) {
             //전체조회시
             json = MyUtility.convertListToJSONobj(
-                    chatMainRepository.findByBuildingCodeAndStateNotIn
+                    chatMainRepository.findByBuildingCodeAndStateNotInOrderByCreateDateDesc
                             (buildingCode, ChatState.insearchableList), "chatRoom"
             );
         } else {
             //카테고리 조회시
             Category categoryEnum = Category.valueOf(category.toUpperCase());
             json = MyUtility.convertListToJSONobj(
-                    chatMainRepository.findByCategoryAndBuildingCodeAndStateNotIn
+                    chatMainRepository.findByCategoryAndBuildingCodeAndStateNotInOrderByCreateDateDesc
                             (categoryEnum, buildingCode, ChatState.insearchableList), "chatRoom"
             );
         }
@@ -73,14 +67,18 @@ public class ChatMainController {
         JSONObject json = chatMainService.createChatRoom(chat, file);
         return ResponseEntity.ok(json.toMap());
     }
-//    @PostMapping(value = "/chat-rooms", produces = "application/json")
-//    @Transactional(propagation = Propagation.REQUIRED)
-//    public ResponseEntity<Object> createChatRoom(@RequestPart(name = "chat") @Valid ChatRoomDTO chat,
-//                                                 @RequestPart(required = false) MultipartFile file) {
-//        Long startTime = System.currentTimeMillis();
-//        JSONObject json = chatMainService.createChatRoom(chat, file);
-//        return ResponseEntity.ok(json.toMap());
-//    }
+
+    // 채팅방 주문목록 리스트에서 생성
+    @PostMapping(value = "/chat-rooms/{chatMain_id}/copy")
+    public ResponseEntity<Object> copyChatRoom(@RequestParam("orderTimeType")String timeTypeStr,
+                                               @PathVariable("chatMain_id")String chatMain_idStr){
+        Long chatMain_id = Long.parseLong(chatMain_idStr);
+        OrderTimeType orderTimeType = OrderTimeType.valueOf(timeTypeStr);
+
+        JSONObject json = chatMainService.copyChatRoom(chatMain_id,orderTimeType);
+        return ResponseEntity.ok(json.toMap());
+    }
+
 
     //해당 채팅방 data
     @GetMapping(value = "/chat-rooms/{chatMain_id}", produces = "application/json")
@@ -127,22 +125,19 @@ public class ChatMainController {
         return ResponseEntity.ok(chatUser.getState());
     }
 
-    //해당 유저 퀵채팅
-    @Transactional(readOnly = true)
-    @GetMapping(value = "/user/{user_id}/quick-chatting", produces = "application/json")
-    public ResponseEntity<Object> getQuickChat(@PathVariable(name = "user_id") String user_id) {
-
-        List<String> list = quickChatRepository.findByUserId(user_id).getMsgList();
-        JSONObject json = MyUtility.convertStringListToJSONObject(list, "quickChat");
-        json.put("user_id", user_id);
-        return ResponseEntity.ok(json.toMap());
-    }
 
     //참여중인 채팅방
     @Transactional(readOnly = true)
     @GetMapping(value = "/chat-rooms/progressing/user/{user_id}", produces = "application/json")
     public ResponseEntity<Object> getProgressingChatList(@PathVariable(name = "user_id") String user_id) throws Exception {
-        JSONObject json = MyUtility.convertListToJSONobj(chatMainRepository.findByUserIdInChatUser(user_id), "chatRoom");
+        List<ChatMain> list = chatMainRepository.findByUserIdInChatUser(user_id);
+        List<Long> idList = new ArrayList<>();
+        for (ChatMain c: list) {
+            idList.add(c.getId());
+        }
+        List<String> lastestMessages = chatDetailRepository.findLastestContents(idList);
+
+        JSONObject json = MyUtility.convertListToJSONobj(chatMainRepository.findByUserIdInChatUser(user_id), lastestMessages,"chatRoom");
         return ResponseEntity.ok(json.toMap());
     }
 
@@ -179,17 +174,17 @@ public class ChatMainController {
         return ResponseEntity.ok(json.toMap());
     }
 
-    @GetMapping(value = "/chat-rooms/tag/{tag}", produces = "application/json")
+    @GetMapping(value = "/chat-rooms/tag", produces = "application/json")
     @Transactional(readOnly = true)
-    public ResponseEntity<Object> getChatListByTag(@PathVariable("tag") String tag) throws Exception {
-        List<ChatMain> list = chatMainRepository.findByTagNameAndStateNotIn(tag, ChatState.insearchableList);
+    public ResponseEntity<Object> getChatListByTag(@RequestParam("keyWord") String keyWord) throws Exception {
+        List<ChatMain> list = chatMainRepository.findByTagNameAndStateNotIn(keyWord, ChatState.insearchableList);
         JSONObject json = MyUtility.convertListToJSONobj(list, "chatRoom");
         return ResponseEntity.ok(json.toMap());
     }
 
-    @GetMapping(value = "/chat-rooms/search/{keyWord}", produces = "application/json")
+    @GetMapping(value = "/chat-rooms/search", produces = "application/json")
     @Transactional(readOnly = true)
-    public ResponseEntity<Object> getChatListByKeyWord(@PathVariable("keyWord") String keyWord) throws Exception {
+    public ResponseEntity<Object> getChatListByKeyWord(@RequestParam("keyWord") String keyWord) throws Exception {
         List<ChatMain> list = chatMainRepository.findByTagNameOrTitleContainsAndStateNotIn(keyWord, keyWord, ChatState.insearchableList);
         JSONObject json = MyUtility.convertListToJSONobj(list, "chatRoom");
         return ResponseEntity.ok(json.toMap());
@@ -234,11 +229,4 @@ public class ChatMainController {
         return ResponseEntity.ok(json.toMap());
     }
 
-//	@GetMapping(value = "/chat-rooms/order-list/{user_id}",produces = "application/json")
-//	@Transactional(readOnly = true)
-//	public ResponseEntity<Object> getOrderList(@PathVariable("user_id")String user_id) throws Exception{
-//		List<ChatMain> list = chatMainRepository.findOrderList(user_id);
-//		JSONObject json = MyUtility.convertListToJSONobj(list,"chatRooms");
-//		return ResponseEntity.ok(json.toMap());
-//	}
 }

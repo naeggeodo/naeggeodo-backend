@@ -2,6 +2,8 @@ package com.naeggeodo.controller;
 
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
+import com.naeggeodo.repository.QuickChatRepository;
+import com.naeggeodo.util.MyUtility;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,7 @@ import java.util.List;
 public class UserController {
 
 	private final UserRepository userRepository;
+	private final QuickChatRepository quickChatRepository;
 	
 	@Transactional
 	@PatchMapping(value="/user/{user_id}/address",produces = "application/json")
@@ -50,9 +53,15 @@ public class UserController {
 		json.put("nickname",list.get(2));
 		return json.toString();
 	}
-	
-//	@PatchMapping(value = "user/{user_id}/deleteAccount")
-//	public ResponseEntity<?> deleteAccount(){
-//		return new ResponseEntity();
-//	}
+
+	//해당 유저 퀵채팅
+	@Transactional(readOnly = true)
+	@GetMapping(value = "/user/{user_id}/quick-chatting", produces = "application/json")
+	public ResponseEntity<Object> getQuickChat(@PathVariable(name = "user_id") String user_id) {
+
+		List<String> list = quickChatRepository.findByUserId(user_id).getMsgList();
+		JSONObject json = MyUtility.convertStringListToJSONObject(list, "quickChat");
+		json.put("user_id", user_id);
+		return ResponseEntity.ok(json.toMap());
+	}
 }
