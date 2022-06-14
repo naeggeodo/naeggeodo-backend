@@ -4,6 +4,7 @@ package com.naeggeodo.repository;
 import com.naeggeodo.dto.AddressDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.naeggeodo.entity.user.Authority;
 import com.naeggeodo.entity.user.Users;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,4 +27,6 @@ public interface UserRepository extends JpaRepository<Users, String>{
             "UNION ALL \n" +
             "(SELECT u.nickname from users u WHERE user_id = :user_id)",nativeQuery = true)
     List<Object> getMyPageCount(@Param("user_id")String user_id);
+    
+    Users findBySocialIdAndAuthority(String socialId, Authority authority);
 }

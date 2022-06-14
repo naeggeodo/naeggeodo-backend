@@ -3,6 +3,7 @@ package com.naeggeodo.controller;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
 import org.json.JSONObject;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,4 +50,9 @@ public class UserController {
 		json.put("nickname",list.get(2));
 		return json.toString();
 	}
+	
+//	@PatchMapping(value = "user/{user_id}/deleteAccount")
+//	public ResponseEntity<?> deleteAccount(){
+//		return new ResponseEntity();
+//	}
 }
