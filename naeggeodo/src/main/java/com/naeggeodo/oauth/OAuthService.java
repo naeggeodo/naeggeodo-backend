@@ -47,17 +47,17 @@ public class OAuthService {
     	
     	log.info("getAuth : ");
     	OAuthDto oauthUserInfo = setOAuthDto(providerName);    	
-    	OauthProvider provider = inMemoryProviderRepository.findByProviderName(providerName);//application.yml�뿉 �벑濡앸맂 oauth2 �젙蹂�
+    	OauthProvider provider = inMemoryProviderRepository.findByProviderName(providerName);
     	
     	OauthAuthorized authorization = oauthDetail.requestAccessToken(code, provider);
     	
     	requestHeaders.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-    	requestHeaders.put("Authorization", "Bearer "+authorization.getAccessToken()); //�쟾遺��떎 String�삎�씪 �븣. RestTemplate �븣臾몄뿉 �깮�왂媛��뒫
+    	requestHeaders.put("Authorization", "Bearer "+authorization.getAccessToken());
     	
     	String responseBody = oauthDetail.get(provider.getUserInfoUrl(), requestHeaders);
     	
     	ObjectMapper objectMapper = new ObjectMapper();
-    	objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);//�빐�떦 �븘�뱶媛� �뾾�쓣寃쎌슦 臾댁떆
+    	objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     	new Users().setJoindate(LocalDateTime.now());
     	try {
     		oauthUserInfo = objectMapper.readValue(
@@ -79,12 +79,11 @@ public class OAuthService {
     			oauthDetail.requestUserInfo(
 	    			inMemoryProviderRepository.findByProviderName(providerName).getUserInfoUrl(),
 	    			oauthToken,
-	    			oauthUserInfo
+	    			oauthUserInfo	
 	    			)
     			);
     }
     
-    //prider媛믪뿉�뵲�씪 �빐�떦 dto 諛섑솚
     private OAuthDto setOAuthDto(String providerName) {
     	switch(providerName) {
     	case "naver":
@@ -95,23 +94,6 @@ public class OAuthService {
     		throw new NullPointerException();
     	}
     }
-    
-//    @Transactional 
-//    @NotFound(action = NotFoundAction.IGNORE)
-//    private SimpleUser getUser(OAuthDto oauthDto) {
-//    	Users user = userRepository.findById(oauthDto.getId()).orElse(null);
-//    	
-//    	if(user==null) {
-//    		user = oauthMapper.mappingUser(oauthDto);
-//    		user.setAuthority(Authority.MEMBER);
-//    		user.setJoindate(LocalDateTime.now());
-//    		
-//    		userRepository.save(user);
-//    		user = userRepository.findById(oauthDto.getId()).get();
-//    	}
-//    	
-//    	return new SimpleUser(user.getId(), user.getAddress(), user.getAuthority(), user.getBuildingCode());
-//    }
 
     @Transactional 
     @NotFound(action = NotFoundAction.IGNORE)
@@ -123,9 +105,11 @@ public class OAuthService {
     		user.setId(UUID.randomUUID().toString());
     		user.setAuthority(Authority.MEMBER);
     		user.setJoindate(LocalDateTime.now());
+
     		user.setNickname(RandomNickNameGenerator.createRandomNickName());
     		user = userRepository.save(user);
     		//user = userRepository.findById(oauthDto.getId()).get();
+
     	}
     	
 
