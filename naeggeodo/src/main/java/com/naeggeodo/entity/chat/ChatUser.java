@@ -71,6 +71,7 @@ public class ChatUser extends JSONConverterAdapter{
 		JSONObject json = new JSONObject();
 		json.put("user_id",this.user.getId() );
 		json.put("remittanceState",this.state.name());
+		json.put("nickname",this.getUser().getNickname());
 		return json;
 	}
 	

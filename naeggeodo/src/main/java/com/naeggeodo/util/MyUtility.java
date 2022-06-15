@@ -42,7 +42,7 @@ public class MyUtility {
 			JSONConverter toJson = list.get(i);
 			JSONObject json = toJson.toJSON();
 			json.put("idx", i);
-			json.put("lastestMessage",msgList.get(i));
+			json.put("latestMessage",msgList.get(i));
 			arr_json.put(json);
 		}
 
