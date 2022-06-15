@@ -64,4 +64,15 @@ public class UserController {
 		json.put("user_id", user_id);
 		return ResponseEntity.ok(json.toMap());
 	}
+
+	@Transactional(readOnly = true)
+	@GetMapping(value = "/user/{user_id}/nickname",produces = "application/json")
+	public ResponseEntity<Object> getNickname(@PathVariable(name="user_id")String user_id){
+		Users user = userRepository.findById(user_id)
+				.orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+		JSONObject json = new JSONObject();
+		json.put("nickname",user.getNickname());
+		json.put("user_id",user.getId());
+		return ResponseEntity.ok(json.toMap());
+	}
 }

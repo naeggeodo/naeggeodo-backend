@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import com.naeggeodo.util.RandomNickNameGenerator;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.json.JSONException;
@@ -122,9 +123,9 @@ public class OAuthService {
     		user.setId(UUID.randomUUID().toString());
     		user.setAuthority(Authority.MEMBER);
     		user.setJoindate(LocalDateTime.now());
-    		
-    		userRepository.save(user);
-    		user = userRepository.findById(oauthDto.getId()).get();
+    		user.setNickname(RandomNickNameGenerator.createRandomNickName());
+    		user = userRepository.save(user);
+    		//user = userRepository.findById(oauthDto.getId()).get();
     	}
     	
 

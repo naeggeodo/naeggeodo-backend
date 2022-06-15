@@ -69,16 +69,8 @@ public class StompInterceptor implements ChannelInterceptor{
 			ChatMain chatMain =  chatMainRepository.findChatMainEntityGraph(chatMain_id);
 			ChatUser enteredChatUser = chatMain.findChatUserBySender(sender);
 			
-			
 			if(chatMain.isFull()) {
-				if(enteredChatUser != null) {
-					String oldSessionId = enteredChatUser.getSessionId();
-					if(sessionHandler.isExist(oldSessionId)) {
-						log.debug("throw CustomWebSocketException Code = {}",StompErrorCode.SESSION_DUPLICATION);
-						throw new CustomWebSocketException(StompErrorCode.SESSION_DUPLICATION.name());
-					}
-					enteredChatUser.setSessionId(newSessionId);
-				} else {
+				if(enteredChatUser == null) {
 					log.debug("throw CustomWebSocketException Code = {}",StompErrorCode.INVALID_STATE);
 					throw new CustomWebSocketException(StompErrorCode.INVALID_STATE.name());
 				}
@@ -90,10 +82,16 @@ public class StompInterceptor implements ChannelInterceptor{
 			}
 			
 			if(enteredChatUser !=null) {
+				String oldSessionId = enteredChatUser.getSessionId();
 				if(BanState.BANNED.equals(enteredChatUser.getBanState())) {
 					log.debug("throw CustomWebSocketException Code = {}",StompErrorCode.INVALID_STATE);
 					throw new CustomWebSocketException(StompErrorCode.BANNED_CHAT_USER.name());
 				}
+				if(sessionHandler.isExist(oldSessionId)) {
+					log.debug("throw CustomWebSocketException Code = {}",StompErrorCode.SESSION_DUPLICATION);
+					throw new CustomWebSocketException(StompErrorCode.SESSION_DUPLICATION.name());
+				}
+				enteredChatUser.setSessionId(newSessionId);
 			}
 		}
 		System.out.println("=========================end===============================");
