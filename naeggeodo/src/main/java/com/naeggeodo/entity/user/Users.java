@@ -2,12 +2,7 @@ package com.naeggeodo.entity.user;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
 import org.json.JSONObject;
 
@@ -53,8 +48,9 @@ public class Users{
 	private Authority authority;
 	
 	private String imgpath;
-	
-	@OneToOne(mappedBy = "user")
+
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "quickChat_id")
 	private QuickChat quickChat;
 	
 	public void updateAddress(String address,String zonecode,String buildingCode) {

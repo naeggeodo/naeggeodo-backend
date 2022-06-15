@@ -267,13 +267,13 @@ public class ChatMain extends JSONConverterAdapter{
 	}
 
 	public void updateBookmarks(){
-		if(this.bookmarks.equals(Bookmarks.Y)){
-			this.bookmarksDate = null;
-			this.bookmarks = Bookmarks.N;
-		} else if(this.bookmarks.equals(Bookmarks.N)){
+		if(this.bookmarks.equals(Bookmarks.N)){
 			this.bookmarksDate = LocalDateTime.now();
 			this.bookmarks = Bookmarks.Y;
-		} else {
+		}else if(this.bookmarks.equals(Bookmarks.Y)){
+			this.bookmarksDate = null;
+			this.bookmarks = Bookmarks.N;
+		}else {
 			throw new CustomHttpException(ErrorCode.INVALID_FORMAT);
 		}
 
@@ -281,5 +281,9 @@ public class ChatMain extends JSONConverterAdapter{
 
 	public void updateOrderTimeType(OrderTimeType orderTimeType){
 		this.orderTimeType = orderTimeType;
+	}
+
+	public void updateTitle(String title){
+		this.title = title;
 	}
 }

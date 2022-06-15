@@ -93,12 +93,25 @@ public class ChatMainController {
     @PatchMapping(value = "/chat-rooms/{chatMain_id}")
     @Transactional
     public ResponseEntity<Object> updateRoomState(@PathVariable(name = "chatMain_id") Long chatMain_id,
-                                                  @RequestParam(name = "state") String state) {
-        ChatState chatState = ChatState.valueOf(state.toUpperCase());
+                                                  @RequestParam(name = "state",required = false) String state,
+                                                  @RequestParam(name= "title",required = false)String title) {
+        ResponseEntity<Object> response = null;
+        JSONObject json = new JSONObject();
         ChatMain chatMain = chatMainRepository.findById(chatMain_id)
                 .orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
-        chatMain.changeState(chatState);
-        return ResponseEntity.ok(chatMain.getState().name());
+        json.put("chatMain_id",chatMain.getId());
+        if(state != null && title == null){
+            ChatState chatState = ChatState.valueOf(state.toUpperCase());
+            chatMain.changeState(chatState);
+            json.put("state",chatMain.getState().name());
+            return ResponseEntity.ok(json.toMap());
+        } else if(title != null&& state == null){
+            chatMain.updateTitle(title);
+            json.put("title",chatMain.getTitle());
+            return ResponseEntity.ok(json.toMap());
+        } else {
+            throw new CustomHttpException(ErrorCode.INVALID_FORMAT);
+        }
     }
 
 
@@ -130,14 +143,14 @@ public class ChatMainController {
     @Transactional(readOnly = true)
     @GetMapping(value = "/chat-rooms/progressing/user/{user_id}", produces = "application/json")
     public ResponseEntity<Object> getProgressingChatList(@PathVariable(name = "user_id") String user_id) throws Exception {
-        List<ChatMain> list = chatMainRepository.findByUserIdInChatUser(user_id);
+        List<ChatMain> list = chatMainRepository.findByUserIdInChatUser(user_id,ChatState.insearchableList);
         List<Long> idList = new ArrayList<>();
         for (ChatMain c: list) {
             idList.add(c.getId());
         }
-        List<String> lastestMessages = chatDetailRepository.findLastestContents(idList);
+        List<String> latestMessages = chatDetailRepository.findLatestContents(idList);
 
-        JSONObject json = MyUtility.convertListToJSONobj(chatMainRepository.findByUserIdInChatUser(user_id), lastestMessages,"chatRoom");
+        JSONObject json = MyUtility.convertListToJSONobj(list, latestMessages,"chatRoom");
         return ResponseEntity.ok(json.toMap());
     }
 
@@ -177,7 +190,7 @@ public class ChatMainController {
     @GetMapping(value = "/chat-rooms/tag", produces = "application/json")
     @Transactional(readOnly = true)
     public ResponseEntity<Object> getChatListByTag(@RequestParam("keyWord") String keyWord) throws Exception {
-        List<ChatMain> list = chatMainRepository.findByTagNameAndStateNotIn(keyWord, ChatState.insearchableList);
+        List<ChatMain> list = chatMainRepository.findByTagNameAndStateNotInOrderByCreateDateDesc(keyWord, ChatState.insearchableList);
         JSONObject json = MyUtility.convertListToJSONobj(list, "chatRoom");
         return ResponseEntity.ok(json.toMap());
     }
@@ -185,7 +198,7 @@ public class ChatMainController {
     @GetMapping(value = "/chat-rooms/search", produces = "application/json")
     @Transactional(readOnly = true)
     public ResponseEntity<Object> getChatListByKeyWord(@RequestParam("keyWord") String keyWord) throws Exception {
-        List<ChatMain> list = chatMainRepository.findByTagNameOrTitleContainsAndStateNotIn(keyWord, keyWord, ChatState.insearchableList);
+        List<ChatMain> list = chatMainRepository.findByTagNameOrTitleContainsAndStateNotInOrderByCreateDateDesc(keyWord, keyWord, ChatState.insearchableList);
         JSONObject json = MyUtility.convertListToJSONobj(list, "chatRoom");
         return ResponseEntity.ok(json.toMap());
     }
@@ -210,7 +223,10 @@ public class ChatMainController {
                 .orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
         if (chatMain.getUser().getId().equals(user_id)) {
             chatMain.updateBookmarks();
-            return ResponseEntity.ok("ok");
+            JSONObject json = new JSONObject();
+            json.put("chatMain_id",chatMain.getId());
+            json.put("bookmarks",chatMain.getBookmarks().name());
+            return ResponseEntity.ok(json.toMap());
         } else {
             throw new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND);
         }

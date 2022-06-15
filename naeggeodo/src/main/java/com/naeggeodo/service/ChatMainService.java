@@ -2,10 +2,9 @@ package com.naeggeodo.service;
 
 import com.naeggeodo.config.CloudinaryConfig;
 import com.naeggeodo.dto.ChatRoomDTO;
-import com.naeggeodo.entity.chat.ChatMain;
-import com.naeggeodo.entity.chat.OrderTimeType;
-import com.naeggeodo.entity.chat.Tag;
+import com.naeggeodo.entity.chat.*;
 import com.naeggeodo.entity.user.Users;
+import com.naeggeodo.repository.ChatDetailRepository;
 import com.naeggeodo.repository.ChatMainRepository;
 import com.naeggeodo.repository.TagRepository;
 import com.naeggeodo.repository.UserRepository;
@@ -26,11 +25,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatMainService {
 
-	private final CloudinaryConfig cloudinaryConfig;
 	private final ChatMainRepository chatMainRepository;
 	private final CloudinaryService cloudinaryService;
 	private final TagRepository tagRepository;
 	private final UserRepository userRepository;
+	private final ChatDetailRepository chatDetailRepository;
 	
 	//파라미터 2개일때 param[0] -> category , param[1] -> BuildingCode
 //	@Transactional
@@ -66,6 +65,8 @@ public class ChatMainService {
 			cloudinaryService.upload(file, "chatMain/"+savedChatMain.getId(),savedChatMain.getId());
 		//chatMain.updateImgPath(imgpath);
 
+		chatDetailRepository.save(ChatDetail.create("채팅방이 생성 되었습니다",user,savedChatMain, ChatDetailType.CREATED));
+
 		JSONObject json = new JSONObject();
 		json.put("chatMain_id", savedChatMain.getId());
 		return json;
@@ -78,6 +79,7 @@ public class ChatMainService {
 		List<Tag> saveTags = savedChatMain.copyTags(targetChatMain.getTag());
 		tagRepository.saveAll(saveTags);
 
+		chatDetailRepository.save(ChatDetail.create("채팅방이 생성 되었습니다",savedChatMain.getUser(),savedChatMain, ChatDetailType.CREATED));
 		JSONObject json = new JSONObject();
 		json.put("chatMain_id",savedChatMain.getId());
 		return json;
