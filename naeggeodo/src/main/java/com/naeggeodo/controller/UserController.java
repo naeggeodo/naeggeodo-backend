@@ -1,5 +1,6 @@
 package com.naeggeodo.controller;
 
+import com.naeggeodo.entity.chat.QuickChat;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
 import com.naeggeodo.repository.QuickChatRepository;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,13 +26,13 @@ public class UserController {
 
 	private final UserRepository userRepository;
 	private final QuickChatRepository quickChatRepository;
-	
+
 	@Transactional
 	@PatchMapping(value="/user/{user_id}/address",produces = "application/json")
 	public String updateAddress(@PathVariable("user_id")String user_id
-								,@RequestBody @Valid AddressDTO dto) throws Exception {
+			,@RequestBody @Valid AddressDTO dto) throws Exception {
 		Users user = userRepository.findById(user_id).
-					orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+				orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
 		user.updateAddress(dto.getAddress(), dto.getZonecode(), dto.getBuildingCode());
 		return user.AddresstoJSON().toString();
 	}
@@ -59,9 +61,23 @@ public class UserController {
 	@GetMapping(value = "/user/{user_id}/quick-chatting", produces = "application/json")
 	public ResponseEntity<Object> getQuickChat(@PathVariable(name = "user_id") String user_id) {
 
-		List<String> list = quickChatRepository.findByUserId(user_id).getMsgList();
+		Users user = userRepository.findQuickChatEntityGraph(user_id)
+				.orElseThrow(()-> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+		List<String> list = user.getQuickChat().getMsgList();
 		JSONObject json = MyUtility.convertStringListToJSONObject(list, "quickChat");
 		json.put("user_id", user_id);
+		return ResponseEntity.ok(json.toMap());
+	}
+
+	@Transactional
+	@PatchMapping(value = "/user/{user_id}/quick-chatting", produces = "application/json")
+	public ResponseEntity<Object> updateQuickChat(@PathVariable("user_id")String user_id,
+												  @RequestBody Map<String,List<String>> quickChat){
+		QuickChat findQuickChat = userRepository.findQuickChatEntityGraph(user_id)
+				.orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND)).getQuickChat();
+		List<String> list = quickChat.get("quickChat");
+		findQuickChat.updateMsgByList(list);
+		JSONObject json = MyUtility.convertStringListToJSONObject(list,"quickChat");
 		return ResponseEntity.ok(json.toMap());
 	}
 
