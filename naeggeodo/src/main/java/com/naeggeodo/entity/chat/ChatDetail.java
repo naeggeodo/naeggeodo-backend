@@ -37,13 +37,12 @@ public class ChatDetail extends JSONConverterAdapter{
 	
 	@Enumerated(EnumType.STRING)
 	private ChatDetailType type;
-	
-	
+
+
 	
 	//생성
 	public static ChatDetail create(String contents,Users user,ChatMain chatmain,ChatDetailType type) {
 		ChatDetail chatDetail = new ChatDetail();
-		
 		chatDetail.setContents(contents);
 		chatDetail.setChatmain(chatmain);
 		chatDetail.setUser(user);
@@ -76,7 +75,7 @@ public class ChatDetail extends JSONConverterAdapter{
 			}else {
 				json.put(field.getName(), obj);
 			}
-			
+			json.put("nickname",this.user.getNickname());
 		}
 		return json;
 	}

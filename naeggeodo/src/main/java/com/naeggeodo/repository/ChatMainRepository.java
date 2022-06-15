@@ -18,9 +18,9 @@ public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 	@EntityGraph(attributePaths = {"chatUser"})
 	List<ChatMain> findByBuildingCodeAndStateNotInOrderByCreateDateDesc(String buildingCode,List<ChatState> state);
 	
-	@Query("SELECT cm FROM ChatMain cm join ChatUser cu on cm.id = cu.chatMain.id WHERE cu.user.id = :user_id")
+	@Query("SELECT cm FROM ChatMain cm join fetch ChatUser cu on cm.id = cu.chatMain.id WHERE cu.user.id = :user_id AND cm.state not in :stateList")
 	@EntityGraph(attributePaths = {"chatUser"})
-	List<ChatMain> findByUserIdInChatUser(@Param("user_id") String user_id);
+	List<ChatMain> findByUserIdInChatUser(@Param("user_id") String user_id,@Param("stateList") List<ChatState> stateList);
 	
 	@Query("SELECT c FROM ChatMain c WHERE c.id = :id")
 	@EntityGraph(attributePaths = {"chatUser"})
@@ -38,10 +38,10 @@ public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 //	public List<ChatMain> findByTagName(@Param("name") String tagName);
 	
 	@EntityGraph(attributePaths = {"chatUser"})
-	List<ChatMain> findByTagNameAndStateNotIn(String tagName,List<ChatState> state);
+	List<ChatMain> findByTagNameAndStateNotInOrderByCreateDateDesc(String tagName,List<ChatState> state);
 	
 	@EntityGraph(attributePaths = {"chatUser"})
-	List<ChatMain> findByTagNameOrTitleContainsAndStateNotIn(String tagName,String title,List<ChatState> state);
+	List<ChatMain> findByTagNameOrTitleContainsAndStateNotInOrderByCreateDateDesc(String tagName,String title,List<ChatState> state);
 
 	@Modifying
 	@Query("update ChatMain c set c.imgPath = :imgPath where c.id = :chatMain_id")
