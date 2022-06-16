@@ -11,6 +11,8 @@ import org.json.JSONObject;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -58,22 +60,10 @@ public class Users{
 
 	public JSONObject AddresstoJSON() {
 		JSONObject json = new JSONObject();
-		if(address != null){
-			json.put("address", address);
-		} else {
-			json.put("address",JSONObject.NULL);
-		}
-		if(zonecode != null){
-			json.put("zonecode", zonecode);
-		} else {
-			json.put("zonecode",JSONObject.NULL);
-		}
-		if(buildingCode != null){
-			json.put("buildingCode", buildingCode);
-		} else {
-			json.put("buildingCode",JSONObject.NULL);
-		}
-		json.put("user_id", id);
+		json.put("address",address!=null?address:JSONObject.NULL);
+		json.put("zonecode",zonecode!=null?zonecode:JSONObject.NULL);
+		json.put("buildingCode",buildingCode!=null?buildingCode:JSONObject.NULL);
+		json.put("user_id",id);
 		return json;
 	}
 
