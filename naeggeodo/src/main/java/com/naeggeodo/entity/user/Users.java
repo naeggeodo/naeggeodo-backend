@@ -46,7 +46,7 @@ public class Users{
 
 	private String imgpath;
 
-	@OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "quickChat_id")
 	private QuickChat quickChat;
 
@@ -58,9 +58,21 @@ public class Users{
 
 	public JSONObject AddresstoJSON() {
 		JSONObject json = new JSONObject();
-		json.put("address", address);
-		json.put("zonecode", zonecode);
-		json.put("buildingCode", buildingCode);
+		if(address != null){
+			json.put("address", address);
+		} else {
+			json.put("address",JSONObject.NULL);
+		}
+		if(zonecode != null){
+			json.put("zonecode", zonecode);
+		} else {
+			json.put("zonecode",JSONObject.NULL);
+		}
+		if(buildingCode != null){
+			json.put("buildingCode", buildingCode);
+		} else {
+			json.put("buildingCode",JSONObject.NULL);
+		}
 		json.put("user_id", id);
 		return json;
 	}

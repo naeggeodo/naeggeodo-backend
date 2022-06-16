@@ -132,8 +132,7 @@ public class OAuthService {
 
 			QuickChat qc = QuickChat.create(user);
 			user.setQuickChat(qc);
-			user = userRepository.save(user);
-			//quickChatRepository.save(qc);
+			quickChatRepository.save(qc);
 			//user = userRepository.findById(oauthDto.getId()).get();
 		}
 

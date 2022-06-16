@@ -27,7 +27,7 @@ public class QuickChat{
 	@Column(name = "quickChat_id")
 	private Long id;
 
-	@OneToOne(mappedBy = "quickChat",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+	@OneToOne(mappedBy = "quickChat",fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
 	private Users user;
 
 	@Column(columnDefinition = "varchar(255) default '안녕하세요. 지금 주문 가능하신가요?'")
