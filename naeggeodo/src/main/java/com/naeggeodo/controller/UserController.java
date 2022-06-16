@@ -17,6 +17,8 @@ import com.naeggeodo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -69,6 +71,23 @@ public class UserController {
 		return ResponseEntity.ok(json.toMap());
 	}
 
+//	@Transactional
+//	@PatchMapping(value = "/user/{user_id}/quick-chatting", produces = "application/json")
+//	public ResponseEntity<Object> updateQuickChat(@PathVariable("user_id")String user_id,
+//												  @RequestBody Map<String,List<Map<String,String>>> quickChat){
+//		QuickChat findQuickChat = userRepository.findQuickChatEntityGraph(user_id)
+//				.orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND)).getQuickChat();
+//		List<Map<String,String>> list = quickChat.get("quickChat");
+//		List<String> msgList = new ArrayList<>();
+//
+//		for (Map<String,String> map:list) {
+//			msgList.add(map.get("msg"));
+//		}
+//
+//		findQuickChat.updateMsgByList(msgList);
+//		JSONObject json = MyUtility.convertStringListToJSONObject(msgList,"quickChat");
+//		return ResponseEntity.ok(json.toMap());
+//	}
 	@Transactional
 	@PatchMapping(value = "/user/{user_id}/quick-chatting", produces = "application/json")
 	public ResponseEntity<Object> updateQuickChat(@PathVariable("user_id")String user_id,
@@ -90,5 +109,21 @@ public class UserController {
 		json.put("nickname",user.getNickname());
 		json.put("user_id",user.getId());
 		return ResponseEntity.ok(json.toMap());
+	}
+
+	@Transactional
+	@PatchMapping(value = "/user/{user_id}/nickname",produces = "application/json")
+	public ResponseEntity<Object> updateNickname(@PathVariable(name="user_id")String user_id,
+												 @RequestParam(name="value")String value){
+		Users user = userRepository.findById(user_id)
+				.orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+		user.setNickname(value);
+		return ResponseEntity.ok(new HashMap<String,String>(){
+				{
+					put("user_id",user.getId());
+					put("nickname",user.getNickname());
+				}
+			}
+		);
 	}
 }

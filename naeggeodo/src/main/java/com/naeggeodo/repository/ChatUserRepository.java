@@ -16,7 +16,7 @@ public interface ChatUserRepository extends JpaRepository<ChatUser, Long>{
 	
 	List<ChatUser> findByChatMainId(Long chatMain_id);
 
-	@Query("select new com.naeggeodo.dto.UserNameIdDTO(u.id,u.nickname,cu.state) from ChatUser cu inner join Users u on u.id = cu.user.id where cu.chatMain.id = :chatMain_id")
+	@Query("select new com.naeggeodo.dto.UserNameIdDTO(u.id,u.nickname,cu.state) from ChatUser cu join fetch Users u on u.id = cu.user.id where cu.chatMain.id = :chatMain_id and cu.chatMain.user.id <> u.id")
 	List<UserNameIdDTO> findForRemit(@Param("chatMain_id")Long chatMain_id);
 
 	Long countByChatMainIdAndUserId(Long chatMain_id,String user_id);
