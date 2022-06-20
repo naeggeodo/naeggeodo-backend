@@ -3,6 +3,7 @@ package com.naeggeodo.oauth;
 
 import java.util.Map;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -10,7 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -70,11 +71,30 @@ public class OAuthController {
                 jwtService.createJwtToken(user)));
        
     }
+    
+    @PostMapping(value = "/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response){
+    	
+    	log.info("Logout: ");
+    	
+    	ResponseCookie cookie = ResponseCookie.from("refreshToken", null)
+    			.maxAge(7 * 24 * 60 * 60)
+    			.path("/")
+    			.secure(true)
+    			.sameSite("None")
+    			.httpOnly(true)
+    			.build();
+    	response.setHeader("Set-Cookie", cookie.toString());
+    	
+    	
+    	
+    	return ResponseEntity.ok(true);
+    }
 
     @PostMapping("/refreshtoken")
     public ResponseEntity<?> refreshtoken(HttpServletRequest request) throws Exception {
-    	log.info(request.getHeader("Set-Cookie").substring(13));
-    	
+    	String refreshToken = request.getHeader("Set-Cookie");
+    	refreshToken.substring(refreshToken.indexOf("="));
     	JSONObject jwtResponse = new JSONObject(); 
     	jwtResponse.put("accessToken", jwtService.refreshToken(request.getHeader("Set-Cookie").substring(13)).getAccessToken());
     	
