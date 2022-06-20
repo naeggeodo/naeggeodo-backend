@@ -17,7 +17,6 @@ public class JwtTokenService {
 		  String id = user.getId();
 		  
 		  return new JwtResponse(jwtProvider.createToken(id),
-					  jwtProvider.createRefreshToken(id),
 					  "Bearer",
 					  user);
 	}
