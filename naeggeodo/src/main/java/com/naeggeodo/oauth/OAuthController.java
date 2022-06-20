@@ -4,6 +4,7 @@ package com.naeggeodo.oauth;
 import java.util.Map;
 
 import org.json.JSONException;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +25,8 @@ import com.naeggeodo.oauth.dto.OauthAuthorized;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import javax.servlet.http.HttpServletResponse;
 
 
 @Slf4j
@@ -46,8 +49,18 @@ public class OAuthController {
     }
 
     @PostMapping(value = "login/OAuth/{provider}")
-    public ResponseEntity<?> OAuthLogin(@RequestBody Map<String,String> request, @PathVariable String provider) throws JSONException, Exception {
+    public ResponseEntity<?> OAuthLogin(@RequestBody Map<String,String> request, @PathVariable String provider, HttpServletResponse response) throws JSONException, Exception {
     	log.info("OAUthLogin: ");
+
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", "this-is-token")
+                .maxAge(7 * 24 * 60 * 60)
+                .path("/")
+                .secure(true)
+                .sameSite("None")
+                .httpOnly(true)
+                .build();
+        response.setHeader("Set-Cookie", cookie.toString());
+
 
     	return ResponseEntity.ok(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(
                 jwtService.createJwtToken(service.getAuth(request.get("code"), provider))));
