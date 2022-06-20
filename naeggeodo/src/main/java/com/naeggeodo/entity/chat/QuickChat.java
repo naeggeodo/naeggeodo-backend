@@ -3,13 +3,7 @@ package com.naeggeodo.entity.chat;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -33,9 +27,9 @@ public class QuickChat{
 	@Column(name = "quickChat_id")
 	private Long id;
 
-	@OneToOne(mappedBy = "quickChat",fetch = FetchType.LAZY)
+	@OneToOne(mappedBy = "quickChat",fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
 	private Users user;
-	
+
 	@Column(columnDefinition = "varchar(255) default '안녕하세요. 지금 주문 가능하신가요?'")
 	private String msg1;
 	@Column(columnDefinition = "varchar(255) default '백석고등학교 정문 앞에서 만나고싶습니다.'")
@@ -46,17 +40,17 @@ public class QuickChat{
 	private String msg4;
 	@Column(columnDefinition = "varchar(255) default 'default'")
 	private String msg5;
-	
+
 	public void setUser(Users user) {
 		this.user = user;
 		user.setQuickChat(this);
 	}
-	
+
 	public static QuickChat create(Users user) {
 		return QuickChat.builder().user(user).build();
 	}
-	
-	
+
+
 	public List<String> getMsgList(){
 		List<String> list = new ArrayList<>();
 		list.add(this.msg1);
@@ -66,10 +60,10 @@ public class QuickChat{
 		list.add(this.msg5);
 		return list;
 	}
-	
+
 	public void updateMsgByList(List<String> list) {
 		if(list.size()!=5)  throw new IllegalArgumentException();
-		
+
 		this.msg1 = list.get(0);
 		this.msg2 = list.get(1);
 		this.msg3 = list.get(2);

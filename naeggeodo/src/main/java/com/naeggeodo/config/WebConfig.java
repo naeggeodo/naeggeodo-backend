@@ -1,11 +1,9 @@
 package com.naeggeodo.config;
 
-import com.naeggeodo.handler.HttpInterceptor;
 import com.naeggeodo.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -16,13 +14,14 @@ public class WebConfig implements WebMvcConfigurer{
 
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
-		registry.addMapping("/**").allowedOrigins("*").allowedMethods("*");
+		registry.addMapping("/**").allowedOrigins("https://localhost:8080").allowedMethods("*")
+				.allowCredentials(true);
 	}
-	
+
 	//컨트롤러에 도달하기 전에 호출될 인터셉터를 지정함
 	// addPathPatterns() 로 특정 url 패턴 지정
-	// Path에 user_id 포함된 요청에 대해서 추가검증함 
-	
+	// Path에 user_id 포함된 요청에 대해서 추가검증함
+
 	// 빠른 테스트를 위해 미적용
 //	@Override
 //	public void addInterceptors(InterceptorRegistry registry) {

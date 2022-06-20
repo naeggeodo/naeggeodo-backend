@@ -26,11 +26,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         String[] ignoreURL = {
                 "/login/**",
                 "/oauth/getInfo/**",
-                "/chat-rooms",
                 "/categories",
-                "/chat/**"
+                "/chat/**",
+                "/favicon.ico",
+                //채팅 테스트 페이지
+                "/sockJS.html",
+                "/webjars/**"
         };
         web.ignoring().antMatchers(ignoreURL);
+        web.ignoring().antMatchers(HttpMethod.GET
+                ,"/chat-rooms"
+                ,"/chat-rooms/tag/most-wanted"
+                ,"/chat-rooms/tag"
+                ,"/chat-rooms/search");
     }
 
     @Override
@@ -43,8 +51,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/**").permitAll()
                 .and().addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
-               //.exceptionHandling()
-                //.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+        //.exceptionHandling()
+        //.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
         ;
     }
 
@@ -52,9 +60,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.addAllowedOrigin("*");
+        configuration.addAllowedOrigin("https://localhost:8080");
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

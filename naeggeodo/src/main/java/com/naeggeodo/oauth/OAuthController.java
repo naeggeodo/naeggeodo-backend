@@ -7,7 +7,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONException;
+
 import org.json.JSONObject;
+
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 
@@ -32,6 +34,8 @@ import com.naeggeodo.oauth.dto.SimpleUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.servlet.http.HttpServletResponse;
+
 
 @Slf4j
 
@@ -52,11 +56,13 @@ public class OAuthController {
 
     @PostMapping(value = "login/OAuth/{provider}")
     public ResponseEntity<?> OAuthLogin(@RequestBody Map<String,String> request, @PathVariable String provider, HttpServletResponse response) throws JSONException, Exception {
+
        log.info("OAUthLogin: ");
 
        SimpleUser user = service.getAuth(request.get("code"), provider);
        
         ResponseCookie cookie = ResponseCookie.from("refreshToken", jwtProvider.createRefreshToken(user.getId()))
+
                 .maxAge(7 * 24 * 60 * 60)
                 .path("/")
                 .secure(true)
@@ -66,9 +72,11 @@ public class OAuthController {
         response.setHeader("Set-Cookie", cookie.toString());
 
 
+
        return ResponseEntity.ok(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(
                 jwtService.createJwtToken(user)));
        
+
     }
 
     @PostMapping("/refreshtoken")

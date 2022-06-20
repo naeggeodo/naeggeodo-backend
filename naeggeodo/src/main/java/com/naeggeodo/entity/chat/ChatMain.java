@@ -114,7 +114,7 @@ public class ChatMain extends JSONConverterAdapter{
 	
 	public void changeState(ChatState state) {
 		this.state = state;
-		if(state.equals(ChatState.END)) this.bookmarks = Bookmarks.N;
+		if(state.equals(ChatState.END)||state.equals(ChatState.INCOMPLETE)) this.bookmarks = Bookmarks.N;
 	}
 	
 	// is Full
@@ -285,5 +285,9 @@ public class ChatMain extends JSONConverterAdapter{
 
 	public void updateTitle(String title){
 		this.title = title;
+	}
+
+	public boolean isDeletable(){
+		return ChatState.INCOMPLETE.equals(this.state)||ChatState.END.equals(this.state);
 	}
 }

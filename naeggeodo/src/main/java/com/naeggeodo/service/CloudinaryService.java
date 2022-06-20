@@ -14,32 +14,36 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class CloudinaryService {
-	
+
 	private final CloudinaryConfig cloudinaryConfig;
 	private final ChatMainRepository chatMainRepository;
 	@Async
 	@Transactional
 	public String upload(MultipartFile file,String folder,Long chatMain_id) {
-		
+
 		File fileToUpload = convertMultiPartFileToFile(file);
 		Map uploadResult = null;
 		Cloudinary cloudinary = cloudinaryConfig.generateCloudinary();
 		try {
-			uploadResult = cloudinary.uploader().upload(fileToUpload, 
+			uploadResult = cloudinary.uploader().upload(fileToUpload,
 					ObjectUtils.asMap(
 							"folder",folder,
- 							"unique_filename",true,
+							"unique_filename",true,
 							"use_filename",true
-							)
-					
-					);
+					)
+
+			);
 		} catch (Exception e) {
 			throw new CustomHttpException(ErrorCode.UPLOAD_FAIL);
+		} finally {
+			if (fileToUpload.exists()) fileToUpload.delete();
 		}
 		//ChatMain findChatMain = chatMainRepository.getById(chatMain_id);
 		//findChatMain.updateImgPath(uploadResult.get("url").toString());
@@ -47,12 +51,18 @@ public class CloudinaryService {
 		System.out.println(uploadResult.get("url").toString());
 		return uploadResult.get("url").toString();
 	}
-	
-	
-	private File convertMultiPartFileToFile(MultipartFile file) {
 
-		return new File(file.getOriginalFilename());
+
+	private File convertMultiPartFileToFile(MultipartFile file) {
+		File convertedFile = new File(file.getOriginalFilename());
+		try(FileOutputStream fos = new FileOutputStream(convertedFile)){
+			fos.write(file.getBytes());
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+
+		return convertedFile;
 	}
-	
-	
+
+
 }
