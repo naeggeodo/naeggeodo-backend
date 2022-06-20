@@ -3,9 +3,11 @@ package com.naeggeodo.oauth;
 
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 
@@ -70,10 +72,13 @@ public class OAuthController {
     }
 
     @PostMapping("/refreshtoken")
-    public ResponseEntity<?> refreshtoken(@RequestBody RefreshTokenRequest request) throws Exception {
-    	RefreshTokenResponse jwtResponse = jwtService.refreshToken(request.getRefreshToken());
+    public ResponseEntity<?> refreshtoken(HttpServletRequest request) throws Exception {
+    	log.info(request.getHeader("Set-Cookie").substring(13));
     	
-    	return ResponseEntity.ok(jwtResponse);
+    	JSONObject jwtResponse = new JSONObject(); 
+    	jwtResponse.put("accessToken", jwtService.refreshToken(request.getHeader("Set-Cookie").substring(13)).getAccessToken());
+    	
+    	return ResponseEntity.ok(jwtResponse.toMap());
     }
     
     @PostMapping(value = "login/mobil/{provider}")
