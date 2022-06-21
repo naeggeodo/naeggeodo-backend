@@ -49,11 +49,11 @@ public class StompInterceptor implements ChannelInterceptor{
 			}
 
 			if(Objects.isNull(token)) {
-				throw new CustomWebSocketException("Access Token 이 존재하지 않습니다.");
+				throw new CustomWebSocketException(StompErrorCode.UNAUTHORIZED.name());
 			}
 
 			if(!jwtProvider.validateToken(token)&&!token.equals("open")) {
-				throw new CustomWebSocketException("유효한 토큰이 아닙니다.");
+				throw new CustomWebSocketException(StompErrorCode.UNAUTHORIZED.name());
 			}
 
 			Long chatMain_id = null;
