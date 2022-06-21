@@ -13,6 +13,7 @@ import java.util.List;
 public class ChatRoomDTO {
 	@NotBlank
 	private String buildingCode;
+	@NotBlank
 	private String address;
 	@NotBlank
 	private String category;
