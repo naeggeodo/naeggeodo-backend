@@ -18,7 +18,7 @@ public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 	@EntityGraph(attributePaths = {"chatUser"})
 	List<ChatMain> findByBuildingCodeAndStateNotInOrderByCreateDateDesc(String buildingCode,List<ChatState> state);
 	
-	@Query("SELECT cm FROM ChatMain cm join fetch ChatUser cu on cm.id = cu.chatMain.id WHERE cu.user.id = :user_id AND cm.state not in :stateList")
+	@Query("SELECT cm FROM ChatMain cm join fetch ChatUser cu on cm.id = cu.chatMain.id WHERE cu.user.id = :user_id AND cm.state not in :stateList order by cm.createDate desc")
 	@EntityGraph(attributePaths = {"chatUser"})
 	List<ChatMain> findByUserIdInChatUser(@Param("user_id") String user_id,@Param("stateList") List<ChatState> stateList);
 	
@@ -50,13 +50,13 @@ public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 
 	@Query(value = "(SELECT * from chat_main cm WHERE bookmarks = \"Y\" AND user_id = :user_id ORDER BY bookmarks_date LIMIT 10 )\n" +
 			"UNION \n" +
-			"(SELECT * from chat_main cm WHERE state = 'END' OR state = 'INCOMPLETE' AND user_id = :user_id ORDER BY create_date)"
+			"(SELECT * from chat_main cm WHERE state = 'END' OR state = 'INCOMPLETE' AND user_id = :user_id ORDER BY create_date desc)"
 			,nativeQuery = true)
 	List<ChatMain> findOrderList(@Param("user_id")String user_id);
 
 	@EntityGraph(attributePaths = {"tag"})
-	List<ChatMain> findTop10ByBookmarksAndUserIdOrderByBookmarksDate(Bookmarks bookmarks,String user_id);
+	List<ChatMain> findTop10ByBookmarksAndUserIdOrderByBookmarksDateDesc(Bookmarks bookmarks,String user_id);
 
 	@EntityGraph(attributePaths = {"tag"})
-	List<ChatMain> findByStateInAndUserIdAndBookmarksOrderByCreateDate(List<ChatState> states,String user_id,Bookmarks bookmarks);
+	List<ChatMain> findByStateInAndUserIdAndBookmarksOrderByCreateDateDesc(List<ChatState> states,String user_id,Bookmarks bookmarks);
 }

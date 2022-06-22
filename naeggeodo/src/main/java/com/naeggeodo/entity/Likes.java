@@ -12,9 +12,10 @@ import javax.persistence.Id;
 public class Likes {
 
     @Id
-    private Long count;
+    private Long id;
 
+    private int count;
     public void updateCount(){
-        this.count = ++this.count;
+        ++this.count;
     }
 }

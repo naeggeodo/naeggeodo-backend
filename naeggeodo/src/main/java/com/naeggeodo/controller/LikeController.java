@@ -1,6 +1,8 @@
 package com.naeggeodo.controller;
 
 import com.naeggeodo.entity.Likes;
+import com.naeggeodo.exception.CustomHttpException;
+import com.naeggeodo.exception.ErrorCode;
 import com.naeggeodo.repository.LikeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +22,8 @@ public class LikeController {
     @GetMapping(value = "/like")
     @Transactional
     public ResponseEntity<?> getLikeCount(){
-        Likes likes =  likeRepository.findAll().get(0);
+        Likes likes =  likeRepository.findById(1L)
+                .orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
         return ResponseEntity.ok(new HashMap<String,Object>(){
             {
                 put("likeCount",likes.getCount());
@@ -31,7 +34,8 @@ public class LikeController {
     @PostMapping(value = "/like")
     @Transactional
     public ResponseEntity<?> increaseLikeCount(){
-        Likes likes =  likeRepository.findAll().get(0);
+        Likes likes =  likeRepository.findById(1L)
+                .orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
         likes.updateCount();
         return ResponseEntity.ok(new HashMap<String,Object>(){
             {

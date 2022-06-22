@@ -1,23 +1,18 @@
 package com.naeggeodo.handler;
 
 
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.SubscribableChannel;
-import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.messaging.SubProtocolHandler;
 import org.springframework.web.socket.messaging.SubProtocolWebSocketHandler;
 
-
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 public class MySubProtocolHandler extends SubProtocolWebSocketHandler{
-	
+
 
 	@Autowired
 	private SessionHandler sessionHandler;
@@ -26,7 +21,7 @@ public class MySubProtocolHandler extends SubProtocolWebSocketHandler{
 		super(clientInboundChannel, clientOutboundChannel);
 		// TODO Auto-generated constructor stub
 	}
-	
+
 
 	@Override
 	public void addProtocolHandler(SubProtocolHandler handler) {
