@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
 	}
 	@ExceptionHandler(value= {MalformedJwtException.class})
 	protected ResponseEntity<ErrorResponse> handleHttpMalformedJwtException(MalformedJwtException e){
-		return ErrorResponse.toResponseEntity(ErrorCode.UNAUTHORZED);
+		return ErrorResponse.toResponseEntity(ErrorCode.UNAUTHORIZED);
 	}
 
 	@ExceptionHandler(value= {Exception.class})
