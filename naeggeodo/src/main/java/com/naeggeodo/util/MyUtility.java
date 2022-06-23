@@ -72,7 +72,7 @@ public class MyUtility {
 		for (int i = 0; i < list.size(); i++) {
 			JSONObject json = new JSONObject();
 			json.put("idx", i);
-			json.put("msg", list.get(i));
+			json.put("msg", list.get(i)!=null?list.get(i):JSONObject.NULL);
 			arr_json.put(json);
 		}
 		jsonResult.put(key, arr_json);

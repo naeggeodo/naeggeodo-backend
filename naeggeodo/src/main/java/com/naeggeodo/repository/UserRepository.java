@@ -2,6 +2,7 @@ package com.naeggeodo.repository;
 
 
 import com.naeggeodo.dto.AddressDTO;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.naeggeodo.entity.user.Authority;
@@ -11,11 +12,16 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 public interface UserRepository extends JpaRepository<Users, String>{
     @Query("select count(u.id)=2 from Users u where u.id = :id1 or u.id =:id2")
     boolean countForReport(@Param("id1")String id1,@Param("id2")String id2);
+
+    @EntityGraph(attributePaths = "quickChat")
+    @Query("select u from Users u where u.id = :id")
+    Optional<Users> findQuickChatEntityGraph(@Param("id")String id);
 
     @Query("select new com.naeggeodo.dto.AddressDTO(u.address,u.zonecode,u.buildingCode) from Users u where u.id = :user_id")
     AddressDTO findAddressDTOById(@Param("user_id")String user_id);
@@ -27,6 +33,6 @@ public interface UserRepository extends JpaRepository<Users, String>{
             "UNION ALL \n" +
             "(SELECT u.nickname from users u WHERE user_id = :user_id)",nativeQuery = true)
     List<Object> getMyPageCount(@Param("user_id")String user_id);
-    
+
     Users findBySocialIdAndAuthority(String socialId, Authority authority);
 }

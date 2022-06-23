@@ -6,7 +6,6 @@ import com.naeggeodo.jwt.AuthorizationExtractor;
 import com.naeggeodo.jwt.JwtTokenProvider;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,7 +17,7 @@ public class HttpInterceptor implements HandlerInterceptor {
     private JwtTokenProvider jwtTokenProvider;
 
     public HttpInterceptor(JwtTokenProvider jwtTokenProvider){this.jwtTokenProvider = jwtTokenProvider;}
-    
+
     //컨트롤러 도달전에 호출됨
     // 추가 검증 로직(토큰.subject와 pathParam의 user_id 비교) 실행
     @Override

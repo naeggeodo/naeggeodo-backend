@@ -8,9 +8,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ChatDetailRepository extends JpaRepository<ChatDetail, Long>{
-	
+
 	@Query("SELECT cd FROM ChatDetail cd join fetch cd.user WHERE cd.chatmain.id = :chatMain_id AND cd.regDate >= (SELECT cu.enterDate FROM ChatUser cu WHERE cu.chatMain.id = :chatMain_id AND cu.user.id =:user_id)" +
-			"order by cd.regDate desc")
+			"order by cd.regDate asc")
 	List<ChatDetail> load(@Param("chatMain_id")Long chatMain_id, @Param("user_id") String user_id);
 //	@Query("SELECT cd FROM ChatDetail cd WHERE cd.chatmain.id = :chatMain_id AND cd.regDate >= (SELECT cu.enterDate FROM ChatUser cu WHERE cu.chatMain.id = :chatMain_id AND cu.user.id =:user_id)")
 //	List<ChatDetail> load(@Param("chatMain_id")Long chatMain_id, @Param("user_id") String user_id);

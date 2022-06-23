@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -235,7 +236,7 @@ public class ChatMainController {
     //주문목록 리스트 개선
     @GetMapping(value = "/chat-rooms/order-list/{user_id}", produces = "application/json")
     @Transactional(readOnly = true)
-    public ResponseEntity<Object> getOrderListTest(@PathVariable("user_id") String user_id) throws Exception {
+    public ResponseEntity<Object> getOrderList(@PathVariable("user_id") String user_id) throws Exception {
         List<ChatMain> bookmarkedList =
                 chatMainRepository.findTop10ByBookmarksAndUserIdOrderByBookmarksDate(Bookmarks.Y, user_id);
         List<ChatMain> unBookmarkedList =
@@ -243,6 +244,23 @@ public class ChatMainController {
         bookmarkedList.addAll(unBookmarkedList);
         JSONObject json = MyUtility.convertListToJSONobjIgnoringCurrentCount(bookmarkedList, "chatRooms");
         return ResponseEntity.ok(json.toMap());
+    }
+
+    @DeleteMapping(value = "/chat-rooms/{chatMain_id}",produces = "application/json")
+    @Transactional
+    public ResponseEntity<Object> deleteChatMain(@PathVariable("chatMain_id")String chatMain_idStr){
+        Long chatMain_id = Long.parseLong(chatMain_idStr);
+        ChatMain chatMain = chatMainRepository.findById(chatMain_id)
+                .orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+        if(!chatMain.isDeletable()) throw new CustomHttpException(ErrorCode.INVALID_FORMAT);
+        chatMainRepository.delete(chatMain);
+
+        return ResponseEntity.ok(new HashMap<String,Object>(){
+            {
+                put("chatMain_id",chatMain_id);
+                put("deleted",true);
+            }
+        });
     }
 
 }
