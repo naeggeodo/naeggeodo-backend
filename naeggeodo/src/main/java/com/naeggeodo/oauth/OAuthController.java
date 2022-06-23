@@ -73,30 +73,24 @@ public class OAuthController {
     }
     
     @PostMapping(value = "/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response){
-    	
-    	log.info("Logout: ");
-    	
-    	ResponseCookie cookie = ResponseCookie.from("refreshToken", null)
-    			.maxAge(7 * 24 * 60 * 60)
-    			.path("/")
-    			.secure(true)
-    			.sameSite("None")
-    			.httpOnly(true)
-    			.build();
-    	response.setHeader("Set-Cookie", cookie.toString());
-    	
-    	
-    	
+    public ResponseEntity<?> logout(HttpServletResponse response
+            ,@CookieValue(value = "refreshToken")Cookie cookie){
+
+        log.info("Logout: ");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
     	return ResponseEntity.ok(true);
     }
 
     @PostMapping("/refreshtoken")
     public ResponseEntity<?> refreshtoken(HttpServletRequest request) throws Exception {
     	String refreshToken = request.getHeader("Set-Cookie");
-    	refreshToken.substring(refreshToken.indexOf("="));
+    	refreshToken = refreshToken.substring(refreshToken.indexOf("=")+1);
+    	
     	JSONObject jwtResponse = new JSONObject(); 
-    	jwtResponse.put("accessToken", jwtService.refreshToken(request.getHeader("Set-Cookie").substring(13)).getAccessToken());
+    	jwtResponse.put("accessToken", jwtService.refreshToken(refreshToken).getAccessToken());
+    	
+    	
     	
     	return ResponseEntity.ok(jwtResponse.toMap());
     }

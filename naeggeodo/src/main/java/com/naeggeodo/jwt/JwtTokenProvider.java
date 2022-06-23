@@ -1,14 +1,15 @@
 package com.naeggeodo.jwt;
 
-import java.security.Key;
 import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import com.naeggeodo.exception.CustomHttpException;
+import com.naeggeodo.exception.ErrorCode;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -16,7 +17,6 @@ import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -36,11 +36,6 @@ public class JwtTokenProvider {
     public String createToken(String subject) {
 
 
-        LoggerFactory.getLogger(this.getClass()).info(secretKey);
-        if (accessTokenExpiredInMilliseconds <= 0) {
-            throw new RuntimeException("Expiry time must be greater than Zero : ["+accessTokenExpiredInMilliseconds+"] ");
-
-        }
 
         Claims claims = Jwts.claims().setSubject(subject);
 
@@ -57,7 +52,7 @@ public class JwtTokenProvider {
 
     public String createRefreshToken(String subject) {
     	Claims claims = Jwts.claims().setSubject(subject);
-    	log.info(new Date(new Date().getTime()+refreshTokenExpiredInMilliseconds).toLocaleString());
+
     	return Jwts.builder()
     			.setClaims(claims)
     			.setExpiration(new Date(new Date().getTime()+refreshTokenExpiredInMilliseconds))
@@ -90,12 +85,11 @@ public class JwtTokenProvider {
     //유효토근 검증
     public boolean validateToken(String token) {
         try {
-
             Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
 
             return !claims.getBody().getExpiration().before(new Date());
         } catch (JwtException | IllegalArgumentException e) {
-            return false;
+        	return false;
         }
     }
 
