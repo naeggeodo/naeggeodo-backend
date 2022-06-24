@@ -78,6 +78,25 @@ public class OAuthController {
 
 
     }
+    
+    @PostMapping(value = "/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response){
+    	
+    	log.info("Logout: ");
+    	
+    	ResponseCookie cookie = ResponseCookie.from("refreshToken", null)
+    			.maxAge(7 * 24 * 60 * 60)
+    			.path("/")
+    			.secure(true)
+    			.sameSite("None")
+    			.httpOnly(true)
+    			.build();
+    	response.setHeader("Set-Cookie", cookie.toString());
+    	
+    	
+    	
+    	return ResponseEntity.ok(true);
+    }
 
     @PostMapping(value = "/logout")
     public ResponseEntity<?> logout(HttpServletResponse response
@@ -92,12 +111,14 @@ public class OAuthController {
 
     @PostMapping("/refreshtoken")
     public ResponseEntity<?> refreshtoken(HttpServletRequest request) throws Exception {
+
         String refreshToken = request.getHeader("Set-Cookie");
         refreshToken.substring(refreshToken.indexOf("="));
         JSONObject jwtResponse = new JSONObject();
         jwtResponse.put("accessToken", jwtService.refreshToken(request.getHeader("Set-Cookie").substring(13)).getAccessToken());
 
         return ResponseEntity.ok(jwtResponse.toMap());
+
     }
 
     @PostMapping(value = "login/mobil/{provider}")
