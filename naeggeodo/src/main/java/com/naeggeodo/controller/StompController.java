@@ -1,7 +1,9 @@
 package com.naeggeodo.controller;
 
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.naeggeodo.dto.TargetMessageDTO;
 import com.naeggeodo.entity.deal.Deal;
@@ -11,8 +13,10 @@ import com.naeggeodo.exception.StompErrorCode;
 import com.naeggeodo.repository.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -48,7 +52,7 @@ public class StompController {
 	private final DealRepository dealRepository;
 
 
-	//일반 메시지,이미지 보내기
+	//일반 메시지
 	@MessageMapping("/chat/send")
 	public void sendMsg(MessageDTO message,StompHeaderAccessor headers) {
 
@@ -58,17 +62,33 @@ public class StompController {
 		chatDetailService.save(message);
 		//메시지 전송
 		sendToAll(chatMain_id, message);
+	}
 
-		if(message.getType().equals(ChatDetailType.IMAGE)) {
-			log.debug("file size = {} KB",MyUtility.getFileSizeInBase64StringWithKB(message.getContents()));
+	@MessageMapping("/chat/image")
+	public void sendImage(MessageDTO message, StompHeaderAccessor headers){
+		validateMessage(message,headers);
+		Long chatMain_id = message.chatMain_idToLong();
+        int idx = Integer.parseInt(headers.getNativeHeader("idx").get(0));
+		simpMessagingTemplate.convertAndSend(
+				"/topic/"+chatMain_id,
+				message,
+				new HashMap<String,Object>(){
+			{
+				put("idx",idx);
+			}
+		});
+		chatDetailService.save(message);
+		if(idx == 14){
+			message.setType(ChatDetailType.THE_END);
+			sendToAll(chatMain_id,message);
 		}
 	}
+
 	//입장
 	@Transactional
 	@MessageMapping("/chat/enter")
 	public void enter(MessageDTO message,StompHeaderAccessor headers) throws Exception {
 		validateMessage(message,headers);
-		System.out.println("================enter===================");
 		Long chatMain_id = message.chatMain_idToLong();
 		String sender = message.getSender();
 		String session_id = headers.getSessionId();
@@ -86,7 +106,6 @@ public class StompController {
 		//인원수 메시지 전송
 		sendToAll(chatMain_id, getCountMessage(chatMain));
 		// 채팅방 상태변경
-		System.out.println("=========chatMain changeState==========");
 
 		chatMain.updateState();
 	}
@@ -96,7 +115,6 @@ public class StompController {
 	@Transactional
 	public void exit(MessageDTO message,StompHeaderAccessor headers) throws Exception {
 		validateMessage(message,headers);
-		System.out.println("====================exit==============================");
 		Long chatMain_id = message.chatMain_idToLong();
 		String sender = message.getSender();
 
@@ -132,7 +150,6 @@ public class StompController {
 		//인원수 메시지 전송
 		sendToAll(chatMain_id, getCountMessage(chatMain));
 		chatMain.updateState();
-		System.out.println("====================exit==============================");
 	}
 
 	@Transactional
@@ -155,9 +172,11 @@ public class StompController {
 			return;
 		}
 
+		sendToUser(targetChatUser.getSessionId(),message);
 		sessionHandler.close(targetChatUser.getSessionId());
 		targetChatUser.setBanState(BanState.BANNED);
-		message.setContents(target_id+"님이 강퇴 당하셨습니다.");
+		chatMain.getChatUser().remove(targetChatUser);
+		message.setContents("님이 강퇴 당하셨습니다.");
 		chatDetailService.save(message);
 
 		sendToAll(chatMain.getId(), message);
@@ -203,9 +222,9 @@ public class StompController {
 	}
 	// 인원수 메시지 get
 	private MessageDTO getCountMessage(ChatMain chatMain) throws Exception {
-		List<ChatUser> chatUser = chatMain.getChatUser();
+		List<ChatUser> allowedUserList = chatMain.getAllowedUserList();
 
-		JSONObject json = MyUtility.convertListToJSONobj(chatUser, "users");
+		JSONObject json = MyUtility.convertListToJSONobj(allowedUserList, "users");
 		json.put("currentCount", chatMain.getAllowedUserCnt());
 
 		MessageDTO messageDto = new MessageDTO();

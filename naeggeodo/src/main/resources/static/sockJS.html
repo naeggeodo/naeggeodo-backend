@@ -37,9 +37,9 @@
 		}
 	</style>
 </head>
-<script src="/webjars/jquery/jquery.min.js"></script>
-<script src="/webjars/sockjs-client/sockjs.min.js"></script>
-<script src="/webjars/stomp-websocket/stomp.min.js"></script>
+<script src="/api/webjars/jquery/jquery.min.js"></script>
+<script src="/api/webjars/sockjs-client/sockjs.min.js"></script>
+<script src="/api/webjars/stomp-websocket/stomp.min.js"></script>
 
 <body>
 <div id="container" class="container">
@@ -84,7 +84,7 @@
 
 	function connect() {
 		//StompConfig.java에 설정된 endpoint로 SockJS 객체, StompClient 객체 생성
-		var socket = new SockJS("http:\/\/3.38.33.232:8080/chat");
+		var socket = new SockJS("/api/chat");
 		stompClient = Stomp.over(socket);
 
 		// connect(header,연결 성공시 콜백,에러발생시 콜백)

@@ -32,7 +32,6 @@ public class MySubProtocolHandler extends SubProtocolWebSocketHandler{
 	
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-		log.debug("session is opened = {}",session.getId());
 		sessionHandler.register(session);
 		super.afterConnectionEstablished(session);
 	}
@@ -40,7 +39,6 @@ public class MySubProtocolHandler extends SubProtocolWebSocketHandler{
 
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-		log.debug("session is closed = {}",session.getId());
 		sessionHandler.close(session);
 		super.afterConnectionClosed(session, closeStatus);
 	}

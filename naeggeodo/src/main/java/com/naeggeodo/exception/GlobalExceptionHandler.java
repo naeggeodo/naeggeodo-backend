@@ -1,6 +1,7 @@
 package com.naeggeodo.exception;
 
 import io.jsonwebtoken.MalformedJwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,6 +11,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
 	@ExceptionHandler(value = {CustomHttpException.class})
@@ -41,16 +43,17 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler(value= {Exception.class})
-	protected ResponseEntity<Object> handleException(Exception e){
-		StringBuilder stacks = new StringBuilder();
-		for (StackTraceElement element: e.getStackTrace()) {
-			stacks.append(element.toString()).append("\n");
-		}
-		return ResponseEntity.ok(e.getClass()+" : "+e.getMessage()+"\n "+ stacks);
+	protected ResponseEntity<ErrorResponse> handleException(Exception e){
+		log.warn("Unhandled Exception From GlobalExceptionHandler",e.getCause());
+		return ErrorResponse.toResponseEntity(ErrorCode.UNKNOWN_ERROR);
 	}
 //	@ExceptionHandler(value= {Exception.class})
-//	protected ResponseEntity<ErrorResponse> handleException(Exception e){
-//		return ErrorResponse.toResponseEntity(ErrorCode.UNKNOWN_ERROR);
+//	protected ResponseEntity<Object> handleException(Exception e){
+//		StringBuilder stacks = new StringBuilder();
+//		for (StackTraceElement element: e.getStackTrace()) {
+//			stacks.append(element.toString()).append("\n");
+//		}
+//		return ResponseEntity.ok(e.getClass()+" : "+e.getMessage()+"\n "+ stacks);
 //	}
 
 }

@@ -28,10 +28,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/oauth/getInfo/**",
                 "/categories",
                 "/chat/**",
+                "/like",
                 "/favicon.ico",
                 //채팅 테스트 페이지
                 "/sockJS.html",
-                "/webjars/**"
+                "/webjars/**",
+                "/postcode.html"
         };
         web.ignoring().antMatchers(ignoreURL);
         web.ignoring().antMatchers(HttpMethod.GET
@@ -52,8 +54,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/**").permitAll()
                 .and().addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
-        //.exceptionHandling()
-        //.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
         ;
     }
 
@@ -62,6 +62,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.addAllowedOrigin("https://localhost:8080");
+        configuration.addAllowedOrigin("https://naeggeodo.com");
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
         configuration.setAllowCredentials(true);

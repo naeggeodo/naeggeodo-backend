@@ -18,7 +18,7 @@ public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 	@EntityGraph(attributePaths = {"chatUser"})
 	List<ChatMain> findByBuildingCodeAndStateNotInOrderByCreateDateDesc(String buildingCode,List<ChatState> state);
 	
-	@Query("SELECT cm FROM ChatMain cm join fetch ChatUser cu on cm.id = cu.chatMain.id WHERE cu.user.id = :user_id AND cm.state not in :stateList order by cm.createDate desc")
+	@Query("SELECT cm FROM ChatMain cm join fetch ChatUser cu on cm.id = cu.chatMain.id WHERE cu.user.id = :user_id AND cm.state not in :stateList AND cu.banState = 'ALLOWED' order by cm.createDate desc")
 	@EntityGraph(attributePaths = {"chatUser"})
 	List<ChatMain> findByUserIdInChatUser(@Param("user_id") String user_id,@Param("stateList") List<ChatState> stateList);
 	
@@ -31,11 +31,6 @@ public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 	ChatMain findTagEntityGraph(@Param("id")Long id);
 	
 	List<ChatMain> findByStateAndUserId(ChatState state,String user_id);
-	
-//	@Query(value = "SELECT cm.* FROM chat_main cm \r\n"
-//			+ "left join chat_user cu on cu.chatmain_id = cm.chatmain_id \r\n"
-//			+ "LEFT join tag t on  t.chatmain_id = cm.chatmain_id WHERE t.name =:name ",nativeQuery = true)
-//	public List<ChatMain> findByTagName(@Param("name") String tagName);
 	
 	@EntityGraph(attributePaths = {"chatUser"})
 	List<ChatMain> findByTagNameAndStateNotInOrderByCreateDateDesc(String tagName,List<ChatState> state);

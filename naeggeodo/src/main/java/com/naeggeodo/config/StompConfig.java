@@ -37,7 +37,6 @@ public class StompConfig extends WebSocketMessageBrokerConfigurationSupport impl
 		registry.enableSimpleBroker("/topic","/queue");
 		//publish url
 		registry.setApplicationDestinationPrefixes("/app");
-		//registry.setUserDestinationPrefix("/queue");
 	}
 	
 	@Override
@@ -65,6 +64,7 @@ public class StompConfig extends WebSocketMessageBrokerConfigurationSupport impl
 		// TODO Auto-generated method stub
 		registry.setMessageSizeLimit(50*1024*1024);
 		registry.setSendBufferSizeLimit(50*1024*1024);
+		registry.setSendTimeLimit(20 * 10000);
 	}
 	
 	@Override
