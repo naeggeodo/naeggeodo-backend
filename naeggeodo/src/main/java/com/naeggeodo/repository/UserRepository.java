@@ -27,7 +27,11 @@ public interface UserRepository extends JpaRepository<Users, String>{
     AddressDTO findAddressDTOById(@Param("user_id")String user_id);
 
     //마이페이지
-    @Query(value = "(SELECT count(*) from chat_user cu WHERE user_id = :user_id AND  ban_state = 'ALLOWED') \n" +
+    @Query(value = "(SELECT count(*) FROM chat_user cu \n" +
+            "inner join chat_main cm on cm.chatmain_id = cu.chatmain_id \n" +
+            "WHERE cu.user_id = :user_id \n" +
+            "AND cu.ban_state = 'ALLOWED' \n" +
+            "AND cm.state not in ('END','INCOMPLETE')\n" +
             "UNION ALL \n" +
             "(SELECT COUNT(*) FROM deal d WHERE user_id = :user_id)\n" +
             "UNION ALL \n" +

@@ -27,7 +27,6 @@ public class TestController {
 	
     @GetMapping(value = "/nnd")
     public String loginPage(){
-    	log.info("===========");
     	return "login";
     }
     
@@ -52,7 +51,6 @@ public class TestController {
     
     @RequestMapping(value = "/responseTest")
     private String fromGoodAccessTokenRequest() {
-    	log.info("===========");
     	  return "oauth/getInfo/kakao";
     	}
 

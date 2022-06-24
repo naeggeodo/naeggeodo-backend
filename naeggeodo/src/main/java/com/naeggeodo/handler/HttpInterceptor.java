@@ -31,10 +31,10 @@ public class HttpInterceptor implements HandlerInterceptor {
         String subject = parseSubject(request);
 
         if(user_id == null || subject == null)
-            throw new CustomHttpException(ErrorCode.UNAUTHORZED);
+            throw new CustomHttpException(ErrorCode.UNAUTHORIZED);
 
         if(!user_id.equals(subject))
-            throw new CustomHttpException(ErrorCode.UNAUTHORZED);
+            throw new CustomHttpException(ErrorCode.UNAUTHORIZED);
 
         return true;
     }

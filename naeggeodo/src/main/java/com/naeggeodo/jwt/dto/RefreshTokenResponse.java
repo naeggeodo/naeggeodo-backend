@@ -2,7 +2,9 @@ package com.naeggeodo.jwt.dto;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 
+@Getter
 public class RefreshTokenResponse {
 	String accessToken;
 	String refreshToken;

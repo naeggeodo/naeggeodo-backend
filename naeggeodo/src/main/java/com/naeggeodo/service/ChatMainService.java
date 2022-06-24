@@ -63,7 +63,8 @@ public class ChatMainService {
 		//async
 		if(file != null)
 			cloudinaryService.upload(file, "chatMain/"+savedChatMain.getId(),savedChatMain.getId());
-		//chatMain.updateImgPath(imgpath);
+		else
+			chatMain.setDefaultImgPath();
 
 		chatDetailRepository.save(ChatDetail.create("채팅방이 생성 되었습니다",user,savedChatMain, ChatDetailType.CREATED));
 
