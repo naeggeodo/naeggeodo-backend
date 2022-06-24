@@ -39,8 +39,6 @@ public class StompInterceptor implements ChannelInterceptor{
 		StompHeaderAccessor headers = StompHeaderAccessor.wrap(message);
 		//접속 인터셉트해서 조건에 따라 exception 발생시키기 
 		if(StompCommand.CONNECT.equals(headers.getCommand())) {
-			log.info("CONNECT");
-			System.out.println("==========================connect==============================");
 
 			//jwt 토큰 인증
 			String token = null;
@@ -49,11 +47,11 @@ public class StompInterceptor implements ChannelInterceptor{
 			}
 
 			if(Objects.isNull(token)) {
-				throw new CustomWebSocketException("Access Token 이 존재하지 않습니다.");
+				throw new CustomWebSocketException(StompErrorCode.UNAUTHORIZED.name());
 			}
 
 			if(!jwtProvider.validateToken(token)&&!token.equals("open")) {
-				throw new CustomWebSocketException("유효한 토큰이 아닙니다.");
+				throw new CustomWebSocketException(StompErrorCode.UNAUTHORIZED.name());
 			}
 
 			Long chatMain_id = null;
@@ -94,7 +92,6 @@ public class StompInterceptor implements ChannelInterceptor{
 				enteredChatUser.setSessionId(newSessionId);
 			}
 		}
-		System.out.println("=========================end===============================");
 		return message;
 	}
 	

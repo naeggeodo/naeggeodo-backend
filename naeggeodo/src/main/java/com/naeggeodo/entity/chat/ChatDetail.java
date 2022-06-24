@@ -11,6 +11,7 @@ import org.springframework.util.ObjectUtils;
 import javax.persistence.*;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 @Getter
@@ -69,7 +70,7 @@ public class ChatDetail extends JSONConverterAdapter{
 			}else if(obj instanceof ChatMain){
 				json.put("chatMain_id",((ChatMain) obj).getId());
 			}else if(obj instanceof LocalDateTime) {
-				json.put(field.getName(), ((LocalDateTime)obj).toString());
+				json.put(field.getName(), ((LocalDateTime)obj).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
 			}else if(obj instanceof ChatDetailType){
 				json.put(field.getName(), ((ChatDetailType)obj).name());
 			}else {

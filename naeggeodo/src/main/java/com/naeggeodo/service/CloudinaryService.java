@@ -45,10 +45,7 @@ public class CloudinaryService {
 		} finally {
 			if (fileToUpload.exists()) fileToUpload.delete();
 		}
-		//ChatMain findChatMain = chatMainRepository.getById(chatMain_id);
-		//findChatMain.updateImgPath(uploadResult.get("url").toString());
-		chatMainRepository.updateForImgPath(uploadResult.get("url").toString(),chatMain_id);
-		System.out.println(uploadResult.get("url").toString());
+		chatMainRepository.updateForImgPath(uploadResult.get("url").toString().replaceFirst("http://","https://"),chatMain_id);
 		return uploadResult.get("url").toString();
 	}
 

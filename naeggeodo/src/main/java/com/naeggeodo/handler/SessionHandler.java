@@ -24,7 +24,6 @@ public class SessionHandler implements StompSessionHandler{
 	 
 	 public void register(WebSocketSession session) {
 		 sessionMap.put(session.getId(), session);
-		 log.debug("접속중인세션 {}", sessionMap.keySet());
 	 }
 	 
 	 public void close(WebSocketSession session) {
@@ -32,9 +31,8 @@ public class SessionHandler implements StompSessionHandler{
 			 try {
 				 sessionMap.get(session.getId()).close();
 				 sessionMap.remove(session.getId());
-				 log.debug("접속중인세션 {}", sessionMap.keySet());
 			 } catch (IOException e) {
-				 e.printStackTrace();
+				 log.warn("SessionHandler catch Exception = ",e.getCause());
 			 }
 		 }
 
@@ -46,7 +44,7 @@ public class SessionHandler implements StompSessionHandler{
 				sessionMap.get(session_id).close();
 			    sessionMap.remove(session_id);
 			} catch (IOException e) {
-				e.printStackTrace();
+				 log.warn("SessionHandler catch Exception = ",e.getCause());
 			}
 			
 		 }

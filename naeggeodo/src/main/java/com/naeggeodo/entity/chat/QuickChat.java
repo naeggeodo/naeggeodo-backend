@@ -30,15 +30,15 @@ public class QuickChat{
 	@OneToOne(mappedBy = "quickChat",fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
 	private Users user;
 
-	@Column(columnDefinition = "varchar(255) default '안녕하세요. 지금 주문 가능하신가요?'")
+	@Column(columnDefinition = "varchar(255) default '반갑습니다 *^ㅡ^*'")
 	private String msg1;
-	@Column(columnDefinition = "varchar(255) default '백석고등학교 정문 앞에서 만나고싶습니다.'")
+	@Column(columnDefinition = "varchar(255) default '주문 완료했습니다! 송금 부탁드려요 *^ㅡ^*'")
 	private String msg2;
-	@Column(columnDefinition = "varchar(255) default '잠시 메뉴를 고르겠습니다. 2분만 기다려주세요!'")
+	@Column(columnDefinition = "varchar(255) default '음식이 도착했어요!'")
 	private String msg3;
-	@Column(columnDefinition = "varchar(255) default 'default'")
+	@Column(columnDefinition = "varchar(255) default '맛있게 드세요 *^ㅡ^*'")
 	private String msg4;
-	@Column(columnDefinition = "varchar(255) default 'default'")
+	@Column(columnDefinition = "varchar(255) default '주문내역 확인해주세요!'")
 	private String msg5;
 
 	public void setUser(Users user) {

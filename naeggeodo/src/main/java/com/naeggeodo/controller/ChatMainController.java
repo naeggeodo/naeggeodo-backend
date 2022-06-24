@@ -2,12 +2,10 @@ package com.naeggeodo.controller;
 
 import com.naeggeodo.dto.ChatRoomDTO;
 import com.naeggeodo.entity.chat.*;
+import com.naeggeodo.entity.deal.Deal;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
-import com.naeggeodo.repository.ChatDetailRepository;
-import com.naeggeodo.repository.ChatMainRepository;
-import com.naeggeodo.repository.ChatUserRepository;
-import com.naeggeodo.repository.TagRepository;
+import com.naeggeodo.repository.*;
 import com.naeggeodo.service.ChatMainService;
 import com.naeggeodo.util.MyUtility;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -33,7 +32,7 @@ public class ChatMainController {
 
     private final TagRepository tagRepository;
     private final ChatDetailRepository chatDetailRepository;
-
+    private final DealRepository dealRepository;
     //채팅방 리스트
     @GetMapping(value = "/chat-rooms", produces = "application/json")
     @Transactional(readOnly = true)
@@ -104,6 +103,15 @@ public class ChatMainController {
         if(state != null && title == null){
             ChatState chatState = ChatState.valueOf(state.toUpperCase());
             chatMain.changeState(chatState);
+
+            if (ChatState.END.equals(chatMain.getState())){
+                for (ChatUser cu : chatMain.getChatUser()) {
+                    dealRepository.save(Deal.create(cu.getUser(),chatMain));
+                }
+                chatMain.getChatUser().clear();
+                chatUserRepository.deleteAll(chatMain.getChatUser());
+            }
+
             json.put("state",chatMain.getState().name());
             return ResponseEntity.ok(json.toMap());
         } else if(title != null&& state == null){
@@ -150,6 +158,7 @@ public class ChatMainController {
             idList.add(c.getId());
         }
         List<String> latestMessages = chatDetailRepository.findLatestContents(idList);
+        Collections.reverse(latestMessages);
 
         JSONObject json = MyUtility.convertListToJSONobj(list, latestMessages,"chatRoom");
         return ResponseEntity.ok(json.toMap());
@@ -238,9 +247,9 @@ public class ChatMainController {
     @Transactional(readOnly = true)
     public ResponseEntity<Object> getOrderList(@PathVariable("user_id") String user_id) throws Exception {
         List<ChatMain> bookmarkedList =
-                chatMainRepository.findTop10ByBookmarksAndUserIdOrderByBookmarksDate(Bookmarks.Y, user_id);
+                chatMainRepository.findTop10ByBookmarksAndUserIdOrderByBookmarksDateDesc(Bookmarks.Y, user_id);
         List<ChatMain> unBookmarkedList =
-                chatMainRepository.findByStateInAndUserIdAndBookmarksOrderByCreateDate(ChatState.insearchableList, user_id, Bookmarks.N);
+                chatMainRepository.findByStateInAndUserIdAndBookmarksOrderByCreateDateDesc(ChatState.insearchableList, user_id, Bookmarks.N);
         bookmarkedList.addAll(unBookmarkedList);
         JSONObject json = MyUtility.convertListToJSONobjIgnoringCurrentCount(bookmarkedList, "chatRooms");
         return ResponseEntity.ok(json.toMap());
