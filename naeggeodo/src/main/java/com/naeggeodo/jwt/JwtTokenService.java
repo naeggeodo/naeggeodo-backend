@@ -1,13 +1,18 @@
 package com.naeggeodo.jwt;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.naeggeodo.exception.CustomHttpException;
+import com.naeggeodo.exception.ErrorCode;
 import com.naeggeodo.jwt.dto.JwtResponse;
 import com.naeggeodo.jwt.dto.RefreshTokenResponse;
 import com.naeggeodo.oauth.dto.SimpleUser;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class JwtTokenService {
@@ -21,14 +26,14 @@ public class JwtTokenService {
 					  user);
 	}
 
-    public RefreshTokenResponse refreshToken(String token) throws Exception{
-        String userId = jwtProvider.getSubject(token);
-    	
-    	
+    public RefreshTokenResponse refreshToken(String token) throws CustomHttpException{
+        log.info("refreshtoken");
     	if (!jwtProvider.validateToken(token)) {
-            throw new Exception("Refresh token was expired. Please ma   ke a new signin request");
+            throw new CustomHttpException(ErrorCode.EXPIRED_TOKEN);
         }
+    	
+    	String userId = jwtProvider.getSubject(token);
     	return new RefreshTokenResponse(jwtProvider.createToken(userId),token);
     }
-
+//값이 이상하면 
 }
