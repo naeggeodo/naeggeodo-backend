@@ -15,7 +15,7 @@ public class MySubProtocolHandler extends SubProtocolWebSocketHandler{
 
 
 	@Autowired
-	private SessionHandler sessionHandler;
+	private WebsocketSessionHandler sessionHandler;
 	
 	public MySubProtocolHandler(MessageChannel clientInboundChannel, SubscribableChannel clientOutboundChannel) {
 		super(clientInboundChannel, clientOutboundChannel);

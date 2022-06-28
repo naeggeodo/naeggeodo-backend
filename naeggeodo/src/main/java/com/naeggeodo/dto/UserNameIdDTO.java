@@ -16,7 +16,7 @@ public class UserNameIdDTO extends JSONConverterAdapter {
     private RemittanceState state;
 
     @Override
-    public JSONObject toJSON() throws Exception {
+    public JSONObject toJSON() {
         JSONObject json =  new JSONObject();
         json.put("user_id",user_id);
         json.put("nickname",nickname);

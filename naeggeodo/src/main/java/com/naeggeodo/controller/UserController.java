@@ -1,23 +1,19 @@
 package com.naeggeodo.controller;
 
+import com.naeggeodo.dto.AddressDTO;
 import com.naeggeodo.entity.chat.QuickChat;
+import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
-import com.naeggeodo.repository.QuickChatRepository;
+import com.naeggeodo.repository.UserRepository;
 import com.naeggeodo.util.MyUtility;
+import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import com.naeggeodo.dto.AddressDTO;
-import com.naeggeodo.entity.user.Users;
-import com.naeggeodo.repository.UserRepository;
-
-import lombok.RequiredArgsConstructor;
-
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,12 +23,11 @@ import java.util.Map;
 public class UserController {
 
 	private final UserRepository userRepository;
-	private final QuickChatRepository quickChatRepository;
 
 	@Transactional
 	@PatchMapping(value="/user/{user_id}/address",produces = "application/json")
 	public String updateAddress(@PathVariable("user_id")String user_id
-			,@RequestBody @Valid AddressDTO dto) throws Exception {
+			,@RequestBody @Valid AddressDTO dto){
 		Users user = userRepository.findById(user_id).
 				orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
 		user.updateAddress(dto.getAddress(), dto.getZonecode(), dto.getBuildingCode());
@@ -71,23 +66,6 @@ public class UserController {
 		return ResponseEntity.ok(json.toMap());
 	}
 
-//	@Transactional
-//	@PatchMapping(value = "/user/{user_id}/quick-chatting", produces = "application/json")
-//	public ResponseEntity<Object> updateQuickChat(@PathVariable("user_id")String user_id,
-//												  @RequestBody Map<String,List<Map<String,String>>> quickChat){
-//		QuickChat findQuickChat = userRepository.findQuickChatEntityGraph(user_id)
-//				.orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND)).getQuickChat();
-//		List<Map<String,String>> list = quickChat.get("quickChat");
-//		List<String> msgList = new ArrayList<>();
-//
-//		for (Map<String,String> map:list) {
-//			msgList.add(map.get("msg"));
-//		}
-//
-//		findQuickChat.updateMsgByList(msgList);
-//		JSONObject json = MyUtility.convertStringListToJSONObject(msgList,"quickChat");
-//		return ResponseEntity.ok(json.toMap());
-//	}
 	@Transactional
 	@PatchMapping(value = "/user/{user_id}/quick-chatting", produces = "application/json")
 	public ResponseEntity<Object> updateQuickChat(@PathVariable("user_id")String user_id,

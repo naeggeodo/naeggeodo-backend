@@ -21,9 +21,7 @@ public class HttpInterceptor implements HandlerInterceptor {
     //컨트롤러 도달전에 호출됨
     // 추가 검증 로직(토큰.subject와 pathParam의 user_id 비교) 실행
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-
-        String token = AuthorizationExtractor.extract(request);
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler){
 
         Map<String, String> pathVariables = (Map<String, String>) request
                 .getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);

@@ -1,16 +1,13 @@
 package com.naeggeodo.jwt;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
 import com.naeggeodo.jwt.dto.JwtResponse;
 import com.naeggeodo.jwt.dto.RefreshTokenResponse;
 import com.naeggeodo.oauth.dto.SimpleUser;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service

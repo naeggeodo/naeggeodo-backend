@@ -1,13 +1,11 @@
 package com.naeggeodo.entity.post;
 
-import java.time.LocalDateTime;
-
-import javax.persistence.*;
-
 import com.naeggeodo.entity.user.Users;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity @Getter @Setter
 public class Report {

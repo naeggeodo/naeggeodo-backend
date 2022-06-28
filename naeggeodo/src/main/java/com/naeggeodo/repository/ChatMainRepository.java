@@ -42,13 +42,6 @@ public interface ChatMainRepository extends JpaRepository<ChatMain, Long>{
 	@Query("update ChatMain c set c.imgPath = :imgPath where c.id = :chatMain_id")
 	void updateForImgPath(@Param("imgPath")String imgPath,@Param("chatMain_id")Long id);
 
-
-	@Query(value = "(SELECT * from chat_main cm WHERE bookmarks = \"Y\" AND user_id = :user_id ORDER BY bookmarks_date LIMIT 10 )\n" +
-			"UNION \n" +
-			"(SELECT * from chat_main cm WHERE state = 'END' OR state = 'INCOMPLETE' AND user_id = :user_id ORDER BY create_date desc)"
-			,nativeQuery = true)
-	List<ChatMain> findOrderList(@Param("user_id")String user_id);
-
 	@EntityGraph(attributePaths = {"tag"})
 	List<ChatMain> findTop10ByBookmarksAndUserIdOrderByBookmarksDateDesc(Bookmarks bookmarks,String user_id);
 
