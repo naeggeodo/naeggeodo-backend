@@ -21,39 +21,39 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(value= {NumberFormatException.class,NullPointerException.class})
 	protected ResponseEntity<ErrorResponse> handleNumberFormatException(Exception e){
+		log.info("Exception INVALID_FORMAT Class = {}",e.getClass());
+		e.printStackTrace();
 		return ErrorResponse.toResponseEntity(ErrorCode.INVALID_FORMAT);
 	}
 
 	@ExceptionHandler(value= {IllegalArgumentException.class})
 	protected ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e){
+		log.info("Exception INVALID_FORMAT Class = {}",e.getClass());
+		e.printStackTrace();
 		return ErrorResponse.toResponseEntity(ErrorCode.INVALID_FORMAT);
 	}
 
 	@ExceptionHandler(value= {NoResultException.class, EntityNotFoundException.class})
-	protected ResponseEntity<ErrorResponse> handleNoResultException(NoResultException e){
+	protected ResponseEntity<ErrorResponse> handleNoResultException(){
 		return ErrorResponse.toResponseEntity(ErrorCode.RESOURCE_NOT_FOUND);
 	}
 	@ExceptionHandler(value= {HttpMediaTypeNotSupportedException.class})
 	protected ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e){
+		log.info("Exception INVALID_FORMAT Class = {}",e.getClass());
+		e.printStackTrace();
+
 		return ErrorResponse.toResponseEntity(ErrorCode.INVALID_FORMAT);
 	}
 	@ExceptionHandler(value= {MalformedJwtException.class})
-	protected ResponseEntity<ErrorResponse> handleHttpMalformedJwtException(MalformedJwtException e){
+	protected ResponseEntity<ErrorResponse> handleHttpMalformedJwtException(){
 		return ErrorResponse.toResponseEntity(ErrorCode.UNAUTHORIZED);
 	}
 
 	@ExceptionHandler(value= {Exception.class})
 	protected ResponseEntity<ErrorResponse> handleException(Exception e){
-		log.warn("Unhandled Exception From GlobalExceptionHandler",e.getCause());
+		log.warn("Unhandled Exception From GlobalExceptionHandler");
+		e.printStackTrace();
 		return ErrorResponse.toResponseEntity(ErrorCode.UNKNOWN_ERROR);
 	}
-//	@ExceptionHandler(value= {Exception.class})
-//	protected ResponseEntity<Object> handleException(Exception e){
-//		StringBuilder stacks = new StringBuilder();
-//		for (StackTraceElement element: e.getStackTrace()) {
-//			stacks.append(element.toString()).append("\n");
-//		}
-//		return ResponseEntity.ok(e.getClass()+" : "+e.getMessage()+"\n "+ stacks);
-//	}
 
 }

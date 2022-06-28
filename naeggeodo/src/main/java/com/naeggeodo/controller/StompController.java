@@ -1,42 +1,30 @@
 package com.naeggeodo.controller;
 
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.naeggeodo.dto.MessageDTO;
 import com.naeggeodo.dto.TargetMessageDTO;
+import com.naeggeodo.entity.chat.*;
 import com.naeggeodo.entity.deal.Deal;
-import com.naeggeodo.entity.post.Report;
+import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.exception.CustomWebSocketException;
 import com.naeggeodo.exception.StompErrorCode;
+import com.naeggeodo.handler.WebsocketSessionHandler;
 import com.naeggeodo.repository.*;
+import com.naeggeodo.service.ChatDetailService;
+import com.naeggeodo.util.MyUtility;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.naeggeodo.dto.MessageDTO;
-import com.naeggeodo.entity.chat.BanState;
-import com.naeggeodo.entity.chat.ChatDetailType;
-import com.naeggeodo.entity.chat.ChatMain;
-import com.naeggeodo.entity.chat.ChatState;
-import com.naeggeodo.entity.chat.ChatUser;
-import com.naeggeodo.entity.chat.QuickChat;
-import com.naeggeodo.entity.user.Users;
-import com.naeggeodo.handler.SessionHandler;
-import com.naeggeodo.service.ChatDetailService;
-import com.naeggeodo.util.MyUtility;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
 
 @Slf4j
 @Controller
@@ -44,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class StompController {
 	private final SimpMessagingTemplate simpMessagingTemplate;
 	private final ChatDetailService chatDetailService;
-	private final SessionHandler sessionHandler;
+	private final WebsocketSessionHandler sessionHandler;
 	private final ChatMainRepository chatMainRepository;
 	private final ChatUserRepository chatUserRepository;
 	private final UserRepository userRepository;
@@ -62,26 +50,6 @@ public class StompController {
 		chatDetailService.save(message);
 		//메시지 전송
 		sendToAll(chatMain_id, message);
-	}
-
-	@MessageMapping("/chat/image")
-	public void sendImage(MessageDTO message, StompHeaderAccessor headers){
-		validateMessage(message,headers);
-		Long chatMain_id = message.chatMain_idToLong();
-        int idx = Integer.parseInt(headers.getNativeHeader("idx").get(0));
-		simpMessagingTemplate.convertAndSend(
-				"/topic/"+chatMain_id,
-				message,
-				new HashMap<String,Object>(){
-			{
-				put("idx",idx);
-			}
-		});
-		chatDetailService.save(message);
-		if(idx == 14){
-			message.setType(ChatDetailType.THE_END);
-			sendToAll(chatMain_id,message);
-		}
 	}
 
 	//입장
@@ -256,13 +224,6 @@ public class StompController {
 		StompHeaderAccessor headers = StompHeaderAccessor.create(StompCommand.MESSAGE);
 		headers.setSessionId(sessionId);
 		simpMessagingTemplate.convertAndSendToUser(sessionId, "/queue/"+sessionId, dto,  headers.getMessageHeaders());
-	}
-	//개인 send 오버로딩 (deprecated)
-	@Deprecated
-	private void sendToUser(String sessionId, String message) {
-		StompHeaderAccessor headers = StompHeaderAccessor.create(StompCommand.MESSAGE);
-		headers.setSessionId(sessionId);
-		simpMessagingTemplate.convertAndSendToUser(sessionId, "/queue/"+sessionId, message,  headers.getMessageHeaders());
 	}
 
 	private void validateMessage(MessageDTO dto,StompHeaderAccessor headers){

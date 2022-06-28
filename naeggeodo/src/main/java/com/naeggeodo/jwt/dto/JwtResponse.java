@@ -2,11 +2,12 @@ package com.naeggeodo.jwt.dto;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.naeggeodo.oauth.dto.SimpleUser;
-
+import lombok.Getter;
 import lombok.ToString;
 
 @ToString
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+@Getter
 public class JwtResponse {
 	private String accessToken;
 	private String type;

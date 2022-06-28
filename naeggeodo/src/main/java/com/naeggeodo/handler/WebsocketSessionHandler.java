@@ -18,9 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class SessionHandler implements StompSessionHandler{
+public class WebsocketSessionHandler implements StompSessionHandler{
 	 private final Map<String, WebSocketSession> sessionMap = new HashMap<>();
-	 public SessionHandler() {}
+	 public WebsocketSessionHandler() {}
 	 
 	 public void register(WebSocketSession session) {
 		 sessionMap.put(session.getId(), session);

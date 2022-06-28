@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.json.JSONObject;
 
 import javax.validation.constraints.NotBlank;
 
@@ -20,11 +19,4 @@ public class AddressDTO {
 	@NotBlank
 	private String buildingCode;
 
-	public JSONObject toJSON(){
-		JSONObject json = new JSONObject();
-		json.put("address",address);
-		json.put("zonecode",zonecode);
-		json.put("buildingCode",buildingCode);
-		return json;
-	}
 }

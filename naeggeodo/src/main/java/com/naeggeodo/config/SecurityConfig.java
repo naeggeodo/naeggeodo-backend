@@ -22,25 +22,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final JwtTokenProvider jwtTokenProvider;
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(WebSecurity web) {
         String[] ignoreURL = {
                 "/login/**",
                 "/oauth/getInfo/**",
                 "/categories",
                 "/chat/**",
                 "/like",
-                "/favicon.ico",
-                //채팅 테스트 페이지
-                "/sockJS.html",
-                "/webjars/**",
-                "/postcode.html"
+                "/postcode.html",
+                "/refreshtoken"
         };
         web.ignoring().antMatchers(ignoreURL);
         web.ignoring().antMatchers(HttpMethod.GET
                 ,"/chat-rooms"
                 ,"/chat-rooms/tag/most-wanted"
                 ,"/chat-rooms/tag"
-                ,"/chat-rooms/search");
+                ,"/chat-rooms/search"
+        );
     }
 
     @Override

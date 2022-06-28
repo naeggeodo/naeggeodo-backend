@@ -1,53 +1,43 @@
 package com.naeggeodo.oauth;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import com.naeggeodo.entity.chat.QuickChat;
-import com.naeggeodo.repository.QuickChatRepository;
-import com.naeggeodo.util.RandomNickNameGenerator;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
-import org.json.JSONException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.naeggeodo.entity.chat.QuickChat;
 import com.naeggeodo.entity.user.Authority;
 import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.oauth.config.InMemoryProviderRepository;
 import com.naeggeodo.oauth.config.OauthProvider;
-import com.naeggeodo.oauth.dto.KakaoOAuthDto;
-import com.naeggeodo.oauth.dto.NaverOAuthDto;
-import com.naeggeodo.oauth.dto.OAuthDto;
-import com.naeggeodo.oauth.dto.OauthAuthorized;
-import com.naeggeodo.oauth.dto.SimpleUser;
+import com.naeggeodo.oauth.dto.*;
+import com.naeggeodo.repository.QuickChatRepository;
 import com.naeggeodo.repository.UserRepository;
-
+import com.naeggeodo.util.RandomNickNameGenerator;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Service
 @AllArgsConstructor
 public class OAuthService {
 
-	@Autowired
-	private InMemoryProviderRepository inMemoryProviderRepository;
-	@Autowired
-	private SocialLogin oauthDetail;
+	@Autowired private InMemoryProviderRepository inMemoryProviderRepository;
+	@Autowired private SocialLogin oauthDetail;
 	private UserRepository userRepository;
 	private OAuthDtoMapper oauthMapper;
 
-	@Autowired
-	private QuickChatRepository quickChatRepository;
+	@Autowired private QuickChatRepository quickChatRepository;
 
 	@Transactional
-	public SimpleUser getAuth(String code, String providerName) throws JSONException, Exception {
+	public SimpleUser getAuth(String code, String providerName) throws Exception {
 		Map<String, String> requestHeaders = new HashMap<>();
 
 		log.info("getAuth : ");
@@ -101,23 +91,6 @@ public class OAuthService {
 		}
 	}
 
-//    @Transactional
-//    @NotFound(action = NotFoundAction.IGNORE)
-//    private SimpleUser getUser(OAuthDto oauthDto) {
-//    	Users user = userRepository.findById(oauthDto.getId()).orElse(null);
-//
-//    	if(user==null) {
-//    		user = oauthMapper.mappingUser(oauthDto);
-//    		user.setAuthority(Authority.MEMBER);
-//    		user.setJoindate(LocalDateTime.now());
-//
-//    		userRepository.save(user);
-//    		user = userRepository.findById(oauthDto.getId()).get();
-//    	}
-//
-//    	return new SimpleUser(user.getId(), user.getAddress(), user.getAuthority(), user.getBuildingCode());
-//    }
-
 	@Transactional
 	@NotFound(action = NotFoundAction.IGNORE)
 	protected SimpleUser getUser(OAuthDto oauthDto) {
@@ -133,7 +106,6 @@ public class OAuthService {
 			QuickChat qc = QuickChat.create(user);
 			user.setQuickChat(qc);
 			quickChatRepository.save(qc);
-			//user = userRepository.findById(oauthDto.getId()).get();
 		}
 
 

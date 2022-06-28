@@ -1,8 +1,7 @@
 package com.naeggeodo.jwt;
 
-import java.util.Enumeration;
-
 import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
 
 public class AuthorizationExtractor {
     private static final String AUTHORIZATION = "Authorization";

@@ -2,12 +2,10 @@ package com.naeggeodo.filter;
 
 
 import com.naeggeodo.exception.ErrorCode;
-import com.naeggeodo.exception.MyAuthenticationException;
-import com.naeggeodo.exception.UnauthorizedException;
 import com.naeggeodo.jwt.AuthorizationExtractor;
 import com.naeggeodo.jwt.JwtTokenProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -18,6 +16,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private JwtTokenProvider jwtProvider;
 
@@ -28,18 +27,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 		String token = AuthorizationExtractor.extract(request);
+		log.info("out of if token = {}",token);
 		if(Objects.isNull(token)) {
-			throw new UnauthorizedException("Access Token 이 존재하지 않습니다.");
+			log.info("======sendError 499");
+			setResponse(response,ErrorCode.UNAUTHORIZED_NULL,499);
+			return;
 		}
-		if(!jwtProvider.validateToken(token)&&!token.equals("open")) {
-			setResponse(response,ErrorCode.UNAUTHORIZED,493);
+		if(!jwtProvider.validateToken(token)) {
+			log.info("======sendError 400");
+			setResponse(response,ErrorCode.UNAUTHORIZED,400);
+			return;
 		}
 
 		filterChain.doFilter(request,response);
 	}
 	private void setResponse(HttpServletResponse response, ErrorCode code,int status) throws IOException {
 		response.setContentType("application/json;charset=UTF-8");
-		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
 		JSONObject responseJson = new JSONObject();
 		response.setStatus(status);

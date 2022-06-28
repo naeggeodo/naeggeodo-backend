@@ -1,5 +1,20 @@
 package com.naeggeodo.oauth;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.naeggeodo.exception.CustomHttpException;
+import com.naeggeodo.exception.ErrorCode;
+import com.naeggeodo.oauth.config.OauthProvider;
+import com.naeggeodo.oauth.dto.OAuthDto;
+import com.naeggeodo.oauth.dto.OauthAuthorized;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.*;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,31 +23,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
-
-//import javax.ws.rs.InternalServerErrorException;
-
-import com.naeggeodo.exception.CustomHttpException;
-import com.naeggeodo.exception.ErrorCode;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.naeggeodo.oauth.config.OauthProvider;
-import com.naeggeodo.oauth.dto.OAuthDto;
-import com.naeggeodo.oauth.dto.OauthAuthorized;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -46,20 +36,19 @@ public class SocialLogin {
         HttpHeaders headers = requestUserInfoHeaders(oauthToken);
         RestTemplate restTemplate = new RestTemplate();
         try {
-            OAuthDto userResponse = restTemplate.exchange(
+            return restTemplate.exchange(
                     userInfoRequestUrl,
                     HttpMethod.GET,
                     new HttpEntity<>(headers),
                     responseType.getClass()
             ).getBody();
-            return userResponse;
         } catch (HttpStatusCodeException e) {
         	log.info(e.getMessage());
             throw new CustomHttpException(ErrorCode.UNKNOWN_ERROR);
         }
     }
 
-    protected OauthAuthorized requestAccessToken(String code, OauthProvider provider) throws JsonMappingException, JsonProcessingException {
+    protected OauthAuthorized requestAccessToken(String code, OauthProvider provider) throws JsonProcessingException {
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
@@ -82,7 +71,7 @@ public class SocialLogin {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         
-        log.info(responseEntity.getBody().toString());
+        log.info(responseEntity.getBody());
         
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             return mapper.readValue(responseEntity.getBody(), OauthAuthorized.class);
@@ -98,18 +87,7 @@ public class SocialLogin {
         return headers;
     }
 
-//    protected HttpEntity<MultiValueMap<String, String>> generateAccessTokenRequest(String code) {
-//        MultiValueMap<String, String> param = this.generateAccessTokenRequestParam(code);
-//        HttpHeaders headers = this.generateAccessTokenRequestHeaders();
-//        return new HttpEntity<>(param, headers);
-//    }
 
-    protected HttpHeaders generateAccessTokenRequestHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HEADER_NAME_CONTENT_TYPE, HEADER_VALUE_CONTENT_TYPE);
-        return headers;
-    }
-    
     protected String get(String apiUrl, Map<String, String> requestHeaders){
     	HttpURLConnection con = connect(apiUrl);
     	try {

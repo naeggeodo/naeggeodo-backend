@@ -1,8 +1,15 @@
 package com.naeggeodo.handler;
 
-import com.naeggeodo.exception.UnauthorizedException;
+import com.naeggeodo.entity.chat.BanState;
+import com.naeggeodo.entity.chat.ChatMain;
+import com.naeggeodo.entity.chat.ChatUser;
+import com.naeggeodo.exception.CustomWebSocketException;
+import com.naeggeodo.exception.StompErrorCode;
 import com.naeggeodo.jwt.AuthorizationExtractor;
 import com.naeggeodo.jwt.JwtTokenProvider;
+import com.naeggeodo.repository.ChatMainRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -10,16 +17,6 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.naeggeodo.exception.StompErrorCode;
-import com.naeggeodo.repository.ChatMainRepository;
-import com.naeggeodo.entity.chat.BanState;
-import com.naeggeodo.entity.chat.ChatMain;
-import com.naeggeodo.entity.chat.ChatUser;
-import com.naeggeodo.exception.CustomWebSocketException;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.Objects;
 
@@ -29,7 +26,7 @@ import java.util.Objects;
 public class StompInterceptor implements ChannelInterceptor{
 
 	private final ChatMainRepository chatMainRepository;
-	private final SessionHandler sessionHandler;
+	private final WebsocketSessionHandler sessionHandler;
 	private final JwtTokenProvider jwtProvider;
 	
 	@Override
@@ -50,7 +47,7 @@ public class StompInterceptor implements ChannelInterceptor{
 				throw new CustomWebSocketException(StompErrorCode.UNAUTHORIZED.name());
 			}
 
-			if(!jwtProvider.validateToken(token)&&!token.equals("open")) {
+			if(!jwtProvider.validateToken(token)) {
 				throw new CustomWebSocketException(StompErrorCode.UNAUTHORIZED.name());
 			}
 

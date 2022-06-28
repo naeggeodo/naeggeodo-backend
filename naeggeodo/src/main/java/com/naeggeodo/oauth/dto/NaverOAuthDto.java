@@ -1,8 +1,5 @@
 package com.naeggeodo.oauth.dto;
 
-import com.fasterxml.jackson.annotation.JsonRootName;
-import com.naeggeodo.entity.user.Users;
-
 import lombok.Data;
 
 @Data

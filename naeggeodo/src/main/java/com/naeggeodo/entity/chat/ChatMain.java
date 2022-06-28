@@ -1,7 +1,6 @@
 package com.naeggeodo.entity.chat;
 
 import com.naeggeodo.dto.ChatRoomDTO;
-import com.naeggeodo.entity.deal.Deal;
 import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
@@ -67,7 +66,7 @@ public class ChatMain extends JSONConverterAdapter {
     private List<ChatUser> chatUser;
 
     @OneToMany(mappedBy = "chatMain", cascade = CascadeType.MERGE)
-    private List<Tag> tag = new ArrayList<>();
+    private List<Tag> tag;
 
     @Enumerated(EnumType.STRING)
     private Bookmarks bookmarks;
@@ -161,10 +160,6 @@ public class ChatMain extends JSONConverterAdapter {
     }
 
     //imgPath update
-    public void updateImgPath(String imgPath) {
-        this.imgPath = imgPath;
-    }
-
     public ChatUser findChatUserBySender(String sender) {
         ChatUser chatUser = null;
         if (!this.getChatUser().isEmpty()) {
@@ -295,9 +290,6 @@ public class ChatMain extends JSONConverterAdapter {
 
     }
 
-    public void updateOrderTimeType(OrderTimeType orderTimeType) {
-        this.orderTimeType = orderTimeType;
-    }
 
     public void updateTitle(String title) {
         this.title = title;

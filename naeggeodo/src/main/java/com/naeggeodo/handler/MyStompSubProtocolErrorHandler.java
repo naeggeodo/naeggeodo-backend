@@ -1,15 +1,12 @@
 package com.naeggeodo.handler;
 
 
+import com.naeggeodo.exception.CustomWebSocketException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.StompSubProtocolErrorHandler;
-
-
-import com.naeggeodo.exception.CustomWebSocketException;
 
 @Component
 @Slf4j

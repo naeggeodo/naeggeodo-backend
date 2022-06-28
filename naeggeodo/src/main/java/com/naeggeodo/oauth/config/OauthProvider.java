@@ -28,7 +28,4 @@ public class OauthProvider {
         this.userInfoUrl = userInfoUrl;
     }
     
-    public String getOAuthLoginUri() {
-    	return loginUri+"?response_type=code&client_id="+clientId+"&redirect_uri="+redirectUrl;
-    }
 }
