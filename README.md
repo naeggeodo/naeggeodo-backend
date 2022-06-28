@@ -1,4 +1,16 @@
 # 내꺼도 V1 
+
+### 📱 팀원
+|                | Jayden  | Minhyeok  | Dahye | Seoyun | Sanghoon |
+|----------------|:--------------:|:--------------:|:--------------:|:--------------:|:--------------:|
+| **Github**     | [<img src="https://github.com/cjy0019.png?size=150" width="150px;" alt="cjy0019"/>](https://github.com/cjy0019) | [<img src="https://github.com/kmh916.png?size=150" width="150px;" alt=""/>](https://github.com/kmh916) | [<img src="https://github.com/jodahye.png?size=150" width="150px;" alt="jodahye"/>](https://github.com/JODAHYE) | [<img src="https://github.com/seoyun75.png?size=150" width="150px;" alt="seoyoon"/>](https://github.com/seoyun75) | [<img src="https://github.com/uasang01.png?size=150" width="150px;" alt=""/>](https://uasang01.tistory.com/) |
+| **E-mail**     | cjy0029@naver.com | kmh102808@gmail.com | dahye8043@gmail.com | goeun944@gmail.com  | ddhtyuu@gmail.com  |
+| **Github**     | https://github.com/cjy0019  | https://github.com/kmh916 | https://github.com/JODAHYE  |  https://github.com/seoyun75  | https://github.com/uasang01 | 
+| **Blog**       | https://velog.io/@cjy0029 | https://velog.io/@kmh916 | https://dal-dagury.tistory.com/  | 🛵 | https://uasang01.tistory.com/ | 
+| **Position**   | FrontEnd / IOS | BackEnd | FrontEnd | BackEnd | Android |
+
+## 서비스 설명
+
 우리 서비스는 배달비를 더치페이하는 서비스 입니다.
 
 ### 🛵 계속해서 오르는 배달비
@@ -13,11 +25,111 @@
 
 - 채팅을 통해 원하는 음식을 결정하고 아파트로비, 로비 1층 등 원하는 곳에서 음식을 받아가세요
 
-### ☎️ 팀원
-|                | Jayden  | Minhyeok  | Dahye | Seoyun | Sanghoon |
-|----------------|:--------------:|:--------------:|:--------------:|:--------------:|:--------------:|
-| **Github**     | [<img src="https://github.com/cjy0019.png?size=150" width="150px;" alt="cjy0019"/>](https://github.com/cjy0019) | [<img src="https://github.com/kmh916.png?size=150" width="150px;" alt=""/>](https://github.com/kmh916) | [<img src="https://github.com/jodahye.png?size=150" width="150px;" alt="jodahye"/>](https://github.com/JODAHYE) | [<img src="https://github.com/seoyun75.png?size=150" width="150px;" alt="seoyoon"/>](https://github.com/seoyun75) | [<img src="https://github.com/uasang01.png?size=150" width="150px;" alt=""/>](https://uasang01.tistory.com/) |
-| **E-mail**     | cjy0029@naver.com | kmh102808@gmail.com | dahye8043@gmail.com | goeun944@gmail.com  | ddhtyuu@gmail.com  |
-| **Github**     | https://github.com/cjy0019  | https://github.com/kmh916 | https://github.com/JODAHYE  |  https://github.com/seoyun75  | https://github.com/uasang01 | 
-| **Blog**       | https://velog.io/@cjy0029 | https://velog.io/@kmh916 | https://dal-dagury.tistory.com/  | 🛵 | https://uasang01.tistory.com/ | 
-| **Position**   | FrontEnd / IOS | BackEnd | FrontEnd | BackEnd | Android |
+#### 회원가입 / 로그인
+1. 사용자는 카카오 로그인을 통해 회원가입 / 로그인할 수 있다.
+2. 사용자는 네이버 로그인을 통해 회원가입 / 로그인할 수 있다.
+3. 로그인을 통해 서비스에 접속하면 daum-post-code 서비스를 통해 원하는 아파트를 설정할 수 있다.
+4. 같은 아파트에 존재하는 채팅방을 확인할 수 있다.
+
+#### 채팅방 목록 / 생성
+1. 홈 화면에서 같은 아파트의 채팅방들이 카테고리별로 조회되고 원하는 채팅방에 입장할 수 있다.
+2. 각각의 채팅방에는 제목, 최대인원 및 현재인원 , 생성시간등이 표시된다.
+3. 내꺼톡 생성 화면에서 필요한 정보들을 입력하고 원하는 채팅방을 직접 생성할 수 있다.
+
+#### 참여중인 채팅방 목록
+1. 내꺼톡 화면에서 사용자가 참여중인 채팅내역을 확인할 수 있다.
+2. 각각의 채팅방에는 채팅방 이미지, 제목 , 주소 , 마지막 채팅 내용이 표시된다.
+
+
+#### 채팅방
+1. 채팅방에 참여한 사용자는 방장/참여자로 구분된다.
+2. 최초에 채팅방을 생성한 사용자가 방장이며 방장이 채팅방에서 퇴장했을때는 가장 최근에 입장한 참여자가 방장이 된다.
+3. 사용자들은 자유롭게 채팅할 수 있으며 + 버튼을 클릭해 사진을 전송할 수 있다.
+4. 좌측 하단의 ↑ 버튼으로 자주쓰는 채팅내역을 볼 수 있고 각 항목을 클릭하면 채팅방에 전송된다.
+5. 자주쓰는 채팅내역에서 편집하기를 클릭하면 항목을 삭제하고 수정 할 수 있다.
+6. 우측 상단의 내꺼톡 서랍에서 참여중인 전체 인원을 확인할 수 있다.
+7. 방장은 내꺼톡 서랍에서 강퇴할 사용자를 지정해 강퇴할 수 있다. 강퇴당한 사용자는 해당 채팅방에 다시 입장할 수 없다.
+8. 내꺼톡 서랍에서 채팅방에서 퇴장할 수 있다. 
+
+#### 검색
+1. 사용자의 현재 주소와 검색창 , 채팅방에서 가장 많이 쓰인 태그 10개가 표시된다.
+2. 검색어를 입력하여 채팅방을 조회할 수 있다.
+3. 태그를 클릭하여 해당 태그를 사용한 채팅방들을 조회할 수 있다.
+
+#### 마이페이지 
+1. 사용자의 닉네임, 전체 주문건수, 참여중인 채팅방 갯수가 표시된다.
+2. 사용자의 닉네임을 수정할 수 있다.
+3. 고객센터에서 공지사항을 확인하고 건의와 신고를 할 수 있다.
+4. 이용약관 및 개인정보 처리방침을 확인할 수 있다.
+5. 로그아웃을 할 수 있다.
+
+
+
+<!-- ### 서비스 핵심 기능
+  - 구매자가 숙소를 예약하고 결제할 수 있다
+  - 구매자는 숙소를 구매한 후에 리뷰를 남길 수 있다
+  - 구매자는 판매자에게 메시지를 보낼 수 있다
+  - 구매자들간에 커뮤니티 활동을 할 수 있다 (게시판)
+  - 판매자는 숙소를 등록할 수 있다
+  - 판매자는 예약을 승인할 수 있다
+  - 판매자는 구매자의 메시지에 응답할 수 있다
+
+#### 예약
+	- 구매자가 숙소를 예약하고 결제할 수 있다
+	1. 구매자가 애플리케이션을 실행함
+2. 주거를 예약할 장소와 날짜, 인원을 선택한다
+3. 위의 조건에 맞는 판매중인 주거공간 리스트들이 노출된다
+4. 구매자는 주거공간을 클릭해서 상세 내용을 확인할 수 있다
+5. 구매자는 주거공산 상세 내용을 보고 예약할 수 있다
+6. 구매자는 예약과 동시에 요금을 전액 선입금(결제)한다
+
+- 판매자는 예약을 승인할 수 있다
+1. 판매자가 애플리케이션을 실행함
+2. 판매자가 올린 주거공간들의 목록들과 예약신청된 목록들이 보여짐
+3. 판매자는 예약 신청 내용을 확인할 수 있다
+4. 판매자는 예약을 승인 또는 거절할 수 있다
+5. 예약을 거절한 경우 사용자의 결제는 환불또는 취소된다
+
+#### 숙소
+- 판매자는 숙소를 등록할 수 있다
+1. 판매자가 애플리케이션을 실행함
+2. (+) 버튼을 클릭하면 숙소 등록 화면이 노출된다
+3. 판매자는 아래 정보들을 입력하여 숙소를 생성한다
+4. 건물 유형(별채, 주택, 방, 아파트 등등) / 인원수 / 방구성(화장실 몇개, 방 몇개 등) / 위치(장소, 경도위도) / 가격(1박 가격, 인원 추가당 추가요금), 날짜에 따라 다름 / 주거공간 사진들 / 부대시설(주차장 등) / 옵션 (가스레인지, 세탁기 등) / 제목 / 상세내용(판매자가 작성한 글, 규칙) / 예약 가능한 날짜(체크인 날짜)
+
+- 구매자는 숙소를 예약/결제/사용한 후 리뷰를 남길 수 있다
+1. 사용자는 체크아웃을 한 후에 리뷰를 남길 수 있다
+2. 리뷰 내용은 글 / 별점 / 사진들 등을 남길 수 있다
+
+#### 메시지
+- 구매자는 판매자에게 메시지를 보낼 수 있다
+1. 구매자가 애플리케이션을 실행함
+2. 주거를 예약할 장소와 날짜, 인원을 선택한다
+3. 위의 조건에 맞는 판매중인 주거공간 리스트들이 노출된다
+4. 구매자는 주거공간을 클릭해서 상세 내용을 확인할 수 있다
+5. 구매자가 문의사항이 있다면 판매자에게 메시지를 보내는 버튼을 클릭한 후 메시지를 작성할 수 있다
+6. 메시지의 내용은 내용만 작성한다
+7. 구매자가 메시지를 전송하면 판매자에게 알림이 온다
+
+- 판매자는 구매자의 메시지에 응답할 수 있다
+1. 판매자가 애플리케이션을 실행함
+2. 판매자는 메시지 아이콘의 뱃지(메시지 수신개수)를 통해 메시지가 온 것을 확인할 수 있다
+3. 판매자는 메시지 아이콘을 클릭하면 구매자별로 메시지가 온 리스트들을 볼 수 있다
+4. 리스트들 중 하나를 클릭하면 메시지를 확인할 수 있고 메시지를 작성하여 보낼 수 있다
+
+#### 커뮤니티
+- 구매자들간에 커뮤니티 활동을 할 수 있다 (게시판)
+1. 구매자가 홍대에 숙소를 예약하고 승인받음
+2. 비슷한 날짜에 구매한 구매자들끼리 커뮤니티에서 게시글을 쓰고 덧글을 쓰며 소통할 수 있음 
+
+- 같은 커뮤니티에 속한 구매자들은 메시지를 주고받을 수 있다 -->
+
+### 설계
+- UI 설계 : [피그마](https://www.figma.com/file/flk99RkWlj4rw1djcltdhl/%EB%82%B4%EA%BA%BC%EB%8F%84-(1)?node-id=0%3A1)
+- DB ERD : [ERD](https://www.erdcloud.com/d/Wbg7xBJihLSrvxBbG)
+
+### API 구조도
+#### RESTful API : ![내꺼도-백엔드-아키텍쳐2](https://user-images.githubusercontent.com/94831670/176109232-13eae199-8976-4973-83be-404dcf5fc920.png)
+
+#### Websocket API : 
+![내꺼도-백엔드-웹소켓-아키텍쳐](https://user-images.githubusercontent.com/94831670/176109382-3dc895e8-ae9c-40b0-9ebd-67587d996f49.png)
