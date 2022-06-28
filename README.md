@@ -133,3 +133,11 @@
 
 #### Websocket API : 
 ![내꺼도-백엔드-웹소켓-아키텍쳐](https://user-images.githubusercontent.com/94831670/176109382-3dc895e8-ae9c-40b0-9ebd-67587d996f49.png)
+
+
+### 기술스택
+- 사용언어,프레임 워크 : `JAVA` `Spring Boot(Gradle)`
+- 라이브러리 , API : `Spring Data JPA` `OAuth 2.0` `STOMP` `SockJS` 
+`Cloudinary SDK` `JWT` `Spring Security`
+- DB : `AWS RDS(MySQL)`
+- 배포 : `AWS EC2`
