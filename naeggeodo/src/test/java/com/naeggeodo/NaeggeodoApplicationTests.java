@@ -1,4 +1,4 @@
-package com.naeggeodo;
+package com.naeggeopo;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

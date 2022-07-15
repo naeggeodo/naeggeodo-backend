@@ -21,15 +21,11 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(value= {NumberFormatException.class,NullPointerException.class})
 	protected ResponseEntity<ErrorResponse> handleNumberFormatException(Exception e){
-		log.info("Exception INVALID_FORMAT Class = {}",e.getClass());
-		e.printStackTrace();
 		return ErrorResponse.toResponseEntity(ErrorCode.INVALID_FORMAT);
 	}
 
 	@ExceptionHandler(value= {IllegalArgumentException.class})
 	protected ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e){
-		log.info("Exception INVALID_FORMAT Class = {}",e.getClass());
-		e.printStackTrace();
 		return ErrorResponse.toResponseEntity(ErrorCode.INVALID_FORMAT);
 	}
 
@@ -39,9 +35,6 @@ public class GlobalExceptionHandler {
 	}
 	@ExceptionHandler(value= {HttpMediaTypeNotSupportedException.class})
 	protected ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e){
-		log.info("Exception INVALID_FORMAT Class = {}",e.getClass());
-		e.printStackTrace();
-
 		return ErrorResponse.toResponseEntity(ErrorCode.INVALID_FORMAT);
 	}
 	@ExceptionHandler(value= {MalformedJwtException.class})

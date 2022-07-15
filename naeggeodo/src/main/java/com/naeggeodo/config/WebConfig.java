@@ -30,9 +30,7 @@ public class WebConfig implements WebMvcConfigurer{
 				.addInterceptor(new HttpInterceptor(jwtTokenProvider))
 				.addPathPatterns(
 						"/user/**",
-						"/chat-rooms/{chatMain_id}/users/**",
 						"/chat-rooms/progressing/user/**",
-						"/chat-rooms/user/**",
 						"/chat-rooms/{chatMain_id}/bookmarks/**",
 						"/chat-rooms/{chatMain_id}/bookmarks/**",
 						"/chat-rooms/order-list/**"

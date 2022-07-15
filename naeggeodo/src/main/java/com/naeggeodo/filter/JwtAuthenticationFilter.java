@@ -19,6 +19,7 @@ import java.util.Objects;
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private JwtTokenProvider jwtProvider;
+	private static int count = 0;
 
 	public JwtAuthenticationFilter(JwtTokenProvider jwtProvider) {
 		this.jwtProvider = jwtProvider;
@@ -27,15 +28,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 		String token = AuthorizationExtractor.extract(request);
+		log.info("=================count"+count+++"======================");
 		log.info("out of if token = {}",token);
+		log.info("requestURL = {}",request.getRequestURL());
+		log.info("=======================================================");
 		if(Objects.isNull(token)) {
 			log.info("======sendError 499");
 			setResponse(response,ErrorCode.UNAUTHORIZED_NULL,499);
 			return;
 		}
 		if(!jwtProvider.validateToken(token)) {
-			log.info("======sendError 400");
-			setResponse(response,ErrorCode.UNAUTHORIZED,400);
+			log.info("======sendError 401");
+			setResponse(response,ErrorCode.UNAUTHORIZED,401);
 			return;
 		}
 

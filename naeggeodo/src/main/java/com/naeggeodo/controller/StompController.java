@@ -108,7 +108,7 @@ public class StompController {
 			//퇴장 메시지 전송
 			sendToAll(chatMain_id, message);
 		} else {
-			message.setContents("방장이 나가서"+nextHost.getUser().getId()+"님이 새로운 방장이 됩니다.");
+			message.setContents("방장이 나가서 "+nextHost.getUser().getNickname()+"님이 새로운 방장이 됩니다.");
 			sendToAll(chatMain_id, message);
 		}
 		chatUserRepository.delete(exitChatUser);
