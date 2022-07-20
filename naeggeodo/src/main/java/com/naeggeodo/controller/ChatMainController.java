@@ -28,35 +28,31 @@ public class ChatMainController {
 
     private final ChatMainRepository chatMainRepository;
     private final ChatMainService chatMainService;
-    private final ChatUserRepository chatUserRepository;
 
-    private final TagRepository tagRepository;
-    private final ChatDetailRepository chatDetailRepository;
+
     //채팅방 리스트
     @GetMapping(value = "/chat-rooms", produces = "application/json",params = "category")
     @Transactional(readOnly = true)
     public ResponseEntity<Object> getChatListWithCategory(
             @RequestParam(name = "category") String category,
             @RequestParam(name = "buildingCode") String buildingCode) throws Exception {
-        JSONObject json = null;
             //카테고리 조회시
         Category categoryEnum = Category.valueOf(category.toUpperCase());
-        json = MyUtility.convertListToJSONobj(
-                chatMainRepository.findByCategoryAndBuildingCodeAndStateNotInOrderByCreateDateDesc
-                        (categoryEnum, buildingCode, ChatState.insearchableList), "chatRoom"
-        );
+        JSONObject json = MyUtility.convertListToJSONobj(
+                              chatMainRepository.findByCategoryAndBuildingCodeAndStateNotInOrderByCreateDateDesc
+                              (categoryEnum, buildingCode, ChatState.insearchableList), "chatRoom"
+                         );
         return ResponseEntity.ok(json.toMap());
     }
     @GetMapping(value = "/chat-rooms", produces = "application/json",params = "!category")
     @Transactional(readOnly = true)
     public ResponseEntity<Object> getChatListWithoutCategory(@RequestParam(name = "buildingCode") String buildingCode) throws Exception {
 
-        JSONObject json = null;
         //전체조회시
-        json = MyUtility.convertListToJSONobj(
-                chatMainRepository.findByBuildingCodeAndStateNotInOrderByCreateDateDesc
-                        (buildingCode, ChatState.insearchableList), "chatRoom"
-        );
+        JSONObject json = MyUtility.convertListToJSONobj(
+                            chatMainRepository.findByBuildingCodeAndStateNotInOrderByCreateDateDesc
+                            (buildingCode, ChatState.insearchableList), "chatRoom"
+                        );
         return ResponseEntity.ok(json.toMap());
     }
 
@@ -112,45 +108,11 @@ public class ChatMainController {
         return ResponseEntity.ok(json.toMap());
     }
 
-
-
-    // 해당 채팅방접속중인 유저 list
-    @GetMapping(value = "/chat-rooms/{chatMain_id}/users", produces = "application/json")
-    @Transactional(readOnly = true)
-    public ResponseEntity<Object> getChatUserList(@PathVariable(name = "chatMain_id") Long chatMain_id) throws Exception {
-        JSONObject json = MyUtility.convertListToJSONobj(chatUserRepository.findForRemit(chatMain_id), "users");
-
-        return ResponseEntity.ok(json.toMap());
-    }
-
-    //송금상태 변경
-    @PatchMapping(value = "/chat-rooms/{chatMain_id}/users/{user_id}", produces = "application/json")
-    @Transactional
-    public ResponseEntity<Object> updateRemittanceState(@PathVariable(name = "chatMain_id") Long chatMain_id,
-                                                        @PathVariable(name = "user_id") String user_id) {
-        ChatUser chatUser = chatUserRepository.findByChatMainIdAndUserId(chatMain_id, user_id);
-        if (RemittanceState.Y.equals(chatUser.getState())) {
-            chatUser.setState(RemittanceState.N);
-        } else {
-            chatUser.setState(RemittanceState.Y);
-        }
-        return ResponseEntity.ok(chatUser.getState());
-    }
-
-
     //참여중인 채팅방
     @Transactional(readOnly = true)
     @GetMapping(value = "/chat-rooms/progressing/user/{user_id}", produces = "application/json")
     public ResponseEntity<Object> getProgressingChatList(@PathVariable(name = "user_id") String user_id) throws Exception {
-        List<ChatMain> list = chatMainRepository.findByUserIdInChatUser(user_id,ChatState.insearchableList);
-        List<Long> idList = new ArrayList<>();
-        for (ChatMain c: list) {
-            idList.add(c.getId());
-        }
-        List<String> latestMessages = chatDetailRepository.findLatestContents(idList);
-        Collections.reverse(latestMessages);
-
-        JSONObject json = MyUtility.convertListToJSONobj(list, latestMessages,"chatRoom");
+        JSONObject json = chatMainService.getProgressingChatList(user_id);
         return ResponseEntity.ok(json.toMap());
     }
 
@@ -179,13 +141,7 @@ public class ChatMainController {
         return ResponseEntity.ok(MyUtility.convertCategoryToJSONobj("categories").toMap());
     }
 
-    @GetMapping(value = "/chat-rooms/tag/most-wanted", produces = "application/json")
-    @Transactional(readOnly = true)
-    public ResponseEntity<Object> getMostWantedTagList() {
-        List<String> list = tagRepository.findTop10Tag();
-        JSONObject json = MyUtility.convertStringListToJSONObject(list, "tags");
-        return ResponseEntity.ok(json.toMap());
-    }
+
 
     @GetMapping(value = "/chat-rooms/tag", produces = "application/json")
     @Transactional(readOnly = true)
@@ -203,14 +159,6 @@ public class ChatMainController {
         return ResponseEntity.ok(json.toMap());
     }
 
-    @GetMapping(value = "/chat-rooms/{chatMain_id}/banned-user", produces = "application/json")
-    @Transactional(readOnly = true)
-    public ResponseEntity<Object> getBannedChatUserList(@PathVariable("chatMain_id") String chatMain_idstr) throws Exception {
-        Long chatMain_id = Long.parseLong(chatMain_idstr);
-        List<ChatUser> list = chatUserRepository.findByChatMainIdAndBanState(chatMain_id, BanState.BANNED);
-        JSONObject json = MyUtility.convertListToJSONobj(list, "users");
-        return ResponseEntity.ok(json.toMap());
-    }
 
     //즐겨찾기 버튼 클릭시
     @PatchMapping(value = "/chat-rooms/{chatMain_id}/bookmarks/{user_id}")
