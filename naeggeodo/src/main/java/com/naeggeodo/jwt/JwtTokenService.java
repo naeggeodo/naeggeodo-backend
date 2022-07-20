@@ -3,6 +3,7 @@ package com.naeggeodo.jwt;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
 import com.naeggeodo.jwt.dto.JwtResponse;
+import com.naeggeodo.jwt.dto.MobileJwtResponse;
 import com.naeggeodo.jwt.dto.RefreshTokenResponse;
 import com.naeggeodo.oauth.dto.SimpleUser;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,15 @@ public class JwtTokenService {
 		  return new JwtResponse(jwtProvider.createToken(id),
 					  "Bearer",
 					  user);
+	}
+	public JwtResponse mobileCreateJwtToken(SimpleUser user) {
+		  String id = user.getId();
+
+		  return new MobileJwtResponse(jwtProvider.createToken(id),
+					  "Bearer",
+					  user,
+				      jwtProvider.createRefreshToken(id)
+		  );
 	}
 
     public RefreshTokenResponse refreshToken(String token) throws CustomHttpException{

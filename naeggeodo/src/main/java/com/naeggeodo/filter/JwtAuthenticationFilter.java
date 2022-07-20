@@ -28,14 +28,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 		String token = AuthorizationExtractor.extract(request);
 		log.info("out of if token = {}",token);
+		log.info("requestURL = {}",request.getRequestURL());
 		if(Objects.isNull(token)) {
 			log.info("======sendError 499");
 			setResponse(response,ErrorCode.UNAUTHORIZED_NULL,499);
 			return;
 		}
 		if(!jwtProvider.validateToken(token)) {
-			log.info("======sendError 400");
-			setResponse(response,ErrorCode.UNAUTHORIZED,400);
+			log.info("======sendError 401");
+			setResponse(response,ErrorCode.UNAUTHORIZED,401);
 			return;
 		}
 

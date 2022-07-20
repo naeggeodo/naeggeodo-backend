@@ -80,9 +80,10 @@ public class OAuthController {
     }
 
     @PostMapping(value = "login/mobil/{provider}")
-    public ResponseEntity<?> MobileLogin(@RequestBody OauthAuthorized request, @PathVariable String provider) throws JsonProcessingException{
-        return ResponseEntity.ok(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(jwtService.createJwtToken(
-                service.getAuth(request, provider)
+    public ResponseEntity<?> MobileLogin(@RequestBody OauthAuthorized request, @PathVariable String provider, HttpServletResponse response) throws JsonProcessingException{
+        SimpleUser user = service.getAuth(request, provider);
+        return ResponseEntity.ok(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(jwtService.mobileCreateJwtToken(
+                user
         )));
     }
 
