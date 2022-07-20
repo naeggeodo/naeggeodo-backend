@@ -32,30 +32,31 @@ public class ChatMainController {
 
     private final TagRepository tagRepository;
     private final ChatDetailRepository chatDetailRepository;
-    private final DealRepository dealRepository;
     //채팅방 리스트
-    @GetMapping(value = "/chat-rooms", produces = "application/json")
+    @GetMapping(value = "/chat-rooms", produces = "application/json",params = "category")
     @Transactional(readOnly = true)
-    public ResponseEntity<Object> getChatList(
-            @RequestParam(name = "category", required = false) String category,
-            @RequestParam(name = "buildingCode", required = true) String buildingCode) throws Exception {
+    public ResponseEntity<Object> getChatListWithCategory(
+            @RequestParam(name = "category") String category,
+            @RequestParam(name = "buildingCode") String buildingCode) throws Exception {
+        JSONObject json = null;
+            //카테고리 조회시
+        Category categoryEnum = Category.valueOf(category.toUpperCase());
+        json = MyUtility.convertListToJSONobj(
+                chatMainRepository.findByCategoryAndBuildingCodeAndStateNotInOrderByCreateDateDesc
+                        (categoryEnum, buildingCode, ChatState.insearchableList), "chatRoom"
+        );
+        return ResponseEntity.ok(json.toMap());
+    }
+    @GetMapping(value = "/chat-rooms", produces = "application/json",params = "!category")
+    @Transactional(readOnly = true)
+    public ResponseEntity<Object> getChatListWithoutCategory(@RequestParam(name = "buildingCode") String buildingCode) throws Exception {
 
         JSONObject json = null;
-        if (category == null) {
-            //전체조회시
-            json = MyUtility.convertListToJSONobj(
-                    chatMainRepository.findByBuildingCodeAndStateNotInOrderByCreateDateDesc
-                            (buildingCode, ChatState.insearchableList), "chatRoom"
-            );
-        } else {
-            //카테고리 조회시
-            Category categoryEnum = Category.valueOf(category.toUpperCase());
-            json = MyUtility.convertListToJSONobj(
-                    chatMainRepository.findByCategoryAndBuildingCodeAndStateNotInOrderByCreateDateDesc
-                            (categoryEnum, buildingCode, ChatState.insearchableList), "chatRoom"
-            );
-        }
-
+        //전체조회시
+        json = MyUtility.convertListToJSONobj(
+                chatMainRepository.findByBuildingCodeAndStateNotInOrderByCreateDateDesc
+                        (buildingCode, ChatState.insearchableList), "chatRoom"
+        );
         return ResponseEntity.ok(json.toMap());
     }
 
@@ -90,38 +91,27 @@ public class ChatMainController {
     }
 
     //채팅방 상태 업데이트
-    @PatchMapping(value = "/chat-rooms/{chatMain_id}")
-    @Transactional
+    @PatchMapping(value = "/chat-rooms/{chatMain_id}",params = "state")
     public ResponseEntity<Object> updateRoomState(@PathVariable(name = "chatMain_id") Long chatMain_id,
-                                                  @RequestParam(name = "state",required = false) String state,
-                                                  @RequestParam(name= "title",required = false)String title) {
-        ResponseEntity<Object> response = null;
+                                                  @RequestParam(name = "state") String state) {
+        JSONObject json = chatMainService.updateRoomState(chatMain_id,ChatState.valueOf(state.toUpperCase()));
+        return ResponseEntity.ok(json.toMap());
+    }
+
+    //채팅방 제목 업데이트
+    @PatchMapping(value = "/chat-rooms/{chatMain_id}",params = "title")
+    @Transactional
+    public ResponseEntity<Object> updateTitle(@PathVariable(name = "chatMain_id") Long chatMain_id,
+                                                  @RequestParam(name = "title") String title) {
         JSONObject json = new JSONObject();
         ChatMain chatMain = chatMainRepository.findById(chatMain_id)
-                .orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+                    .orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+        chatMain.updateTitle(title);
         json.put("chatMain_id",chatMain.getId());
-        if(state != null && title == null){
-            ChatState chatState = ChatState.valueOf(state.toUpperCase());
-            chatMain.changeState(chatState);
-
-            if (ChatState.END.equals(chatMain.getState())){
-                for (ChatUser cu : chatMain.getChatUser()) {
-                    dealRepository.save(Deal.create(cu.getUser(),chatMain));
-                }
-                chatMain.getChatUser().clear();
-                chatUserRepository.deleteAll(chatMain.getChatUser());
-            }
-
-            json.put("state",chatMain.getState().name());
-            return ResponseEntity.ok(json.toMap());
-        } else if(title != null&& state == null){
-            chatMain.updateTitle(title);
-            json.put("title",chatMain.getTitle());
-            return ResponseEntity.ok(json.toMap());
-        } else {
-            throw new CustomHttpException(ErrorCode.INVALID_FORMAT);
-        }
+        json.put("title",chatMain.getTitle());
+        return ResponseEntity.ok(json.toMap());
     }
+
 
 
     // 해당 채팅방접속중인 유저 list
