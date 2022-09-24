@@ -37,17 +37,16 @@ public class ChatMainService {
 	public JSONObject createChatRoom(ChatRoomDTO dto,MultipartFile file) {
 		Users user = userRepository.getById(dto.getUser_id());
 
-		ChatMain chatMain = ChatMain.create(dto,user);
 		List<String> tagStringList = dto.getTag();
-		List<Tag> tagList = new ArrayList<>();
-		ChatMain savedChatMain = chatMainRepository.save(chatMain);
+		List<Tag> tags = new ArrayList<>();
 		if(tagStringList != null){
 			for (String name : tagStringList) {
-				tagList.add(Tag.create(savedChatMain, name));
+				tags.add(Tag.create(name));
 			}
-			tagRepository.saveAll(tagList);
 		}
-		//async
+		ChatMain chatMain = dto.createChatMain(user,tags);
+		ChatMain savedChatMain = chatMainRepository.save(chatMain);
+
 		if(file != null)
 			cloudinaryService.upload(file, "chatMain/"+savedChatMain.getId(),savedChatMain.getId());
 		else

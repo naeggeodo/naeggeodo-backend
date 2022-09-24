@@ -65,7 +65,7 @@ public class ChatMain extends JSONConverterAdapter {
     @OneToMany(mappedBy = "chatMain", cascade = CascadeType.MERGE)
     private List<ChatUser> chatUser;
 
-    @OneToMany(mappedBy = "chatMain", cascade = CascadeType.MERGE)
+    @OneToMany(mappedBy = "chatMain", cascade = CascadeType.PERSIST)
     private List<Tag> tag;
 
     @Enumerated(EnumType.STRING)
@@ -74,18 +74,18 @@ public class ChatMain extends JSONConverterAdapter {
     private LocalDateTime bookmarksDate;
 
     //생성
-    public static ChatMain create(ChatRoomDTO dto, Users user) {
-        if(dto.getMaxCount()>5||dto.getMaxCount()<1) throw new CustomHttpException(ErrorCode.INVALID_VALUE);
 
-        return ChatMain.builder().title(dto.getTitle())
-                .buildingCode(dto.getBuildingCode()).address(dto.getAddress())
-                .state(ChatState.CREATE).link(dto.getLink())
-                .place(dto.getPlace()).category(Category.valueOf(dto.getCategory()))
-                .orderTimeType(OrderTimeType.valueOf(dto.getOrderTimeType()))
-                .maxCount(dto.getMaxCount()).user(user)
+    public ChatMain copy(OrderTimeType orderTimeType,List<Tag> tags) {
+        return ChatMain.builder().title(this.title)
+                .buildingCode(this.buildingCode).address(this.address)
+                .state(ChatState.CREATE).link(this.link)
+                .place(this.place).category(this.category)
+                .orderTimeType(orderTimeType)
+                .maxCount(this.maxCount).user(this.user)
+                .imgPath(this.imgPath)
+                .tag(tags)
                 .build();
     }
-
     public ChatMain copy(OrderTimeType orderTimeType) {
         return ChatMain.builder().title(this.title)
                 .buildingCode(this.buildingCode).address(this.address)
@@ -101,7 +101,7 @@ public class ChatMain extends JSONConverterAdapter {
     public List<Tag> copyTags(List<Tag> tagList) {
         List<Tag> newTagsList = new ArrayList<>();
         for (Tag t : tagList) {
-            newTagsList.add(Tag.create(this, t.getName()));
+            newTagsList.add(Tag.create(t.getName()));
         }
         return newTagsList;
     }

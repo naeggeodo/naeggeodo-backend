@@ -36,11 +36,7 @@ public class ChatUserController {
     public ResponseEntity<Object> updateRemittanceState(@PathVariable(name = "chatMain_id") Long chatMain_id,
                                                         @PathVariable(name = "user_id") String user_id) {
         ChatUser chatUser = chatUserRepository.findByChatMainIdAndUserId(chatMain_id, user_id);
-        if (RemittanceState.Y.equals(chatUser.getState())) {
-            chatUser.setState(RemittanceState.N);
-        } else {
-            chatUser.setState(RemittanceState.Y);
-        }
+        chatUser.setState(RemittanceState.Y.equals(chatUser.getState())?RemittanceState.N:RemittanceState.Y);
         return ResponseEntity.ok(chatUser.getState());
     }
 

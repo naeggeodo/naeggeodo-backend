@@ -19,9 +19,8 @@ public class Tag {
 	
 	private String name;
 	
-	public static Tag create(ChatMain chatMain,String name) {
+	public static Tag create(String name) {
 		Tag tag = new Tag();
-		tag.setChatMain(chatMain);
 		tag.setName(name);
 		return tag;
 	}
