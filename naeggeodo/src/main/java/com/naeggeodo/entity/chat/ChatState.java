@@ -15,5 +15,6 @@ public enum ChatState {
 	FULL,
 	INCOMPLETE;
 	public static final List<ChatState> insearchableList = Arrays.asList(END,INCOMPLETE);
+	public static final List<ChatState> searchableList = Arrays.asList(CREATE,FULL);
 
 }

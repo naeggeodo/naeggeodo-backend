@@ -1,6 +1,5 @@
 package com.naeggeodo.entity.chat;
 
-import com.naeggeodo.dto.ChatRoomDTO;
 import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
@@ -63,7 +62,7 @@ public class ChatMain extends JSONConverterAdapter {
 
 
     @OneToMany(mappedBy = "chatMain", cascade = CascadeType.MERGE)
-    private List<ChatUser> chatUser;
+    private List<ChatUser> chatUser = new ArrayList<>();
 
     @OneToMany(mappedBy = "chatMain", cascade = CascadeType.PERSIST)
     private List<Tag> tag;
@@ -343,5 +342,10 @@ public class ChatMain extends JSONConverterAdapter {
             default:
                 throw new CustomHttpException(ErrorCode.INVALID_FORMAT);
         }
+    }
+
+    public void setTags(List<Tag> tags){
+        this.tag = tags;
+        tags.forEach((tag) -> tag.setChatMain(this));
     }
 }

@@ -63,7 +63,6 @@ public class ChatUser extends JSONConverterAdapter{
 	
 	public void setChatMain(ChatMain chatMain) {
 		this.chatMain = chatMain;
-		chatMain.getChatUser().add(this);
 	}
 
 	@Override
