@@ -277,16 +277,12 @@ public class ChatMain extends JSONConverterAdapter {
     }
 
     public void updateBookmarks() {
-        if (this.bookmarks.equals(Bookmarks.N)) {
-            this.bookmarksDate = LocalDateTime.now();
-            this.bookmarks = Bookmarks.Y;
-        } else if (this.bookmarks.equals(Bookmarks.Y)) {
-            this.bookmarksDate = null;
-            this.bookmarks = Bookmarks.N;
-        } else {
-            throw new CustomHttpException(ErrorCode.INVALID_FORMAT);
-        }
+        this.bookmarks = Bookmarks.getOpposite(this.bookmarks);
+        updateBookmarksDate(this.bookmarks);
+    }
 
+    private LocalDateTime updateBookmarksDate(Bookmarks bookmarks){
+        return bookmarks.equals(Bookmarks.Y) ? null : LocalDateTime.now();
     }
 
 
