@@ -39,4 +39,5 @@ insert into chat_main(chatmain_id,building_code,category,max_count,state) values
 insert into chat_main(chatmain_id,building_code,category,max_count,state) values(hibernate_sequence.nextval,'용산구','CHICKEN',1,'CREATE');
 
 insert into users(user_id) values('test');
-insert into chat_main(chatmain_id,state,max_count,bookmarks,user_id,building_code) values(hibernate_sequence.nextval,'END',1,'N','test','bookmarksTest')
+insert into chat_main(chatmain_id,state,max_count,bookmarks,user_id,building_code) values(hibernate_sequence.nextval,'END',1,'N','test','bookmarksTest');
+insert into chat_main(chatmain_id,state,max_count,bookmarks,user_id,building_code) values(hibernate_sequence.nextval,'END',1,'N','test','deleteTest');

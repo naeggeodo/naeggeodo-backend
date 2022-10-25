@@ -89,7 +89,7 @@ public class ChatMainService {
 			chatUserRepository.deleteAll(chatMain.getChatUser());
 			chatMain.getChatUser().clear();
 		}
-		json.put("chatMain_id",chatMain.getId());
+		json.put("chatMain_id",chatMain.getId()); // TODO : 채팅방 id key값 일치시켜야함
 		json.put("state",chatMain.getState().name());
 		return json;
 	}

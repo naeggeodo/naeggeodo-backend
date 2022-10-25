@@ -1,10 +1,10 @@
 package com.naeggeodo.controller;
 
-import com.naeggeodo.entity.chat.Bookmarks;
 import com.naeggeodo.entity.chat.Category;
 import com.naeggeodo.entity.chat.ChatMain;
 import com.naeggeodo.entity.chat.ChatState;
 import com.naeggeodo.repository.ChatMainRepository;
+import com.naeggeodo.repository.UserRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
@@ -21,15 +21,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -42,6 +39,8 @@ class ChatMainControllerTest {
     WebApplicationContext applicationContext;
     @Autowired
     ChatMainRepository chatMainRepository;
+    @Autowired
+    UserRepository userRepository;
 
     @BeforeEach
     void setup(){
@@ -56,6 +55,7 @@ class ChatMainControllerTest {
     @AfterEach
     void after(){
         chatMainRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
 
@@ -95,11 +95,37 @@ class ChatMainControllerTest {
     }
 
     @Test
-    void getChatMain() {
+    @DisplayName("GET /chat-rooms/{chatMain_id}")
+    void getChatMain() throws Exception {
+        ChatMain chatMain = chatMainRepository.findAll().get(0);
+        Long id = chatMain.getId();
+
+        MvcResult mvcResult = mockMvc.perform(get("/chat-rooms/{chatMain_id}", id)
+                        .param("state", "CREATE"))
+                .andReturn();
+
+        String content = mvcResult.getResponse().getContentAsString();
+        JSONObject jsonObject = new JSONObject(content);
+
+        assertThat(jsonObject.get("state")).isEqualTo(ChatState.CREATE.name());
+        assertThat(jsonObject.get("id")).isEqualTo(id.intValue());
     }
 
     @Test
-    void updateRoomState() {
+    @DisplayName("PATCH /chat-rooms/{chatMain_id}")
+    void updateRoomState() throws Exception {
+        ChatMain chatMain = chatMainRepository.findAll().get(0);
+        Long id = chatMain.getId();
+
+        MvcResult mvcResult = mockMvc.perform(patch("/chat-rooms/{chatMain_id}", id)
+                        .param("state", "END"))
+                .andReturn();
+
+        String content = mvcResult.getResponse().getContentAsString();
+        JSONObject jsonObject = new JSONObject(content);
+
+        assertThat(jsonObject.get("state")).isEqualTo(ChatState.END.name());
+        assertThat(jsonObject.get("chatMain_id")).isEqualTo(id.intValue());
     }
 
     @Test
@@ -121,14 +147,14 @@ class ChatMainControllerTest {
         assertThat(json.get("title")).isEqualTo("제목변경");
         assertThat(findChatMain.get().getTitle()).isEqualTo("제목변경");
     }
-
-    @Test
-    void getProgressingChatList() {
-    }
-
-    @Test
-    void getChatListByStateAndUserId() {
-    }
+//    user_id 가 path에 들어가면 토큰검증해서 일단 보류
+//    @Test
+//    void getProgressingChatList() {
+//    }
+//
+//    @Test
+//    void getChatListByStateAndUserId() {
+//    }
 
     @Test
     @DisplayName("GET /categories")
@@ -155,7 +181,7 @@ class ChatMainControllerTest {
     void getChatListByKeyWord() {
     }
 
-    // 토큰에러로 테스트실패
+    // 인터셉터 토큰에러로 테스트실패
 //    @Test
 //    @DisplayName("PATCH /chat-rooms/{chatMain_id}/bookmarks/{user_id}")
 //    void addBookmarks() throws Exception {
@@ -173,13 +199,26 @@ class ChatMainControllerTest {
 //        assertThat(chatMain.getBookmarks()).isEqualTo(Bookmarks.Y);
 //
 //    }
+//
+//    @Test
+//    void getOrderList() {
+//    }
 
     @Test
-    void getOrderList() {
-    }
+    @DisplayName("DELETE /chat-rooms/{chatMain_id}")
+    void deleteChatMain() throws Exception {
+        List<ChatMain> list = chatMainRepository.findByBuildingCodeAndStateNotInOrderByCreateDateDesc("deleteTest", ChatState.searchableList);
 
-    @Test
-    void deleteChatMain() {
+        Long id = list.get(0).getId();
+
+        MvcResult mvcResult = mockMvc.perform(delete("/chat-rooms/{chatMain_id}", id))
+                                     .andReturn();
+
+        String content = mvcResult.getResponse().getContentAsString();
+        JSONObject jsonObject = new JSONObject(content);
+
+        assertThat(jsonObject.get("deleted")).isEqualTo(true);
+        assertThat(jsonObject.get("chatMain_id")).isEqualTo(id.intValue());
     }
 
 
