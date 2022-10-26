@@ -1,6 +1,5 @@
 package com.naeggeodo.entity.chat;
 
-import com.naeggeodo.dto.ChatRoomDTO;
 import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
@@ -63,9 +62,9 @@ public class ChatMain extends JSONConverterAdapter {
 
 
     @OneToMany(mappedBy = "chatMain", cascade = CascadeType.MERGE)
-    private List<ChatUser> chatUser;
+    private List<ChatUser> chatUser = new ArrayList<>();
 
-    @OneToMany(mappedBy = "chatMain", cascade = CascadeType.MERGE)
+    @OneToMany(mappedBy = "chatMain", cascade = CascadeType.PERSIST)
     private List<Tag> tag;
 
     @Enumerated(EnumType.STRING)
@@ -74,18 +73,18 @@ public class ChatMain extends JSONConverterAdapter {
     private LocalDateTime bookmarksDate;
 
     //생성
-    public static ChatMain create(ChatRoomDTO dto, Users user) {
-        if(dto.getMaxCount()>5||dto.getMaxCount()<1) throw new CustomHttpException(ErrorCode.INVALID_VALUE);
 
-        return ChatMain.builder().title(dto.getTitle())
-                .buildingCode(dto.getBuildingCode()).address(dto.getAddress())
-                .state(ChatState.CREATE).link(dto.getLink())
-                .place(dto.getPlace()).category(Category.valueOf(dto.getCategory()))
-                .orderTimeType(OrderTimeType.valueOf(dto.getOrderTimeType()))
-                .maxCount(dto.getMaxCount()).user(user)
+    public ChatMain copy(OrderTimeType orderTimeType,List<Tag> tags) {
+        return ChatMain.builder().title(this.title)
+                .buildingCode(this.buildingCode).address(this.address)
+                .state(ChatState.CREATE).link(this.link)
+                .place(this.place).category(this.category)
+                .orderTimeType(orderTimeType)
+                .maxCount(this.maxCount).user(this.user)
+                .imgPath(this.imgPath)
+                .tag(tags)
                 .build();
     }
-
     public ChatMain copy(OrderTimeType orderTimeType) {
         return ChatMain.builder().title(this.title)
                 .buildingCode(this.buildingCode).address(this.address)
@@ -101,7 +100,7 @@ public class ChatMain extends JSONConverterAdapter {
     public List<Tag> copyTags(List<Tag> tagList) {
         List<Tag> newTagsList = new ArrayList<>();
         for (Tag t : tagList) {
-            newTagsList.add(Tag.create(this, t.getName()));
+            newTagsList.add(Tag.create(t.getName()));
         }
         return newTagsList;
     }
@@ -278,16 +277,12 @@ public class ChatMain extends JSONConverterAdapter {
     }
 
     public void updateBookmarks() {
-        if (this.bookmarks.equals(Bookmarks.N)) {
-            this.bookmarksDate = LocalDateTime.now();
-            this.bookmarks = Bookmarks.Y;
-        } else if (this.bookmarks.equals(Bookmarks.Y)) {
-            this.bookmarksDate = null;
-            this.bookmarks = Bookmarks.N;
-        } else {
-            throw new CustomHttpException(ErrorCode.INVALID_FORMAT);
-        }
+        this.bookmarks = Bookmarks.getOpposite(this.bookmarks);
+        updateBookmarksDate(this.bookmarks);
+    }
 
+    private LocalDateTime updateBookmarksDate(Bookmarks bookmarks){
+        return bookmarks.equals(Bookmarks.Y) ? null : LocalDateTime.now();
     }
 
 
@@ -343,5 +338,10 @@ public class ChatMain extends JSONConverterAdapter {
             default:
                 throw new CustomHttpException(ErrorCode.INVALID_FORMAT);
         }
+    }
+
+    public void setTags(List<Tag> tags){
+        this.tag = tags;
+        tags.forEach((tag) -> tag.setChatMain(this));
     }
 }
