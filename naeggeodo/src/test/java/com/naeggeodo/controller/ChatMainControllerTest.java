@@ -1,9 +1,15 @@
 package com.naeggeodo.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.naeggeodo.dto.ChatRoomDTO;
 import com.naeggeodo.entity.chat.Category;
 import com.naeggeodo.entity.chat.ChatMain;
 import com.naeggeodo.entity.chat.ChatState;
+import com.naeggeodo.entity.chat.Tag;
+import com.naeggeodo.repository.ChatDetailRepository;
 import com.naeggeodo.repository.ChatMainRepository;
+import com.naeggeodo.repository.TagRepository;
 import com.naeggeodo.repository.UserRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -14,19 +20,28 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.mock.web.MockMultipartHttpServletRequest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -41,6 +56,10 @@ class ChatMainControllerTest {
     ChatMainRepository chatMainRepository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    TagRepository tagRepository;
+    @Autowired
+    ChatDetailRepository chatDetailRepository;
 
     @BeforeEach
     void setup(){
@@ -54,6 +73,8 @@ class ChatMainControllerTest {
 
     @AfterEach
     void after(){
+        tagRepository.deleteAll(); // for cascade
+        chatDetailRepository.deleteAll();   // for cascade
         chatMainRepository.deleteAll();
         userRepository.deleteAll();
     }
@@ -86,12 +107,46 @@ class ChatMainControllerTest {
 
 
 
+
+    // TODO -> Fail with IllegalStateException: The asyncDispatch CountDownLatch was not set by the TestDispatcherServlet.
     @Test
-    void createChatRoom() {
+    @DisplayName("POST /chat-rooms")
+    void createChatRoom() throws Exception {
+        FileInputStream fileInputStream = new FileInputStream("src/test/resources/testimg.jpg");
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file", //name
+                "test.jpg", //originalFilename
+                "jpg",
+                fileInputStream
+        );
+        MockMultipartFile chat = new MockMultipartFile("chat","chat","application/json",createChatRoomDTOToString().getBytes(StandardCharsets.UTF_8));
+
+        MvcResult mvcResult = mockMvc.perform(multipart("/chat-rooms")
+                        .file(chat)
+                        .file(file)
+                        .contentType("multipart/form-data"))
+                //.andExpect(request().asyncNotStarted())
+                .andExpect(status().isOk())
+                .andReturn();
+
+//        mockMvc.perform(asyncDispatch(mvcResult))
+//                .andDo(System.out::println);
     }
 
     @Test
-    void copyChatRoom() {
+    @DisplayName("POST /chat-rooms/{chatMain_id}/copy")
+    void copyChatRoom() throws Exception {
+        ChatMain chatMain = chatMainRepository.findAll().get(0);
+        Long id = chatMain.getId();
+
+
+        MvcResult mvcResult = mockMvc.perform(post("/chat-rooms/{chatMain_id}/copy", id)
+                        .param("orderTimeType", "ONE_HOUR"))
+                .andReturn();
+
+        // TODO 잘 생성되었는지 검증할 방법이 없다!!
+
     }
 
     @Test
@@ -174,11 +229,31 @@ class ChatMainControllerTest {
     }
 
     @Test
-    void getChatListByTag() {
+    @DisplayName("GET /chat-rooms/tag")
+    void getChatListByTag() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(get("/chat-rooms/tag")
+                        .param("keyWord", "tag1"))
+                .andReturn();
+
+        String content = mvcResult.getResponse().getContentAsString();
+        JSONArray jsonArray = removeKey(content, "chatRoom");
+        String title = getElementToString(jsonArray, 0, "buildingCode");
+
+        assertThat(jsonArray).size().isEqualTo(1);
+        assertThat(title).isEqualTo("tagTest");
     }
 
     @Test
-    void getChatListByKeyWord() {
+    @DisplayName("GET /chat-rooms/search")
+    void getChatListByKeyWord() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(get("/chat-rooms/search")
+                        .param("keyWord", "tag1"))
+                .andReturn();
+
+        String content = mvcResult.getResponse().getContentAsString();
+        JSONArray jsonArray = removeKey(content, "chatRoom");
+
+        assertThat(jsonArray).size().isEqualTo(2);
     }
 
     // 인터셉터 토큰에러로 테스트실패
@@ -231,5 +306,18 @@ class ChatMainControllerTest {
     private String getElementToString(JSONArray jsonArray,int index,String key){
         String str = jsonArray.get(index).toString();
         return new JSONObject(str).get(key).toString();
+    }
+
+    private String createChatRoomDTOToString() throws JsonProcessingException {
+        ChatRoomDTO dto = new ChatRoomDTO();
+        dto.setBuildingCode("1");
+        dto.setAddress("1");
+        dto.setCategory("PIZZA");
+        dto.setTitle("1");
+        dto.setUser_id("test");
+        dto.setOrderTimeType("ONE_HOUR");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(dto);
     }
 }
