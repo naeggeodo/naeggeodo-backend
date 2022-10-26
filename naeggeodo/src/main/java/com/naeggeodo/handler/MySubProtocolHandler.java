@@ -25,6 +25,7 @@ public class MySubProtocolHandler extends SubProtocolWebSocketHandler{
 
 	@Override
 	public void addProtocolHandler(SubProtocolHandler handler) {
+		// 여기서 등록
 		// TODO Auto-generated method stub
 		super.addProtocolHandler(handler);
 	}

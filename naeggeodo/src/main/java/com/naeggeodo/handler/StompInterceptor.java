@@ -34,6 +34,8 @@ public class StompInterceptor implements ChannelInterceptor{
 	public Message<?> preSend(Message<?> message, MessageChannel channel){
 		
 		StompHeaderAccessor headers = StompHeaderAccessor.wrap(message);
+		if(1==1)
+			return message;
 		//접속 인터셉트해서 조건에 따라 exception 발생시키기 
 		if(StompCommand.CONNECT.equals(headers.getCommand())) {
 

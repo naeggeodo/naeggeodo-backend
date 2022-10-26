@@ -9,7 +9,9 @@ import com.naeggeodo.handler.WebsocketSessionHandler;
 import com.naeggeodo.service.StompService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Controller;
 public class StompController {
 	private final WebsocketSessionHandler sessionHandler;
 	private final StompService stompService;
+	private final SimpMessagingTemplate simpMessagingTemplate; // forTest
 
 
 	//일반 메시지
@@ -51,6 +54,13 @@ public class StompController {
 
 		if(session_id != null)
 			sessionHandler.close(session_id);
+	}
+
+	@MessageMapping("/chat/test")
+	public void test(Message<?> message,StompHeaderAccessor stompHeaderAccessor){
+		stompHeaderAccessor.setNativeHeader("img","img");
+		System.out.println("message = " + message);
+		simpMessagingTemplate.send("/topic/1",message);
 	}
 
 	//채팅종료!!

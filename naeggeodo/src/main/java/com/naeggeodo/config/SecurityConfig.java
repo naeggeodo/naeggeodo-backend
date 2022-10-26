@@ -30,7 +30,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/chat/**",
                 "/like",
                 "/postcode.html",
-                "/refreshtoken"
+                "/refreshtoken",
+                "/Chating.html"
         };
         web.ignoring().antMatchers(ignoreURL);
         web.ignoring().antMatchers(HttpMethod.GET
