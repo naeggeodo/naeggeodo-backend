@@ -1,111 +1,31 @@
 package com.naeggeodo.repository;
 
-import com.naeggeodo.entity.chat.*;
-import com.naeggeodo.entity.user.Users;
-import org.junit.jupiter.api.BeforeEach;
+import com.naeggeodo.entity.chat.Bookmarks;
+import com.naeggeodo.entity.chat.Category;
+import com.naeggeodo.entity.chat.ChatMain;
+import com.naeggeodo.entity.chat.ChatState;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.jdbc.Sql;
 
-import java.util.Arrays;
+import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Slf4j
 @DataJpaTest
+@Sql("classpath:h2/chatMainRepository.sql")
 class ChatMainRepositoryTest {
 
     @Autowired
     ChatMainRepository chatMainRepository;
     @Autowired
-    ChatUserRepository chatUserRepository;
-    @Autowired
-    UserRepository userRepository;
-
-    @BeforeEach
-    void init(){
-        List<Users> usersList = Arrays.asList(
-                createUser("user0"),
-                createUser("user1"),
-                createUser("user2")
-        );
-        userRepository.saveAllAndFlush(usersList);
-
-        List<Tag> tags0 = Arrays.asList(
-                Tag.create("tag0"),
-                Tag.create("tag1"),
-                Tag.create("tag2")
-        );
-
-        List<Tag> tags1 = Arrays.asList(
-                Tag.create("tag1"),
-                Tag.create("tag2"),
-                Tag.create("tag3")
-        );
-
-        List<Tag> tags2 = Arrays.asList(
-                Tag.create("tag2"),
-                Tag.create("tag3"),
-                Tag.create("tag4")
-        );
-
-        List<Tag> tags3 = Arrays.asList(
-                Tag.create("tag0"),
-                Tag.create("tag1"),
-                Tag.create("tag2"),
-                Tag.create("tag3"),
-                Tag.create("tag4")
-        );
-
-        List<ChatMain> chatMainList = Arrays.asList(
-                ChatMain.builder()
-                        .category(Category.CHINESE)
-                        .state(ChatState.CREATE)
-                        .buildingCode("111")
-                        .title("1st")
-                        .user(usersList.get(0))
-                        .build()
-                ,
-                ChatMain.builder()
-                        .category(Category.CHINESE)
-                        .state(ChatState.CREATE)
-                        .buildingCode("111")
-                        .title("2nd")
-                        .user(usersList.get(1))
-                        .build()
-                ,
-                ChatMain.builder()
-                        .category(Category.CHINESE)
-                        .state(ChatState.FULL)
-                        .buildingCode("111")
-                        .title("3rd")
-                        .user(usersList.get(2))
-                        .bookmarks(Bookmarks.Y)
-                        .build()
-                ,
-                ChatMain.builder()
-                        .category(Category.PIZZA)
-                        .state(ChatState.CREATE)
-                        .buildingCode("112")
-                        .title("4th")
-                        .user(usersList.get(2))
-                        .bookmarks(Bookmarks.N)
-                        .build()
-        );
-
-        chatMainList.get(0).setTags(tags0);
-        chatMainList.get(1).setTags(tags1);
-        chatMainList.get(2).setTags(tags2);
-        chatMainList.get(3).setTags(tags3);
-        chatMainRepository.saveAllAndFlush(chatMainList);
-
-        for (int i = 0; i < 3; i++) {
-            chatUserRepository.saveAndFlush(ChatUser.create(usersList.get(i),chatMainList.get(i),"ss"+i));
-        }
-    }
-
-
+    EntityManager entityManager;
 
     @Test
     void saveTest() {
@@ -118,16 +38,17 @@ class ChatMainRepositoryTest {
     }
 
     @Test
-    @DisplayName("카테고리 , 빌딩코드로 검색 (참여 가능한 채팅방)")
+    @DisplayName("카테고리 , 빌딩코드로 검색 (참여 가능한 채팅방) , 생성일시 내림차순 정렬")
     void findByCategoryAndBuildingCodeAndStateNotInOrderByCreateDateDescTest() {
-        //g
-
-        //w
+        // given
+        String buildingCode = "111";
+        Category category = Category.CHINESE;
+        // when
         List<ChatMain> list = chatMainRepository.findByCategoryAndBuildingCodeAndStateNotInOrderByCreateDateDesc(
-                Category.CHINESE, "111", ChatState.insearchableList
+                category, buildingCode, ChatState.insearchableList
         );
 
-        //t
+        // then
         // 검색된 리스트의 사이즈는 3이다
         assertThat(list).size().isEqualTo(3);
         // Category.CHINESE는 3개이다.
@@ -142,109 +63,145 @@ class ChatMainRepositoryTest {
         assertThat(list).filteredOn(
                 item -> item.getState().equals(ChatState.FULL)
         ).size().isEqualTo(1);
-        // 정렬 테스트
+        //정렬 테스트
+        assertCreateDateIsSorted(list);
     }
 
     @Test
-    @DisplayName("빌딩코드로 검색 (참여가능한 채팅방)")
+    @DisplayName("빌딩코드로 검색 (참여가능한 채팅방) , 생성일시 내림차순 정렬")
     void findByBuildingCodeAndStateNotInOrderByCreateDateDesc() {
-
-        List<ChatMain> list = chatMainRepository.findByBuildingCodeAndStateNotInOrderByCreateDateDesc("112", ChatState.insearchableList);
-        // 빌딩코드가 112인 요소는 1개이다.
-        assertThat(list).filteredOn(
-                item -> item.getBuildingCode().equals("112")
-        ).size().isEqualTo(1);
-        assertThat(list).filteredOn(
-                item -> item.getBuildingCode().equals("111")
-        ).size().isEqualTo(0);
-
+        // given
+        String buildingCode = "111";
+        // when
+        List<ChatMain> list = chatMainRepository.findByBuildingCodeAndStateNotInOrderByCreateDateDesc(buildingCode, ChatState.insearchableList);
+        // then
+        assertThat(list).size().isEqualTo(3);
+        assertCreateDateIsSorted(list);
     }
 
     @Test
     @DisplayName("참여중인 유저id로 검색")
     void findByUserIdInChatUser() {
-        List<ChatMain> list = chatMainRepository.findByUserIdInChatUser("user2", ChatState.insearchableList);
-
+        // given
+        String user_id = "user2";
+        //when
+        List<ChatMain> list = chatMainRepository.findByUserIdInChatUser(user_id, ChatState.insearchableList);
+        //then
         assertThat(list).size().isEqualTo(1);
         assertThat(list.get(0).getTitle()).isEqualTo("3rd");
-
     }
 
-//    @Test
-//    void findChatMainEntityGraph() {
-//    }
-//
-//    @Test
-//    void findTagEntityGraph() {
-//    }
+    @Test
+    @DisplayName("fetch join - tag")
+    void findChatMainEntityGraph() {
+        log.info("findAll");
+        Long id = chatMainRepository.findAll().get(0).getId();
+        log.info("findChatMainEntityGraph");
+        chatMainRepository.findChatMainEntityGraph(id);
+    }
+
+    @Test
+    @DisplayName("fetch join - chatUser")
+    void findTagEntityGraph() {
+        log.info("findAll");
+        Long id = chatMainRepository.findAll().get(0).getId();
+        log.info("findTagEntityGraph");
+        chatMainRepository.findTagEntityGraph(id);
+    }
 
     @Test
     @DisplayName("상태 , 방장 id 로 검색")
     void findByStateAndUserId() {
-        List<ChatMain> list = chatMainRepository.findByStateAndUserId(ChatState.FULL, "user2");
-
+        // given
+        String user_id = "user2";
+        ChatState state = ChatState.FULL;
+        // when
+        List<ChatMain> list = chatMainRepository.findByStateAndUserId(state, user_id);
+        // then
         assertThat(list).size().isEqualTo(1);
         assertThat(list.get(0).getState()).isEqualTo(ChatState.FULL);
     }
 
     @Test
-    @DisplayName("검색 가능한 상태의 채팅방중 태그이름으로 검색")
+    @DisplayName("검색 가능한 상태의 채팅방중 태그이름으로 검색 , 생성일시 내림차순 정렬")
     void findByTagNameAndStateNotInOrderByCreateDateDesc() {
-        List<ChatMain> list0 = chatMainRepository.findByTagNameAndStateNotInOrderByCreateDateDesc("tag0", ChatState.insearchableList);
-        List<ChatMain> list1 = chatMainRepository.findByTagNameAndStateNotInOrderByCreateDateDesc("tag1", ChatState.insearchableList);
-        List<ChatMain> list2 = chatMainRepository.findByTagNameAndStateNotInOrderByCreateDateDesc("tag2", ChatState.insearchableList);
-        List<ChatMain> list3 = chatMainRepository.findByTagNameAndStateNotInOrderByCreateDateDesc("tag3", ChatState.insearchableList);
-        List<ChatMain> list4 = chatMainRepository.findByTagNameAndStateNotInOrderByCreateDateDesc("tag4", ChatState.insearchableList);
-
-        assertThat(list0).size().isEqualTo(2);
-        assertThat(list1).size().isEqualTo(3);
-        assertThat(list2).size().isEqualTo(4);
-        assertThat(list3).size().isEqualTo(3);
-        assertThat(list4).size().isEqualTo(2);
-
+        // given
+        String tagName = "tag2";
+        // when
+        List<ChatMain> list = chatMainRepository.findByTagNameAndStateNotInOrderByCreateDateDesc(tagName, ChatState.insearchableList);
+        // then
+        assertThat(list).size().isEqualTo(4);
+        assertCreateDateIsSorted(list);
     }
 
     @Test
-    @DisplayName("검색 가능한 상태의 채팅방중 태그이름 혹은 방 제목 키워드로 검색 (Contains)")
+    @DisplayName("검색 가능한 상태의 채팅방중 태그이름 혹은 방 제목 키워드로 검색 (Contains) , 생성일시 내림차순 정렬")
     void findByTagNameOrTitleContainsAndStateNotInOrderByCreateDateDesc() {
-        List<ChatMain> list0 = chatMainRepository.findByTagNameOrTitleContainsAndStateNotInOrderByCreateDateDesc("tag0", "a", ChatState.insearchableList);
-        List<ChatMain> list1 = chatMainRepository.findByTagNameOrTitleContainsAndStateNotInOrderByCreateDateDesc("a", "1st", ChatState.insearchableList);
-
-        assertThat(list0).size().isEqualTo(2);
-        assertThat(list1).size().isEqualTo(1);
-
+        //given
+        String tagName = "tag0";
+        String title = "a";
+        //when
+        List<ChatMain> list = chatMainRepository.findByTagNameOrTitleContainsAndStateNotInOrderByCreateDateDesc(tagName, title, ChatState.insearchableList);
+        //then
+        assertThat(list).size().isEqualTo(2);
+        assertThat(list).isSortedAccordingTo(
+                (c1,c2) -> c2.getCreateDate().compareTo(c1.getCreateDate())
+        );
     }
 
-//    1차캐시로 인해 테스트안됨
-//    @Test
-//    void updateForImgPath() {
-//        ChatMain chatMain = chatMainRepository.findAll().get(0);
-//        Long id = chatMain.getId();
-//        chatMainRepository.updateForImgPath("imgPath",id);
-//        chatMainRepository.flush();
-//
-//        Optional<ChatMain> findChatMain = chatMainRepository.findById(id);
-//        assertThat(findChatMain.get().getImgPath()).isEqualTo("imgPath");
-//    }
+    // em.clear 를 하지 않으면 findById() 를 캐시에서 조회하여 테스트 실패함
+    // em을 주입받지 않고 clear 하는 방법은 없는가?
+    @Test
+    void updateForImgPath() {
+        // given
+        ChatMain chatMain = chatMainRepository.findAll().get(0);
+        Long id = chatMain.getId();
+        // when
+        chatMainRepository.updateForImgPath("imgPath",id);
+        chatMainRepository.flush();
+        entityManager.clear();
+        // then
+        Optional<ChatMain> findChatMain = chatMainRepository.findById(id);
+        assertThat(findChatMain.get().getImgPath()).isEqualTo("imgPath");
+    }
 
     @Test
-    @DisplayName("방장 id 및 즐겨찾기 여부로 검색")
+    @DisplayName("방장 id 및 즐겨찾기 여부로 상위 10개 검색 , 즐겨찾기일시 내림차순 정렬 ")
     void findTop10ByBookmarksAndUserIdOrderByBookmarksDateDesc() {
-        List<ChatMain> list = chatMainRepository.findTop10ByBookmarksAndUserIdOrderByBookmarksDateDesc(Bookmarks.Y, "user2");
-        assertThat(list).size().isEqualTo(1);
+        // given
+        String user_id = "bookmarker";
+        Bookmarks bookmarks = Bookmarks.Y;
+        // when
+        List<ChatMain> list = chatMainRepository.findTop10ByBookmarksAndUserIdOrderByBookmarksDateDesc(bookmarks,user_id);
+        //then
+        assertThat(list).size().isEqualTo(10);
+        assertBookmarkDateIsSorted(list);
     }
 
     @Test
-    @DisplayName("방장 id , 상태 , 즐겨찾기 여부로 검색")
+    @DisplayName("방장 id , 즐겨찾기 여부로 검색 , 생성일시 내림차순 정렬")
     void findByStateInAndUserIdAndBookmarksOrderByCreateDateDesc() {
-        List<ChatMain> list = chatMainRepository.findByStateInAndUserIdAndBookmarksOrderByCreateDateDesc(ChatState.searchableList, "user2", Bookmarks.N);
-        assertThat(list).size().isEqualTo(1);
+        // given
+        String user_id = "bookmarker";
+        Bookmarks bookmarks = Bookmarks.N;
+        //when
+        List<ChatMain> list = chatMainRepository.findByStateInAndUserIdAndBookmarksOrderByCreateDateDesc(ChatState.insearchableList,user_id,bookmarks);
+        //then
+        assertThat(list).size().isEqualTo(2);
+        assertCreateDateIsSorted(list);
     }
 
 
-    private Users createUser(String id){
-        Users user = new Users();
-        user.setId(id);
-        return user;
+    private void assertCreateDateIsSorted(List<ChatMain> list){
+        assertThat(list).isSortedAccordingTo(
+                (c1,c2) -> c2.getCreateDate().compareTo(c1.getCreateDate())
+        );
+    }
+
+    private void assertBookmarkDateIsSorted(List<ChatMain> list){
+        assertThat(list).isSortedAccordingTo(
+                (c1,c2) -> c2.getBookmarksDate().compareTo(c1.getBookmarksDate())
+        );
     }
 }
+

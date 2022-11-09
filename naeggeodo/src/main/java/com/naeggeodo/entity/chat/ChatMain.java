@@ -55,7 +55,7 @@ public class ChatMain extends JSONConverterAdapter {
     private Users user;
 
 
-    private int maxCount;
+    private Integer maxCount; // int primitive type은 null이 될 수 없기에 not null column으로 generate 됨 , 미할당시 default 값 0으로 insert
 
     @Enumerated(EnumType.STRING)
     private OrderTimeType orderTimeType;

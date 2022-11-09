@@ -6,7 +6,6 @@ import com.naeggeodo.dto.ChatRoomDTO;
 import com.naeggeodo.entity.chat.Category;
 import com.naeggeodo.entity.chat.ChatMain;
 import com.naeggeodo.entity.chat.ChatState;
-import com.naeggeodo.entity.chat.Tag;
 import com.naeggeodo.repository.ChatDetailRepository;
 import com.naeggeodo.repository.ChatMainRepository;
 import com.naeggeodo.repository.TagRepository;
@@ -21,31 +20,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.mock.web.MockMultipartHttpServletRequest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
 @SpringBootTest
-@Sql("classpath:h2/controller/chatMain.sql")
+@Sql("classpath:h2/chatMainController.sql")
 class ChatMainControllerTest {
 
     @Autowired
