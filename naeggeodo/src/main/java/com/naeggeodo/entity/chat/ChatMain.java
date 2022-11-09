@@ -1,8 +1,6 @@
 package com.naeggeodo.entity.chat;
 
 import com.naeggeodo.entity.user.Users;
-import com.naeggeodo.exception.CustomHttpException;
-import com.naeggeodo.exception.ErrorCode;
 import com.naeggeodo.interfaces.JSONConverterAdapter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -295,49 +293,7 @@ public class ChatMain extends JSONConverterAdapter {
     }
 
     public void setDefaultImgPath() {
-        switch (this.category) {
-            case ALL:
-                this.imgPath = "https://res.cloudinary.com/naeggeodo/image/upload/v1655798239/default/allDefault_uhmnbe.svg";
-                break;
-            case CHICKEN:
-                this.imgPath = "https://res.cloudinary.com/naeggeodo/image/upload/v1655798239/default/chickenDefault_dzwvd5.svg";
-                break;
-            case JAPANESE:
-                this.imgPath = "https://res.cloudinary.com/naeggeodo/image/upload/v1655798243/default/sushiDefault_qx8bwe.svg";
-                break;
-            case CHINESE:
-                this.imgPath = "https://res.cloudinary.com/naeggeodo/image/upload/v1655798239/default/chineseDefault_pew8ro.svg";
-                break;
-            case KOREAN:
-                this.imgPath = "https://res.cloudinary.com/naeggeodo/image/upload/v1655798239/default/koreaDefault_ja7ibh.svg";
-                break;
-            case SNACKS:
-                this.imgPath = "https://res.cloudinary.com/naeggeodo/image/upload/v1655798241/default/ramenDefault_jnhgw8.svg";
-                break;
-            case STEW:
-                this.imgPath = "https://res.cloudinary.com/naeggeodo/image/upload/v1655798242/default/soupDefault_lpfgcb.svg";
-                break;
-            case PIZZA:
-                this.imgPath = "https://res.cloudinary.com/naeggeodo/image/upload/v1655798241/default/pizzaDefault_avlmik.svg";
-                break;
-            case WESTERN:
-                this.imgPath = "https://res.cloudinary.com/naeggeodo/image/upload/v1655798243/default/spagettiDefault_arpmqg.svg";
-                break;
-            case GRILLED_MEAT:
-                this.imgPath = "https://res.cloudinary.com/naeggeodo/image/upload/v1655798241/default/meatDefault_teiofj.svg";
-                break;
-            case PORK_FEET:
-                this.imgPath = "https://res.cloudinary.com/naeggeodo/image/upload/v1655798241/default/porkDefault_ufal2f.svg";
-                break;
-            case DESSERT:
-                this.imgPath = "https://res.cloudinary.com/naeggeodo/image/upload/v1655798240/default/dessertDefault_apngiz.svg";
-                break;
-            case FASTFOOD:
-                this.imgPath = "https://res.cloudinary.com/naeggeodo/image/upload/v1655823879/default/hamburgerDefault_mkyf7d.svg";
-                break;
-            default:
-                throw new CustomHttpException(ErrorCode.INVALID_FORMAT);
-        }
+        this.imgPath = category.getDefaultImagePath();
     }
 
     public void setTags(List<Tag> tags){
