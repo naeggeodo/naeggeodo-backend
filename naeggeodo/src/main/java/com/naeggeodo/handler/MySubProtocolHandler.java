@@ -19,14 +19,12 @@ public class MySubProtocolHandler extends SubProtocolWebSocketHandler{
 	
 	public MySubProtocolHandler(MessageChannel clientInboundChannel, SubscribableChannel clientOutboundChannel) {
 		super(clientInboundChannel, clientOutboundChannel);
-		// TODO Auto-generated constructor stub
 	}
 
 
 	@Override
 	public void addProtocolHandler(SubProtocolHandler handler) {
 		// 여기서 등록
-		// TODO Auto-generated method stub
 		super.addProtocolHandler(handler);
 	}
 
