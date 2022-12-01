@@ -64,7 +64,7 @@ class ChatMainRepositoryTest {
                 item -> item.getState().equals(ChatState.FULL)
         ).size().isEqualTo(1);
         //정렬 테스트
-        assertCreateDateIsSorted(list);
+        assertCreateDateIsSortedDesc(list);
     }
 
     @Test
@@ -76,7 +76,7 @@ class ChatMainRepositoryTest {
         List<ChatMain> list = chatMainRepository.findByBuildingCodeAndStateNotInOrderByCreateDateDesc(buildingCode, ChatState.insearchableList);
         // then
         assertThat(list).size().isEqualTo(3);
-        assertCreateDateIsSorted(list);
+        assertCreateDateIsSortedDesc(list);
     }
 
     @Test
@@ -131,7 +131,7 @@ class ChatMainRepositoryTest {
         List<ChatMain> list = chatMainRepository.findByTagNameAndStateNotInOrderByCreateDateDesc(tagName, ChatState.insearchableList);
         // then
         assertThat(list).size().isEqualTo(4);
-        assertCreateDateIsSorted(list);
+        assertCreateDateIsSortedDesc(list);
     }
 
     @Test
@@ -175,7 +175,7 @@ class ChatMainRepositoryTest {
         List<ChatMain> list = chatMainRepository.findTop10ByBookmarksAndUserIdOrderByBookmarksDateDesc(bookmarks,user_id);
         //then
         assertThat(list).size().isEqualTo(10);
-        assertBookmarkDateIsSorted(list);
+        assertBookmarkDateIsSortedDesc(list);
     }
 
     @Test
@@ -188,17 +188,17 @@ class ChatMainRepositoryTest {
         List<ChatMain> list = chatMainRepository.findByStateInAndUserIdAndBookmarksOrderByCreateDateDesc(ChatState.insearchableList,user_id,bookmarks);
         //then
         assertThat(list).size().isEqualTo(2);
-        assertCreateDateIsSorted(list);
+        assertCreateDateIsSortedDesc(list);
     }
 
 
-    private void assertCreateDateIsSorted(List<ChatMain> list){
+    private void assertCreateDateIsSortedDesc(List<ChatMain> list){
         assertThat(list).isSortedAccordingTo(
                 (c1,c2) -> c2.getCreateDate().compareTo(c1.getCreateDate())
         );
     }
 
-    private void assertBookmarkDateIsSorted(List<ChatMain> list){
+    private void assertBookmarkDateIsSortedDesc(List<ChatMain> list){
         assertThat(list).isSortedAccordingTo(
                 (c1,c2) -> c2.getBookmarksDate().compareTo(c1.getBookmarksDate())
         );
