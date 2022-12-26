@@ -9,10 +9,10 @@
 -- )
 
 
-delete from users;
-delete from chat_main;
 delete from chat_detail;
 delete from chat_user;
+delete from chat_main;
+delete from users;
 
 insert into users(user_id)
 values('user0');
