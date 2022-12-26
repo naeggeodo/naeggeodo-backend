@@ -1,6 +1,7 @@
 package com.naeggeodo.repository;
 
 
+import com.naeggeodo.dto.MypageDTO;
 import com.naeggeodo.entity.user.Users;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,4 +38,15 @@ class UserRepositoryTest {
         );
     }
 
+    @Test
+    @DisplayName("마이페이지")
+    void getMyPageCount() {
+        MypageDTO dto = userRepository.getMyPageData("user0");
+
+        assertAll(
+                () -> assertThat(dto.getParticipatingChatCount()).isEqualTo(1L),
+                () -> assertThat(dto.getMyOrdersCount()).isEqualTo(1L),
+                () -> assertThat(dto.getNickname()).isEqualTo("도봉산-왕주먹")
+        );
+    }
 }
