@@ -2,7 +2,7 @@ package com.naeggeodo.dto;
 
 
 public interface MypageDTO {
-    Long getParticipatingChatCount();
-    Long getMyOrdersCount();
+    long getParticipatingChatCount();
+    long getMyOrdersCount();
     String getNickname();
 }
