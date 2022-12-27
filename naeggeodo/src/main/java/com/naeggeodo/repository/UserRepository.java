@@ -45,6 +45,6 @@ public interface UserRepository extends JpaRepository<Users, String>{
             "WHERE user_id = :user_id\n" +
             ") b , users u\n" +
             "where u.user_id = :user_id",nativeQuery = true)
-    MypageDTO getMyPageData(@Param("user_id")String user_id);
+    Optional<MypageDTO> getMyPageData(@Param("user_id")String user_id);
     Users findBySocialIdAndAuthority(String socialId, Authority authority);
 }

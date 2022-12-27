@@ -2,6 +2,7 @@ package com.naeggeodo.repository;
 
 
 import com.naeggeodo.dto.MypageDTO;
+import com.naeggeodo.entity.user.Authority;
 import com.naeggeodo.entity.user.Users;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,7 @@ class UserRepositoryTest {
     @DisplayName("퀵챗 패치 조인")
     void findQuickChatEntityGraphTest() {
         Optional<Users> user0 = userRepository.findQuickChatEntityGraph("user0");
-        Optional<Users> user1 = userRepository.findQuickChatEntityGraph("user1");
+        Optional<Users> user = userRepository.findQuickChatEntityGraph("user");
 
         assertAll(
                 () -> assertThat(user0).isPresent(),
@@ -34,19 +35,38 @@ class UserRepositoryTest {
                 () -> assertThat(user0).map(i -> i.getQuickChat().getMsg3()).hasValue("음식이 도착했어요!"),
                 () -> assertThat(user0).map(i -> i.getQuickChat().getMsg4()).hasValue("맛있게 드세요 *^ㅡ^*"),
                 () -> assertThat(user0).map(i -> i.getQuickChat().getMsg5()).hasValue("주문내역 확인해주세요!"),
-                () -> assertThat(user1).isEmpty()
+                () -> assertThat(user).isEmpty()
         );
     }
 
     @Test
     @DisplayName("마이페이지")
-    void getMyPageCount() {
-        MypageDTO dto = userRepository.getMyPageData("user0");
+    void getMyPageDataTest1() {
+        Optional<MypageDTO> dto = userRepository.getMyPageData("user0");
+        assertAll(
+                () -> assertThat(dto.map(MypageDTO::getParticipatingChatCount)).hasValue(1L),
+                () -> assertThat(dto.map(MypageDTO::getMyOrdersCount)).hasValue(1L),
+                () -> assertThat(dto.map(MypageDTO::getNickname)).hasValue("도봉산-왕주먹")
+        );
+    }
+
+    @Test
+    @DisplayName("마이페이지 - 카운트 데이터가 없을때는 0을 리턴한다.")
+    void getMyPageDataTest2() {
+        Optional<MypageDTO> dto = userRepository.getMyPageData("user1");
 
         assertAll(
-                () -> assertThat(dto.getParticipatingChatCount()).isEqualTo(1L),
-                () -> assertThat(dto.getMyOrdersCount()).isEqualTo(1L),
-                () -> assertThat(dto.getNickname()).isEqualTo("도봉산-왕주먹")
+                () -> assertThat(dto.map(MypageDTO::getParticipatingChatCount)).hasValue(0L),
+                () -> assertThat(dto.map(MypageDTO::getMyOrdersCount)).hasValue(0L),
+                () -> assertThat(dto.map(MypageDTO::getNickname)).hasValue("까치산-왕발바닥")
         );
+    }
+
+    @Test
+    @DisplayName("소셜 ID , 권한으로 찾기")
+    void findBySocialIdAndAuthorityTest() {
+        Users user = userRepository.findBySocialIdAndAuthority("1234", Authority.MEMBER);
+
+        assertThat(user.getId()).isEqualTo("user1");
     }
 }
