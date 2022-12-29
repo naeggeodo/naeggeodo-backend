@@ -67,7 +67,7 @@ class UserControllerTest {
         assertAll(
                 () -> assertThat(jsonObject.get("participatingChatCount")).isEqualTo(1),
                 () -> assertThat(jsonObject.get("myOrdersCount")).isEqualTo(1),
-                () -> assertThat(jsonObject.get("nickname")).isEqualTo(123)
+                () -> assertThat(jsonObject.get("nickname")).isEqualTo("도봉산-왕주먹")
         );
     }
 
