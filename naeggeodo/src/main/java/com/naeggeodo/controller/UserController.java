@@ -43,20 +43,9 @@ public class UserController {
 		return user.AddresstoJSON().toString();
 	}
 
-//	@Transactional
-//	@GetMapping(value = "/user/{user_id}/mypage",produces = "application/json")
-//	public String getMyPageDate(@PathVariable("user_id")String user_id){
-//		List<Object> list = userRepository.getMyPageCount(user_id);
-//		JSONObject json = new JSONObject();
-//		json.put("participatingChatCount",Integer.valueOf(String.valueOf(list.get(0))));
-//		json.put("myOrdersCount",Integer.valueOf(String.valueOf(list.get(1))));
-//		json.put("nickname",list.get(2));
-//		return json.toString();
-//	}
-
 	@Transactional
 	@GetMapping(value = "/user/{user_id}/mypage", produces = "application/json")
-	public MypageDTO getMyPageDate(@PathVariable("user_id") String user_id) {
+	public MypageDTO getMyPageData(@PathVariable("user_id") String user_id) {
 		MypageDTO mypageDTO = userRepository.getMyPageData(user_id).orElseThrow(
 				() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND)
 		);
