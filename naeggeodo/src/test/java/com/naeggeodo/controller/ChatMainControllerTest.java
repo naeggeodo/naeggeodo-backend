@@ -62,16 +62,12 @@ class ChatMainControllerTest {
                 .alwaysDo(print())
                 .build()
                 ;
-
+//        tagRepository.deleteAll(); // for cascade
+//        chatDetailRepository.deleteAll();   // for cascade
+//        chatMainRepository.deleteAll();
+//        userRepository.deleteAll();
     }
 
-    @AfterEach
-    void after(){
-        tagRepository.deleteAll(); // for cascade
-        chatDetailRepository.deleteAll();   // for cascade
-        chatMainRepository.deleteAll();
-        userRepository.deleteAll();
-    }
 
 
     @Test

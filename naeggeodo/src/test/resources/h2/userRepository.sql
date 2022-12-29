@@ -1,7 +1,8 @@
 delete from deal;
+delete from chat_user;
 delete from chat_main;
-delete from quick_chat;
 delete from users;
+delete from quick_chat;
 
 insert into quick_chat(quick_chat_id) values(hibernate_sequence.nextval);
 

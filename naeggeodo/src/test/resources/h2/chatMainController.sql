@@ -35,6 +35,13 @@
 --                        quick_chat_id bigint,
 --                        primary key (user_id)
 -- )
+
+delete from tag;
+delete from chat_user;
+delete from chat_detail;
+delete from chat_main;
+delete from users;
+
 insert into users(user_id) values('test');
 
 insert into chat_main(chatmain_id,building_code,category,max_count,state) values(hibernate_sequence.nextval,'용산구','PIZZA',1,'CREATE');

@@ -1,9 +1,11 @@
 package com.naeggeodo.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.assertj.core.api.Assertions;
+import com.naeggeodo.exception.CustomHttpException;
+import com.naeggeodo.exception.ErrorCode;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,11 +17,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @AutoConfigureMockMvc
@@ -56,6 +56,7 @@ class UserControllerTest {
 
     //
     @Test
+    @DisplayName("마이페이지 - 성공케이스")
     void getMyPageDate() throws Exception {
         String userId = "user0";
 
@@ -69,6 +70,25 @@ class UserControllerTest {
                 () -> assertThat(jsonObject.get("myOrdersCount")).isEqualTo(1),
                 () -> assertThat(jsonObject.get("nickname")).isEqualTo("도봉산-왕주먹")
         );
+    }
+
+    @Test
+    @DisplayName("마이페이지 - 유저가 없을때")
+    void getMyPageDate2() throws Exception {
+        String userId = "user1";
+
+        mockMvc.perform(get("/user/{user_id}/mypage", userId))
+                .andExpect(
+                        result -> assertAll(
+                                () -> assertThat(result.getResolvedException()).isInstanceOf(CustomHttpException.class),
+                                () -> assertThat(
+                                        ((CustomHttpException) result.getResolvedException()).getErrorCode()
+                                ).isEqualTo(ErrorCode.RESOURCE_NOT_FOUND)
+                        )
+                )
+                .andExpect(
+                        result -> assertThat(result.getResponse().getStatus()).isEqualTo(404)
+                );
     }
 
     @Test
