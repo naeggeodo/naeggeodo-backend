@@ -1,8 +1,10 @@
 package com.naeggeodo.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.naeggeodo.dto.AddressDTO;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -20,6 +24,7 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @AutoConfigureMockMvc
@@ -46,11 +51,87 @@ class UserControllerTest {
     }
 
     @Test
-    void updateAddress() {
+    @DisplayName("PATCH /user/{user_id}/address")
+    void updateAddress() throws Exception {
+        String userId = "user0";
+        AddressDTO addressDTO = new AddressDTO("address1", "zonecode1", "buildingCode1");
+        String body = objectMapper.writeValueAsString(addressDTO);
+
+        MvcResult mvcResult = mockMvc.perform(patch("/user/{user_id}/address", userId)
+                        .content(body)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andReturn();
+
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        JSONObject jsonObject = new JSONObject(response.getContentAsString());
+
+        assertAll(
+                () -> assertThat(status).isEqualTo(200),
+                () -> assertThat(jsonObject.get("address")).isEqualTo("address1"),
+                () -> assertThat(jsonObject.get("zonecode")).isEqualTo("zonecode1"),
+                () -> assertThat(jsonObject.get("buildingCode")).isEqualTo("buildingCode1"),
+                () -> assertThat(jsonObject.get("buildingCode")).isEqualTo("user0")
+        );
     }
 
     @Test
-    void getAddress() {
+    @DisplayName("PATCH /user/{user_id}/address - 유저 없을때")
+    void updateAddress2() throws Exception {
+        String userId = "user1";
+        AddressDTO addressDTO = new AddressDTO("a", "b", "c");
+        String body = objectMapper.writeValueAsString(addressDTO);
+
+        mockMvc.perform(patch("/user/{user_id}/address", userId)
+                .content(body)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                result -> assertAll(
+                        () -> assertThat(
+                                ((CustomHttpException) result.getResolvedException()).getErrorCode()
+                        ).isEqualTo(ErrorCode.RESOURCE_NOT_FOUND),
+                        () -> assertThat(result.getResponse().getStatus()).isEqualTo(404)
+                )
+        );
+    }
+
+    @Test
+    @DisplayName("GET /user/{user_id}/address")
+    void getAddress() throws Exception {
+        String userId = "user0";
+        MvcResult mvcResult = mockMvc.perform(get("/user/{user_id}/address", userId))
+                .andReturn();
+
+        MockHttpServletResponse response = mvcResult.getResponse();
+        JSONObject jsonObject = new JSONObject(response.getContentAsString());
+
+
+        assertAll(
+                () -> assertThat(response.getStatus()).isEqualTo(200),
+                () -> assertThat(jsonObject.get("address")).isEqualTo("address"),
+                () -> assertThat(jsonObject.get("zonecode")).isEqualTo("zonecode"),
+                () -> assertThat(jsonObject.get("buildingCode")).isEqualTo("building_code"),
+                () -> assertThat(jsonObject.get("user_id")).isEqualTo("user0")
+        );
+    }
+
+    @Test
+    @DisplayName("GET /user/{user_id}/address - 유저 없을때")
+    void getAddress2() throws Exception {
+        String userId = "user1";
+        MvcResult mvcResult = mockMvc.perform(get("/user/{user_id}/address", userId))
+                .andExpect(result ->
+                        assertAll(
+                                () -> assertThat(result.getResponse().getStatus()).isEqualTo(404),
+                                () -> assertThat(
+                                        ((CustomHttpException) result.getResolvedException()).getErrorCode()
+                                ).isEqualTo(ErrorCode.RESOURCE_NOT_FOUND)
+                        )
+                )
+                .andReturn();
     }
 
 
