@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.naeggeodo.dto.AddressDTO;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,19 +11,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -57,24 +61,20 @@ class UserControllerTest {
         AddressDTO addressDTO = new AddressDTO("address1", "zonecode1", "buildingCode1");
         String body = objectMapper.writeValueAsString(addressDTO);
 
-        MvcResult mvcResult = mockMvc.perform(patch("/user/{user_id}/address", userId)
+        mockMvc.perform(patch("/user/{user_id}/address", userId)
                         .content(body)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                 )
-                .andReturn();
-
-        MockHttpServletResponse response = mvcResult.getResponse();
-        int status = response.getStatus();
-        JSONObject jsonObject = new JSONObject(response.getContentAsString());
-
-        assertAll(
-                () -> assertThat(status).isEqualTo(200),
-                () -> assertThat(jsonObject.get("address")).isEqualTo("address1"),
-                () -> assertThat(jsonObject.get("zonecode")).isEqualTo("zonecode1"),
-                () -> assertThat(jsonObject.get("buildingCode")).isEqualTo("buildingCode1"),
-                () -> assertThat(jsonObject.get("buildingCode")).isEqualTo("user0")
-        );
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.size()", equalTo(4)),
+                        jsonPath("$.keys()", hasItems("address", "zonecode", "buildingCode", "user_id")),
+                        jsonPath("$.address", equalTo("address1")),
+                        jsonPath("$.zonecode", equalTo("zonecode1")),
+                        jsonPath("$.buildingCode", equalTo("buildingCode1")),
+                        jsonPath("$.user_id", equalTo("user0"))
+                );
     }
 
     @Test
@@ -88,13 +88,11 @@ class UserControllerTest {
                 .content(body)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-        ).andExpect(
-                result -> assertAll(
-                        () -> assertThat(
-                                ((CustomHttpException) result.getResolvedException()).getErrorCode()
-                        ).isEqualTo(ErrorCode.RESOURCE_NOT_FOUND),
-                        () -> assertThat(result.getResponse().getStatus()).isEqualTo(404)
-                )
+        ).andExpectAll(
+                result -> assertThat(
+                        ((CustomHttpException) result.getResolvedException()).getErrorCode()
+                ).isEqualTo(ErrorCode.RESOURCE_NOT_FOUND),
+                status().isNotFound()
         );
     }
 
@@ -102,89 +100,209 @@ class UserControllerTest {
     @DisplayName("GET /user/{user_id}/address")
     void getAddress() throws Exception {
         String userId = "user0";
-        MvcResult mvcResult = mockMvc.perform(get("/user/{user_id}/address", userId))
-                .andReturn();
-
-        MockHttpServletResponse response = mvcResult.getResponse();
-        JSONObject jsonObject = new JSONObject(response.getContentAsString());
-
-
-        assertAll(
-                () -> assertThat(response.getStatus()).isEqualTo(200),
-                () -> assertThat(jsonObject.get("address")).isEqualTo("address"),
-                () -> assertThat(jsonObject.get("zonecode")).isEqualTo("zonecode"),
-                () -> assertThat(jsonObject.get("buildingCode")).isEqualTo("building_code"),
-                () -> assertThat(jsonObject.get("user_id")).isEqualTo("user0")
-        );
+        mockMvc.perform(get("/user/{user_id}/address", userId))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.size()", equalTo(4)),
+                        jsonPath("$.keys()", hasItems("address", "zonecode", "buildingCode", "user_id")),
+                        jsonPath("$.address", equalTo("address")),
+                        jsonPath("$.zonecode", equalTo("zonecode")),
+                        jsonPath("$.buildingCode", equalTo("building_code")),
+                        jsonPath("$.user_id", equalTo("user0"))
+                )
+        ;
     }
 
     @Test
     @DisplayName("GET /user/{user_id}/address - 유저 없을때")
     void getAddress2() throws Exception {
         String userId = "user1";
-        MvcResult mvcResult = mockMvc.perform(get("/user/{user_id}/address", userId))
-                .andExpect(result ->
-                        assertAll(
-                                () -> assertThat(result.getResponse().getStatus()).isEqualTo(404),
-                                () -> assertThat(
-                                        ((CustomHttpException) result.getResolvedException()).getErrorCode()
-                                ).isEqualTo(ErrorCode.RESOURCE_NOT_FOUND)
-                        )
-                )
-                .andReturn();
+        mockMvc.perform(get("/user/{user_id}/address", userId))
+                .andExpectAll(
+                        status().isNotFound(),
+                        result -> assertThat(
+                                ((CustomHttpException) result.getResolvedException()).getErrorCode()
+                        ).isEqualTo(ErrorCode.RESOURCE_NOT_FOUND)
+                );
     }
 
 
     //
     @Test
-    @DisplayName("마이페이지 - 성공케이스")
+    @DisplayName("GET /user/{user_id}/mypage")
     void getMyPageDate() throws Exception {
         String userId = "user0";
 
-        MvcResult mvcResult = mockMvc.perform(get("/user/{user_id}/mypage", userId))
-                .andReturn();
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-        JSONObject jsonObject = new JSONObject(contentAsString);
-
-        assertAll(
-                () -> assertThat(jsonObject.get("participatingChatCount")).isEqualTo(1),
-                () -> assertThat(jsonObject.get("myOrdersCount")).isEqualTo(1),
-                () -> assertThat(jsonObject.get("nickname")).isEqualTo("도봉산-왕주먹")
-        );
-    }
-
-    @Test
-    @DisplayName("마이페이지 - 유저가 없을때")
-    void getMyPageDate2() throws Exception {
-        String userId = "user1";
-
         mockMvc.perform(get("/user/{user_id}/mypage", userId))
-                .andExpect(
-                        result -> assertAll(
-                                () -> assertThat(result.getResolvedException()).isInstanceOf(CustomHttpException.class),
-                                () -> assertThat(
-                                        ((CustomHttpException) result.getResolvedException()).getErrorCode()
-                                ).isEqualTo(ErrorCode.RESOURCE_NOT_FOUND)
-                        )
-                )
-                .andExpect(
-                        result -> assertThat(result.getResponse().getStatus()).isEqualTo(404)
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.size()", equalTo(3)),
+                        jsonPath("$.keys()", hasItems("participatingChatCount", "myOrdersCount", "nickname")),
+                        jsonPath("$.participatingChatCount", equalTo(1)),
+                        jsonPath("$.myOrdersCount", equalTo(1)),
+                        jsonPath("$.nickname", equalTo("도봉산-왕주먹"))
                 );
     }
 
     @Test
-    void getQuickChat() {
+    @DisplayName("GET /user/{user_id}/mypage - 유저가 없을때")
+    void getMyPageDate2() throws Exception {
+        String userId = "user1";
+
+        mockMvc.perform(get("/user/{user_id}/mypage", userId))
+                .andExpectAll(
+                        status().isNotFound(),
+                        result -> assertThat(
+                                ((CustomHttpException) result.getResolvedException()).getErrorCode()
+                        ).isEqualTo(ErrorCode.RESOURCE_NOT_FOUND)
+
+                );
     }
 
     @Test
-    void updateQuickChat() {
+    @DisplayName("GET /user/{user_id}/quick-chatting")
+    void getQuickChat() throws Exception {
+        String userId = "user0";
+
+        mockMvc.perform(get("/user/{user_id}/quick-chatting", userId))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.user_id", equalTo("user0")),
+                        jsonPath("$.keys()", hasItems("quickChat", "user_id")),
+                        jsonPath("$.quickChat.size()", equalTo(5)),
+                        jsonPath("$.quickChat[0].keys()", hasItems("msg", "idx")),
+                        jsonPath("$.quickChat[1].keys()", hasItems("msg", "idx")),
+                        jsonPath("$.quickChat[2].keys()", hasItems("msg", "idx")),
+                        jsonPath("$.quickChat[3].keys()", hasItems("msg", "idx")),
+                        jsonPath("$.quickChat[4].keys()", hasItems("msg", "idx")),
+                        jsonPath("$.quickChat[*].msg", hasItems("반갑습니다 *^ㅡ^*", "주문 완료했습니다! 송금 부탁드려요 *^ㅡ^*", "음식이 도착했어요!", "맛있게 드세요 *^ㅡ^*", "주문내역 확인해주세요!")),
+                        jsonPath("$.quickChat[*].idx", hasItems(0, 1, 2, 3, 4))
+                );
+
     }
 
     @Test
-    void getNickname() {
+    @DisplayName("GET /user/{user_id}/quick-chatting - 유저 없을때")
+    void getQuickChat2() throws Exception {
+        String userId = "user1";
+
+        mockMvc.perform(get("/user/{user_id}/quick-chatting", userId))
+                .andExpectAll(
+                        status().isNotFound(),
+                        result -> assertThat(
+                                ((CustomHttpException) result.getResolvedException()).getErrorCode()
+                        ).isEqualTo(ErrorCode.RESOURCE_NOT_FOUND)
+                );
     }
 
     @Test
-    void updateNickname() {
+    @DisplayName("PATCH /user/{user_id}/quick-chatting")
+    void updateQuickChat() throws Exception {
+        String userId = "user0";
+
+        Map<String, List<String>> list = new HashMap<>();
+        list.put("quickChat", Arrays.asList("1", "2", "3", "4", "5"));
+        String s = objectMapper.writeValueAsString(list);
+
+
+        mockMvc.perform(patch("/user/{user_id}/quick-chatting", userId)
+                        .content(s)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.keys()", hasItems("quickChat")),
+                        jsonPath("$.quickChat.size()", equalTo(5)),
+                        jsonPath("$.quickChat[0].keys()", hasItems("msg", "idx")),
+                        jsonPath("$.quickChat[1].keys()", hasItems("msg", "idx")),
+                        jsonPath("$.quickChat[2].keys()", hasItems("msg", "idx")),
+                        jsonPath("$.quickChat[3].keys()", hasItems("msg", "idx")),
+                        jsonPath("$.quickChat[4].keys()", hasItems("msg", "idx")),
+                        jsonPath("$.quickChat[*].msg", hasItems("1", "2", "3", "4", "5")),
+                        jsonPath("$.quickChat[*].idx", hasItems(0, 1, 2, 3, 4))
+                );
+    }
+
+    @Test
+    @DisplayName("PATCH /user/{user_id}/quick-chatting - 유저 없을때")
+    void updateQuickCha2t() throws Exception {
+        String userId = "user1";
+
+        Map<String, List<String>> list = new HashMap<>();
+        list.put("quickChat", Arrays.asList("1", "2", "3", "4", "5"));
+        String s = objectMapper.writeValueAsString(list);
+
+
+        mockMvc.perform(patch("/user/{user_id}/quick-chatting", userId)
+                        .content(s)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpectAll(
+                        status().isNotFound(),
+                        result -> assertThat(
+                                ((CustomHttpException) result.getResolvedException()).getErrorCode()
+                        ).isEqualTo(ErrorCode.RESOURCE_NOT_FOUND)
+                );
+    }
+
+    @Test
+    @DisplayName("GET /user/{user_id}/nickname")
+    void getNickname() throws Exception {
+        String userId = "user0";
+
+        mockMvc.perform(get("/user/{user_id}/nickname", userId))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.keys()", hasItems("nickname", "user_id")),
+                        jsonPath("$.size()", equalTo(2)),
+                        jsonPath("$.nickname", equalTo("도봉산-왕주먹")),
+                        jsonPath("$.user_id", equalTo("user0"))
+                )
+        ;
+    }
+
+    @Test
+    @DisplayName("GET /user/{user_id}/nickname - 유저없을때")
+    void getNickname2() throws Exception {
+        String userId = "user1";
+
+        mockMvc.perform(get("/user/{user_id}/nickname", userId))
+                .andExpectAll(
+                        status().isNotFound(),
+                        result -> assertThat(
+                                ((CustomHttpException) result.getResolvedException()).getErrorCode()
+                        ).isEqualTo(ErrorCode.RESOURCE_NOT_FOUND)
+                );
+    }
+
+    @Test
+    @DisplayName("PATCH /user/{user_id}/nickname")
+    void updateNickname() throws Exception {
+        String userId = "user0";
+
+        mockMvc.perform(patch("/user/{user_id}/nickname", userId).param("value", "도봉산-호랑이"))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.keys()", hasItems("nickname", "user_id")),
+                        jsonPath("$.size()", equalTo(2)),
+                        jsonPath("$.nickname", equalTo("도봉산-호랑이")),
+                        jsonPath("$.user_id", equalTo("user0"))
+                );
+    }
+
+    @Test
+    @DisplayName("PATCH /user/{user_id}/nickname - 유저없을때")
+    void updateNickname2() throws Exception {
+        String userId = "user1";
+
+        mockMvc.perform(patch("/user/{user_id}/nickname", userId).param("value", "exception"))
+                .andExpectAll(
+                        status().isNotFound(),
+                        result -> assertThat(
+                                ((CustomHttpException) result.getResolvedException()).getErrorCode()
+                        ).isEqualTo(ErrorCode.RESOURCE_NOT_FOUND)
+                );
     }
 }
