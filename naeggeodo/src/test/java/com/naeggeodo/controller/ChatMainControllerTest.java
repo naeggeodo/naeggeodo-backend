@@ -71,8 +71,8 @@ class ChatMainControllerTest {
                         .param("buildingCode", "용산구"))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.chatRoom[*].category", equalTo("PIZZA")),
-                        jsonPath("$.chatRoom[*].buildingCode", equalTo("용산구"))
+                        jsonPath("$.chatRoom[0].category", equalTo("PIZZA")),
+                        jsonPath("$.chatRoom[0].buildingCode", equalTo("용산구"))
                 );
     }
 
