@@ -1,12 +1,7 @@
 package com.naeggeodo.handler;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.naeggeodo.entity.chat.ChatUser;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
@@ -14,7 +9,11 @@ import org.springframework.messaging.simp.stomp.StompSessionHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -63,33 +62,28 @@ public class WebsocketSessionHandler implements StompSessionHandler{
 
 	@Override
 	public Type getPayloadType(StompHeaders headers) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void handleFrame(StompHeaders headers, Object payload) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void handleException(StompSession session, StompCommand command, StompHeaders headers, byte[] payload,
 			Throwable exception) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void handleTransportError(StompSession session, Throwable exception) {
-		// TODO Auto-generated method stub
-		
+
 	}
 	 
 	 

@@ -35,9 +35,21 @@
 --                        quick_chat_id bigint,
 --                        primary key (user_id)
 -- )
+
+delete from tag;
+delete from chat_user;
+delete from chat_detail;
+delete from chat_main;
+delete from users;
+
+insert into users(user_id) values('test');
+
 insert into chat_main(chatmain_id,building_code,category,max_count,state) values(hibernate_sequence.nextval,'용산구','PIZZA',1,'CREATE');
 insert into chat_main(chatmain_id,building_code,category,max_count,state) values(hibernate_sequence.nextval,'용산구','CHICKEN',1,'CREATE');
 
-insert into users(user_id) values('test');
 insert into chat_main(chatmain_id,state,max_count,bookmarks,user_id,building_code) values(hibernate_sequence.nextval,'END',1,'N','test','bookmarksTest');
 insert into chat_main(chatmain_id,state,max_count,bookmarks,user_id,building_code) values(hibernate_sequence.nextval,'END',1,'N','test','deleteTest');
+insert into chat_main(chatmain_id,state,max_count,bookmarks,user_id,building_code) values(hibernate_sequence.nextval,'CREATE',1,'N','test','tagTest');
+insert into chat_main(chatmain_id,state,max_count,bookmarks,user_id,title) values(hibernate_sequence.nextval,'CREATE',1,'N','test','tag1Title');
+
+insert into tag values(hibernate_sequence.nextval,'tag1',(select chatmain_id from chat_main where building_code = 'tagTest'));

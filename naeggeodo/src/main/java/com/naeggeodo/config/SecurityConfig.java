@@ -21,6 +21,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final JwtTokenProvider jwtTokenProvider;
+    //TODO This is not recommended -- please use permitAll via HttpSecurity#authorizeHttpRequests instead.
     @Override
     public void configure(WebSecurity web) {
         String[] ignoreURL = {
@@ -30,7 +31,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/chat/**",
                 "/like",
                 "/postcode.html",
-                "/refreshtoken"
+                "/refreshtoken",
+                "/Chating.html"
         };
         web.ignoring().antMatchers(ignoreURL);
         web.ignoring().antMatchers(HttpMethod.GET
