@@ -1,15 +1,13 @@
 package com.naeggeodo.oauth;
 
 
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
-
 import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.oauth.dto.KakaoOAuthDto;
 import com.naeggeodo.oauth.dto.NaverOAuthDto;
 import com.naeggeodo.oauth.dto.OAuthDto;
-
 import lombok.NoArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Component;
 
 
 @Component

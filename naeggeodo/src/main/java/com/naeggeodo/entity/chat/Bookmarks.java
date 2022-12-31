@@ -3,8 +3,6 @@ package com.naeggeodo.entity.chat;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
 
-import java.time.LocalDateTime;
-
 public enum Bookmarks {
     Y,N;
 

@@ -1,26 +1,15 @@
 package com.naeggeodo.entity.chat;
 
-import java.time.LocalDateTime;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-
+import com.naeggeodo.entity.user.Users;
+import com.naeggeodo.interfaces.JSONConverterAdapter;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
 import org.json.JSONObject;
 
-import com.naeggeodo.entity.user.Users;
-import com.naeggeodo.interfaces.JSONConverterAdapter;
-
-import lombok.Getter;
-import lombok.Setter;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter

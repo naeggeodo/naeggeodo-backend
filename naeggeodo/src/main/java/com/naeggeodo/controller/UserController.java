@@ -4,23 +4,12 @@ import com.naeggeodo.dto.AddressDTO;
 import com.naeggeodo.dto.MypageDTO;
 import com.naeggeodo.dto.NicknameDTO;
 import com.naeggeodo.dto.QuickChatDTO;
-import com.naeggeodo.entity.chat.QuickChat;
-import com.naeggeodo.entity.user.Users;
-import com.naeggeodo.exception.CustomHttpException;
-import com.naeggeodo.exception.ErrorCode;
 import com.naeggeodo.repository.UserRepository;
 import com.naeggeodo.service.UserService;
-import com.naeggeodo.util.MyUtility;
 import lombok.RequiredArgsConstructor;
-import org.json.JSONObject;
-import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor

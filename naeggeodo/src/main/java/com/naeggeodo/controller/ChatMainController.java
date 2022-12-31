@@ -2,10 +2,9 @@ package com.naeggeodo.controller;
 
 import com.naeggeodo.dto.ChatRoomDTO;
 import com.naeggeodo.entity.chat.*;
-import com.naeggeodo.entity.deal.Deal;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
-import com.naeggeodo.repository.*;
+import com.naeggeodo.repository.ChatMainRepository;
 import com.naeggeodo.service.ChatMainService;
 import com.naeggeodo.util.MyUtility;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
