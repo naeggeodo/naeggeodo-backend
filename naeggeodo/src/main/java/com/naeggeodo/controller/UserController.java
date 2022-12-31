@@ -7,6 +7,7 @@ import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
 import com.naeggeodo.repository.UserRepository;
+import com.naeggeodo.service.UserService;
 import com.naeggeodo.util.MyUtility;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
@@ -24,23 +25,18 @@ import java.util.Map;
 public class UserController {
 
 	private final UserRepository userRepository;
+	private final UserService userService;
 
-	@Transactional
 	@PatchMapping(value="/user/{user_id}/address",produces = "application/json")
-	public String updateAddress(@PathVariable("user_id")String user_id
+	public AddressDTO updateAddress(@PathVariable("user_id")String user_id
 			,@RequestBody @Valid AddressDTO dto){
-		Users user = userRepository.findById(user_id).
-				orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
-		user.updateAddress(dto.getAddress(), dto.getZonecode(), dto.getBuildingCode());
-		return user.AddresstoJSON().toString();
+		return userService.updateUserAddress(user_id,dto);
 	}
 
 	@Transactional
 	@GetMapping(value="/user/{user_id}/address",produces = "application/json")
-	public String getAddress(@PathVariable("user_id")String user_id){
-		Users user = userRepository.findById(user_id).
-				orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
-		return user.AddresstoJSON().toString();
+	public AddressDTO getAddress(@PathVariable("user_id")String user_id){
+		return userService.findAddressById(user_id);
 	}
 
 	@Transactional
