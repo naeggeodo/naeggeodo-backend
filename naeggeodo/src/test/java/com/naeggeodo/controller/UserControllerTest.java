@@ -167,18 +167,10 @@ class UserControllerTest {
         mockMvc.perform(get("/user/{user_id}/quick-chatting", userId))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.user_id", equalTo("user0")),
-                        jsonPath("$.keys()", hasItems("quickChat", "user_id")),
+                        jsonPath("$.keys()", hasItems("quickChat")),
                         jsonPath("$.quickChat.size()", equalTo(5)),
-                        jsonPath("$.quickChat[0].keys()", hasItems("msg", "idx")),
-                        jsonPath("$.quickChat[1].keys()", hasItems("msg", "idx")),
-                        jsonPath("$.quickChat[2].keys()", hasItems("msg", "idx")),
-                        jsonPath("$.quickChat[3].keys()", hasItems("msg", "idx")),
-                        jsonPath("$.quickChat[4].keys()", hasItems("msg", "idx")),
-                        jsonPath("$.quickChat[*].msg", hasItems("반갑습니다 *^ㅡ^*", "주문 완료했습니다! 송금 부탁드려요 *^ㅡ^*", "음식이 도착했어요!", "맛있게 드세요 *^ㅡ^*", "주문내역 확인해주세요!")),
-                        jsonPath("$.quickChat[*].idx", hasItems(0, 1, 2, 3, 4))
+                        jsonPath("$.quickChat", hasItems("반갑습니다 *^ㅡ^*", "주문 완료했습니다! 송금 부탁드려요 *^ㅡ^*", "음식이 도착했어요!", "맛있게 드세요 *^ㅡ^*", "주문내역 확인해주세요!"))
                 );
-
     }
 
     @Test
@@ -200,9 +192,9 @@ class UserControllerTest {
     void updateQuickChat() throws Exception {
         String userId = "user0";
 
-        Map<String, List<String>> list = new HashMap<>();
-        list.put("quickChat", Arrays.asList("1", "2", "3", "4", "5"));
-        String s = objectMapper.writeValueAsString(list);
+        Map<String, List<String>> map = new HashMap<>();
+        map.put("quickChat", Arrays.asList("1", "2", "3", "4", "5"));
+        String s = objectMapper.writeValueAsString(map);
 
 
         mockMvc.perform(patch("/user/{user_id}/quick-chatting", userId)
@@ -214,13 +206,7 @@ class UserControllerTest {
                         status().isOk(),
                         jsonPath("$.keys()", hasItems("quickChat")),
                         jsonPath("$.quickChat.size()", equalTo(5)),
-                        jsonPath("$.quickChat[0].keys()", hasItems("msg", "idx")),
-                        jsonPath("$.quickChat[1].keys()", hasItems("msg", "idx")),
-                        jsonPath("$.quickChat[2].keys()", hasItems("msg", "idx")),
-                        jsonPath("$.quickChat[3].keys()", hasItems("msg", "idx")),
-                        jsonPath("$.quickChat[4].keys()", hasItems("msg", "idx")),
-                        jsonPath("$.quickChat[*].msg", hasItems("1", "2", "3", "4", "5")),
-                        jsonPath("$.quickChat[*].idx", hasItems(0, 1, 2, 3, 4))
+                        jsonPath("$.quickChat", hasItems("1", "2", "3", "4", "5"))
                 );
     }
 

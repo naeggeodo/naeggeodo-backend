@@ -10,6 +10,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Entity
@@ -49,13 +50,7 @@ public class QuickChat{
 
 
 	public List<String> getMsgList(){
-		List<String> list = new ArrayList<>();
-		list.add(this.msg1);
-		list.add(this.msg2);
-		list.add(this.msg3);
-		list.add(this.msg4);
-		list.add(this.msg5);
-		return list;
+		return Arrays.asList(this.msg1, this.msg2, this.msg3, this.msg4, this.msg5);
 	}
 
 	public void updateMsgByList(List<String> list) {
