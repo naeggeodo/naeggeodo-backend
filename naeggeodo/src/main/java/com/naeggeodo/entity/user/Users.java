@@ -56,13 +56,8 @@ public class Users{
 		this.buildingCode = buildingCode;
 	}
 
-	public JSONObject AddresstoJSON() {
-		JSONObject json = new JSONObject();
-		json.put("address",address!=null?address:JSONObject.NULL);
-		json.put("zonecode",zonecode!=null?zonecode:JSONObject.NULL);
-		json.put("buildingCode",buildingCode!=null?buildingCode:JSONObject.NULL);
-		json.put("user_id",id);
-		return json;
+	public void updateNickname(String nickname) {
+		this.nickname = nickname;
 	}
 
 }

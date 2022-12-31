@@ -2,6 +2,7 @@ package com.naeggeodo.service;
 
 import com.naeggeodo.dto.AddressDTO;
 import com.naeggeodo.dto.MypageDTO;
+import com.naeggeodo.dto.NicknameDTO;
 import com.naeggeodo.dto.QuickChatDTO;
 import com.naeggeodo.entity.chat.QuickChat;
 import com.naeggeodo.entity.user.Users;
@@ -60,5 +61,22 @@ public class UserService {
         QuickChat quickChat = user.getQuickChat();
         quickChat.updateMsgByList(dto.getQuickChat());
         return dto;
+    }
+
+    @Transactional(readOnly = true)
+    public NicknameDTO getNickName(String user_id) {
+        Users user = userRepository.findById(user_id)
+                .orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+
+        return new NicknameDTO(user.getNickname(), user.getId());
+    }
+
+    @Transactional
+    public NicknameDTO updateNickName(String user_id, String nickname) {
+        Users user = userRepository.findById(user_id)
+                .orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+
+        user.updateNickname(nickname);
+        return new NicknameDTO(user.getNickname(), user.getId());
     }
 }

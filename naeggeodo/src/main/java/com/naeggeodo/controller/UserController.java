@@ -2,6 +2,7 @@ package com.naeggeodo.controller;
 
 import com.naeggeodo.dto.AddressDTO;
 import com.naeggeodo.dto.MypageDTO;
+import com.naeggeodo.dto.NicknameDTO;
 import com.naeggeodo.dto.QuickChatDTO;
 import com.naeggeodo.entity.chat.QuickChat;
 import com.naeggeodo.entity.user.Users;
@@ -50,17 +51,6 @@ public class UserController {
 		return userService.getQuickChat(user_id);
 	}
 
-//	@Transactional
-//	@PatchMapping(value = "/user/{user_id}/quick-chatting", produces = "application/json")
-//	public ResponseEntity<Object> updateQuickChat(@PathVariable("user_id")String user_id,
-//												  @RequestBody Map<String,List<String>> quickChat){
-//		QuickChat findQuickChat = userRepository.findQuickChatEntityGraph(user_id)
-//				.orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND)).getQuickChat();
-//		List<String> list = quickChat.get("quickChat");
-//		findQuickChat.updateMsgByList(list);
-//		JSONObject json = MyUtility.convertStringListToJSONObject(list,"quickChat");
-//		return ResponseEntity.ok(json.toMap());
-//	}
 
 	@PatchMapping(value = "/user/{user_id}/quick-chatting", produces = "application/json")
 	public QuickChatDTO updateQuickChat(@PathVariable("user_id")String user_id,
@@ -68,31 +58,15 @@ public class UserController {
 		return userService.updateQuickChat(user_id,dto);
 	}
 
-
-	@Transactional(readOnly = true)
 	@GetMapping(value = "/user/{user_id}/nickname",produces = "application/json")
-	public ResponseEntity<Object> getNickname(@PathVariable(name="user_id")String user_id){
-		Users user = userRepository.findById(user_id)
-				.orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
-		JSONObject json = new JSONObject();
-		json.put("nickname",user.getNickname());
-		json.put("user_id",user.getId());
-		return ResponseEntity.ok(json.toMap());
+	public NicknameDTO getNickname(@PathVariable(name="user_id")String user_id){
+		return userService.getNickName(user_id);
 	}
 
-	@Transactional
 	@PatchMapping(value = "/user/{user_id}/nickname",produces = "application/json")
-	public ResponseEntity<Object> updateNickname(@PathVariable(name="user_id")String user_id,
+	public NicknameDTO
+	updateNickname(@PathVariable(name="user_id")String user_id,
 												 @RequestParam(name="value")String value){
-		Users user = userRepository.findById(user_id)
-				.orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
-		user.setNickname(value);
-		return ResponseEntity.ok(new HashMap<String,String>(){
-				{
-					put("user_id",user.getId());
-					put("nickname",user.getNickname());
-				}
-			}
-		);
+		return userService.updateNickName(user_id, value);
 	}
 }
