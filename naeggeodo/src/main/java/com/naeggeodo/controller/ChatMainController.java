@@ -28,28 +28,29 @@ public class ChatMainController {
 
 
     //채팅방 리스트
-    @GetMapping(value = "/chat-rooms", produces = "application/json",params = "category")
+    @GetMapping(value = "/chat-rooms", produces = "application/json", params = "category")
     @Transactional(readOnly = true)
     public ResponseEntity<Object> getChatListWithCategory(
             @RequestParam(name = "category") String category,
             @RequestParam(name = "buildingCode") String buildingCode) throws Exception {
-            //카테고리 조회시
+        //카테고리 조회시
         Category categoryEnum = Category.valueOf(category.toUpperCase());
         JSONObject json = MyUtility.convertListToJSONobj(
-                              chatMainRepository.findByCategoryAndBuildingCodeAndStateNotInOrderByCreateDateDesc
-                              (categoryEnum, buildingCode, ChatState.insearchableList), "chatRoom"
-                         );
+                chatMainRepository.findByCategoryAndBuildingCodeAndStateNotInOrderByCreateDateDesc
+                        (categoryEnum, buildingCode, ChatState.insearchableList), "chatRoom"
+        );
         return ResponseEntity.ok(json.toMap());
     }
-    @GetMapping(value = "/chat-rooms", produces = "application/json",params = "!category")
+
+    @GetMapping(value = "/chat-rooms", produces = "application/json", params = "!category")
     @Transactional(readOnly = true)
     public ResponseEntity<Object> getChatListWithoutCategory(@RequestParam(name = "buildingCode") String buildingCode) throws Exception {
 
         //전체조회시
         JSONObject json = MyUtility.convertListToJSONobj(
-                            chatMainRepository.findByBuildingCodeAndStateNotInOrderByCreateDateDesc
-                            (buildingCode, ChatState.insearchableList), "chatRoom"
-                        );
+                chatMainRepository.findByBuildingCodeAndStateNotInOrderByCreateDateDesc
+                        (buildingCode, ChatState.insearchableList), "chatRoom"
+        );
         return ResponseEntity.ok(json.toMap());
     }
 
@@ -64,12 +65,12 @@ public class ChatMainController {
 
     // 채팅방 주문목록 리스트에서 생성
     @PostMapping(value = "/chat-rooms/{chatMain_id}/copy")
-    public ResponseEntity<Object> copyChatRoom(@RequestParam("orderTimeType")String timeTypeStr,
-                                               @PathVariable("chatMain_id")String chatMain_idStr){
+    public ResponseEntity<Object> copyChatRoom(@RequestParam("orderTimeType") String timeTypeStr,
+                                               @PathVariable("chatMain_id") String chatMain_idStr) {
         Long chatMain_id = Long.parseLong(chatMain_idStr);
         OrderTimeType orderTimeType = OrderTimeType.valueOf(timeTypeStr);
 
-        JSONObject json = chatMainService.copyChatRoom(chatMain_id,orderTimeType);
+        JSONObject json = chatMainService.copyChatRoom(chatMain_id, orderTimeType);
         return ResponseEntity.ok(json.toMap());
     }
 
@@ -84,24 +85,24 @@ public class ChatMainController {
     }
 
     //채팅방 상태 업데이트
-    @PatchMapping(value = "/chat-rooms/{chatMain_id}",params = "state")
+    @PatchMapping(value = "/chat-rooms/{chatMain_id}", params = "state")
     public ResponseEntity<Object> updateRoomState(@PathVariable(name = "chatMain_id") Long chatMain_id,
                                                   @RequestParam(name = "state") String state) {
-        JSONObject json = chatMainService.updateRoomState(chatMain_id,ChatState.valueOf(state.toUpperCase()));
+        JSONObject json = chatMainService.updateRoomState(chatMain_id, ChatState.valueOf(state.toUpperCase()));
         return ResponseEntity.ok(json.toMap());
     }
 
     //채팅방 제목 업데이트
-    @PatchMapping(value = "/chat-rooms/{chatMain_id}",params = "title")
+    @PatchMapping(value = "/chat-rooms/{chatMain_id}", params = "title")
     @Transactional
     public ResponseEntity<Object> updateTitle(@PathVariable(name = "chatMain_id") Long chatMain_id,
-                                                  @RequestParam(name = "title") String title) {
+                                              @RequestParam(name = "title") String title) {
         JSONObject json = new JSONObject();
         ChatMain chatMain = chatMainRepository.findById(chatMain_id)
-                    .orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+                .orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
         chatMain.updateTitle(title);
-        json.put("chatMain_id",chatMain.getId());
-        json.put("title",chatMain.getTitle());
+        json.put("chatMain_id", chatMain.getId());
+        json.put("title", chatMain.getTitle());
         return ResponseEntity.ok(json.toMap());
     }
 
@@ -139,7 +140,6 @@ public class ChatMainController {
     }
 
 
-
     @GetMapping(value = "/chat-rooms/tag", produces = "application/json")
     @Transactional(readOnly = true)
     public ResponseEntity<Object> getChatListByTag(@RequestParam("keyWord") String keyWord) throws Exception {
@@ -169,8 +169,8 @@ public class ChatMainController {
         if (chatMain.getUser().getId().equals(user_id)) {
             chatMain.updateBookmarks();
             JSONObject json = new JSONObject();
-            json.put("chatMain_id",chatMain.getId());
-            json.put("bookmarks",chatMain.getBookmarks().name());
+            json.put("chatMain_id", chatMain.getId());
+            json.put("bookmarks", chatMain.getBookmarks().name());
             return ResponseEntity.ok(json.toMap());
         } else {
             throw new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND);
@@ -190,19 +190,19 @@ public class ChatMainController {
         return ResponseEntity.ok(json.toMap());
     }
 
-    @DeleteMapping(value = "/chat-rooms/{chatMain_id}",produces = "application/json")
+    @DeleteMapping(value = "/chat-rooms/{chatMain_id}", produces = "application/json")
     @Transactional
-    public ResponseEntity<Object> deleteChatMain(@PathVariable("chatMain_id")String chatMain_idStr){
+    public ResponseEntity<Object> deleteChatMain(@PathVariable("chatMain_id") String chatMain_idStr) {
         Long chatMain_id = Long.parseLong(chatMain_idStr);
         ChatMain chatMain = chatMainRepository.findById(chatMain_id)
-                .orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
-        if(!chatMain.isDeletable()) throw new CustomHttpException(ErrorCode.INVALID_FORMAT);
+                .orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+        if (!chatMain.isDeletable()) throw new CustomHttpException(ErrorCode.INVALID_FORMAT);
         chatMainRepository.delete(chatMain);
 
-        return ResponseEntity.ok(new HashMap<String,Object>(){
+        return ResponseEntity.ok(new HashMap<String, Object>() {
             {
-                put("chatMain_id",chatMain_id);
-                put("deleted",true);
+                put("chatMain_id", chatMain_id);
+                put("deleted", true);
             }
         });
     }

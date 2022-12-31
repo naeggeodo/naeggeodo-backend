@@ -25,45 +25,46 @@ import java.util.Objects;
 @Slf4j
 public class CloudinaryService {
 
-	private final CloudinaryConfig cloudinaryConfig;
-	private final ChatMainRepository chatMainRepository;
-	@Async
-	@Transactional
-	public void upload(MultipartFile file,String folder,Long chatMain_id) {
+    private final CloudinaryConfig cloudinaryConfig;
+    private final ChatMainRepository chatMainRepository;
 
-		File fileToUpload = convertMultiPartFileToFile(file);
-		Map<?,?> uploadResult;
-		Cloudinary cloudinary = cloudinaryConfig.generateCloudinary();
-		try {
-			uploadResult = cloudinary.uploader().upload(fileToUpload,
-					ObjectUtils.asMap(
-							"folder",folder,
-							"unique_filename",true,
-							"use_filename",true
-					)
+    @Async
+    @Transactional
+    public void upload(MultipartFile file, String folder, Long chatMain_id) {
 
-			);
-		} catch (Exception e) {
-			log.info("Upload Exception = {}",e.getClass());
-			e.printStackTrace();
-			throw new CustomHttpException(ErrorCode.UPLOAD_FAIL);
-		} finally {
-			if (fileToUpload.exists()) fileToUpload.delete();
-		}
-		chatMainRepository.updateForImgPath(uploadResult.get("url").toString().replaceFirst("http://","https://"),chatMain_id);
-	}
+        File fileToUpload = convertMultiPartFileToFile(file);
+        Map<?, ?> uploadResult;
+        Cloudinary cloudinary = cloudinaryConfig.generateCloudinary();
+        try {
+            uploadResult = cloudinary.uploader().upload(fileToUpload,
+                    ObjectUtils.asMap(
+                            "folder", folder,
+                            "unique_filename", true,
+                            "use_filename", true
+                    )
+
+            );
+        } catch (Exception e) {
+            log.info("Upload Exception = {}", e.getClass());
+            e.printStackTrace();
+            throw new CustomHttpException(ErrorCode.UPLOAD_FAIL);
+        } finally {
+            if (fileToUpload.exists()) fileToUpload.delete();
+        }
+        chatMainRepository.updateForImgPath(uploadResult.get("url").toString().replaceFirst("http://", "https://"), chatMain_id);
+    }
 
 
-	private File convertMultiPartFileToFile(MultipartFile file) {
-		File convertedFile = new File(Objects.requireNonNull(file.getOriginalFilename()));
-		try(FileOutputStream fos = new FileOutputStream(convertedFile)){
-			fos.write(file.getBytes());
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
+    private File convertMultiPartFileToFile(MultipartFile file) {
+        File convertedFile = new File(Objects.requireNonNull(file.getOriginalFilename()));
+        try (FileOutputStream fos = new FileOutputStream(convertedFile)) {
+            fos.write(file.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-		return convertedFile;
-	}
+        return convertedFile;
+    }
 
 
 }

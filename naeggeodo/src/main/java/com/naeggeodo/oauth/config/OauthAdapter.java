@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class OauthAdapter {
-    private OauthAdapter() {}
+    private OauthAdapter() {
+    }
 
     // OauthProperties를 OauthProvider로 변환해준다.
     public static Map<String, OauthProvider> getOauthProviders(OauthProperties properties) {

@@ -19,51 +19,51 @@ import org.springframework.stereotype.Controller;
 @Controller
 @RequiredArgsConstructor
 public class StompController {
-	private final WebsocketSessionHandler sessionHandler;
-	private final StompService stompService;
-	private final SimpMessagingTemplate simpMessagingTemplate; // forTest
+    private final WebsocketSessionHandler sessionHandler;
+    private final StompService stompService;
+    private final SimpMessagingTemplate simpMessagingTemplate; // forTest
 
 
-	//일반 메시지
-	@MessageMapping("/chat/send")
-	public void sendMsg(MessageDTO message,StompHeaderAccessor headers) {
-		validateMessage(message,headers);
-		stompService.send(message,headers);
-	}
+    //일반 메시지
+    @MessageMapping("/chat/send")
+    public void sendMsg(MessageDTO message, StompHeaderAccessor headers) {
+        validateMessage(message, headers);
+        stompService.send(message, headers);
+    }
 
-	//입장
-	@MessageMapping("/chat/enter")
-	public void enter(MessageDTO message,StompHeaderAccessor headers) throws Exception {
-		validateMessage(message,headers);
-		stompService.enter(message,headers);
-	}
+    //입장
+    @MessageMapping("/chat/enter")
+    public void enter(MessageDTO message, StompHeaderAccessor headers) throws Exception {
+        validateMessage(message, headers);
+        stompService.enter(message, headers);
+    }
 
-	//퇴장
-	@MessageMapping(value="/chat/exit")
-	public void exit(MessageDTO message,StompHeaderAccessor headers) throws Exception {
-		validateMessage(message,headers);
-		stompService.exit(message,headers);
-	}
+    //퇴장
+    @MessageMapping(value = "/chat/exit")
+    public void exit(MessageDTO message, StompHeaderAccessor headers) throws Exception {
+        validateMessage(message, headers);
+        stompService.exit(message, headers);
+    }
 
-	@MessageMapping("/chat/ban")
-	public void ban(TargetMessageDTO message,StompHeaderAccessor headers) throws Exception {
+    @MessageMapping("/chat/ban")
+    public void ban(TargetMessageDTO message, StompHeaderAccessor headers) throws Exception {
 
-		validateMessage(message,headers);
+        validateMessage(message, headers);
 
-		String session_id = stompService.ban(message,headers);
+        String session_id = stompService.ban(message, headers);
 
-		if(session_id != null)
-			sessionHandler.close(session_id);
-	}
+        if (session_id != null)
+            sessionHandler.close(session_id);
+    }
 
-	@MessageMapping("/chat/test")
-	public void test(Message<?> message,StompHeaderAccessor stompHeaderAccessor){
-		stompHeaderAccessor.setNativeHeader("img","img");
-		System.out.println("message = " + message);
-		simpMessagingTemplate.send("/topic/1",message);
-	}
+    @MessageMapping("/chat/test")
+    public void test(Message<?> message, StompHeaderAccessor stompHeaderAccessor) {
+        stompHeaderAccessor.setNativeHeader("img", "img");
+        System.out.println("message = " + message);
+        simpMessagingTemplate.send("/topic/1", message);
+    }
 
-	//채팅종료!!
+    //채팅종료!!
 //	@Transactional
 //	@MessageMapping("/chat/end")
 //	public void endChat(MessageDTO message,StompHeaderAccessor headers){
@@ -81,7 +81,7 @@ public class StompController {
 //		chatUsers.clear();
 //	}
 
-	//quick-chat update
+    //quick-chat update
 //	@Transactional
 //	@MessageMapping("/chat/quick-chat/update")
 //	public void updateQuickChat(MessageDTO message,StompHeaderAccessor headers) {
@@ -99,18 +99,18 @@ public class StompController {
 //		sendToUser(headers.getSessionId(), message);
 //	}
 
-	private void validateMessage(MessageDTO dto,StompHeaderAccessor headers){
-		String chatMain_id = dto.getChatMain_id();
-		String sender = dto.getSender();
+    private void validateMessage(MessageDTO dto, StompHeaderAccessor headers) {
+        String chatMain_id = dto.getChatMain_id();
+        String sender = dto.getSender();
 
-		if(chatMain_id!=null&&sender!=null){
-			chatMain_id = chatMain_id.trim();
-			sender  = sender.trim();
-		}
-		if(chatMain_id==null||chatMain_id.equals(""))
-			throw new CustomWebSocketException(StompErrorCode.BAD_REQUEST.name(),headers);
-		if(sender==null||sender.equals(""))
-			throw new CustomWebSocketException(StompErrorCode.BAD_REQUEST.name(),headers);
-	}
+        if (chatMain_id != null && sender != null) {
+            chatMain_id = chatMain_id.trim();
+            sender = sender.trim();
+        }
+        if (chatMain_id == null || chatMain_id.equals(""))
+            throw new CustomWebSocketException(StompErrorCode.BAD_REQUEST.name(), headers);
+        if (sender == null || sender.equals(""))
+            throw new CustomWebSocketException(StompErrorCode.BAD_REQUEST.name(), headers);
+    }
 
 }

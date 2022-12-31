@@ -7,8 +7,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAsync
 @SpringBootApplication
 public class NaeggeodoApplication {
-	public static void main(String[] args) {
-		SpringApplication.run(NaeggeodoApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(NaeggeodoApplication.class, args);
+    }
 
 }

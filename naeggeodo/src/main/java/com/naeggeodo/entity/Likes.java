@@ -15,7 +15,8 @@ public class Likes {
     private Long id;
 
     private int count;
-    public void updateCount(){
+
+    public void updateCount() {
         ++this.count;
     }
 }

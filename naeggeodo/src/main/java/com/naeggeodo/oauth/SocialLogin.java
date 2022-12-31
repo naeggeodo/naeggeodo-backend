@@ -27,10 +27,10 @@ import java.util.Map;
 @Slf4j
 @Component
 public class SocialLogin {
-	private static final String HEADER_NAME_AUTHORIZATION = "Authorization";
-	private static final String HEADER_NAME_CONTENT_TYPE = "Content-type";
-	private static final String HEADER_VALUE_CONTENT_TYPE = "application/x-www-form-urlencoded; charset=UTF-8";
-	
+    private static final String HEADER_NAME_AUTHORIZATION = "Authorization";
+    private static final String HEADER_NAME_CONTENT_TYPE = "Content-type";
+    private static final String HEADER_VALUE_CONTENT_TYPE = "application/x-www-form-urlencoded; charset=UTF-8";
+
 
     protected OAuthDto requestUserInfo(String userInfoRequestUrl, OauthAuthorized oauthToken, OAuthDto responseType) {
         HttpHeaders headers = requestUserInfoHeaders(oauthToken);
@@ -43,7 +43,7 @@ public class SocialLogin {
                     responseType.getClass()
             ).getBody();
         } catch (HttpStatusCodeException e) {
-        	log.info(e.getMessage());
+            log.info(e.getMessage());
             throw new CustomHttpException(ErrorCode.UNKNOWN_ERROR);
         }
     }
@@ -70,14 +70,14 @@ public class SocialLogin {
         );
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        
+
         log.info(responseEntity.getBody());
-        
+
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             return mapper.readValue(responseEntity.getBody(), OauthAuthorized.class);
         }
         return new OauthAuthorized();
-    	
+
     }
 
     protected HttpHeaders requestUserInfoHeaders(OauthAuthorized oauthToken) {
@@ -88,39 +88,39 @@ public class SocialLogin {
     }
 
 
-    protected String get(String apiUrl, Map<String, String> requestHeaders){
-    	HttpURLConnection con = connect(apiUrl);
-    	try {
-    		con.setRequestMethod("GET");
-    		for(Map.Entry<String, String> header :requestHeaders.entrySet()) {
-    			con.setRequestProperty(header.getKey(), header.getValue());
-    		}
-    		
-    		int responseCode = con.getResponseCode();
-    		if (responseCode == HttpURLConnection.HTTP_OK) { // 정상 호출
-    			return readBody(con.getInputStream());
-    		} else { // 에러 발생
-    			return readBody(con.getErrorStream());
-    		}
-    	} catch (IOException e) {
-    		throw new RuntimeException("API 요청과 응답 실패", e);
-    	} finally {
-    		con.disconnect();
-    	}
+    protected String get(String apiUrl, Map<String, String> requestHeaders) {
+        HttpURLConnection con = connect(apiUrl);
+        try {
+            con.setRequestMethod("GET");
+            for (Map.Entry<String, String> header : requestHeaders.entrySet()) {
+                con.setRequestProperty(header.getKey(), header.getValue());
+            }
+
+            int responseCode = con.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) { // 정상 호출
+                return readBody(con.getInputStream());
+            } else { // 에러 발생
+                return readBody(con.getErrorStream());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("API 요청과 응답 실패", e);
+        } finally {
+            con.disconnect();
+        }
     }
-    
-    private HttpURLConnection connect(String apiUrl){
+
+    private HttpURLConnection connect(String apiUrl) {
         try {
             URL url = new URL(apiUrl);
-            return (HttpURLConnection)url.openConnection();
+            return (HttpURLConnection) url.openConnection();
         } catch (MalformedURLException e) {
             throw new RuntimeException("API URL이 잘못되었습니다. : " + apiUrl, e);
         } catch (IOException e) {
             throw new RuntimeException("연결이 실패했습니다. : " + apiUrl, e);
         }
     }
-    
-    private String readBody(InputStream body){
+
+    private String readBody(InputStream body) {
         InputStreamReader streamReader = new InputStreamReader(body);
 
         try (BufferedReader lineReader = new BufferedReader(streamReader)) {

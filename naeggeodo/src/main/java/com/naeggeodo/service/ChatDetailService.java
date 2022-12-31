@@ -17,33 +17,34 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ChatDetailService {
-	private final ChatDetailRepository chatDetailRepository;
-	private final UserRepository userRepository;
-	private final ChatMainRepository chatMainRepository;
-	
-	//dto 로 저장
-	@Transactional
-	public void save(MessageDTO messageDTO) {
-		Users user = userRepository.getById(messageDTO.getSender());
-		ChatMain chatmain = chatMainRepository.getById(messageDTO.chatMain_idToLong());
-		
-		ChatDetail chatDetail = ChatDetail.create(messageDTO.getContents(), user, chatmain, messageDTO.getType());
-		chatDetailRepository.save(chatDetail);
-	}
-	@Transactional
-	public void save(TargetMessageDTO messageDTO) {
-		Users user = userRepository.getById(messageDTO.getSender());
-		ChatMain chatmain = chatMainRepository.getById(messageDTO.chatMain_idToLong());
+    private final ChatDetailRepository chatDetailRepository;
+    private final UserRepository userRepository;
+    private final ChatMainRepository chatMainRepository;
 
-		ChatDetail chatDetail = ChatDetail.create(messageDTO.getContents(), user, chatmain, messageDTO.getType());
-		chatDetailRepository.save(chatDetail);
-	}
+    //dto 로 저장
+    @Transactional
+    public void save(MessageDTO messageDTO) {
+        Users user = userRepository.getById(messageDTO.getSender());
+        ChatMain chatmain = chatMainRepository.getById(messageDTO.chatMain_idToLong());
 
-	//기존 채팅 내역 불러오기
-	@Transactional
-	public List<ChatDetail> load(String chatMain_idStr, String user_id){
-		Long chatMain_id = Long.parseLong(chatMain_idStr);
-		
-		return chatDetailRepository.load(chatMain_id, user_id);
-	}
+        ChatDetail chatDetail = ChatDetail.create(messageDTO.getContents(), user, chatmain, messageDTO.getType());
+        chatDetailRepository.save(chatDetail);
+    }
+
+    @Transactional
+    public void save(TargetMessageDTO messageDTO) {
+        Users user = userRepository.getById(messageDTO.getSender());
+        ChatMain chatmain = chatMainRepository.getById(messageDTO.chatMain_idToLong());
+
+        ChatDetail chatDetail = ChatDetail.create(messageDTO.getContents(), user, chatmain, messageDTO.getType());
+        chatDetailRepository.save(chatDetail);
+    }
+
+    //기존 채팅 내역 불러오기
+    @Transactional
+    public List<ChatDetail> load(String chatMain_idStr, String user_id) {
+        Long chatMain_id = Long.parseLong(chatMain_idStr);
+
+        return chatDetailRepository.load(chatMain_id, user_id);
+    }
 }

@@ -23,88 +23,88 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatMainService {
 
-	private final ChatMainRepository chatMainRepository;
-	private final CloudinaryService cloudinaryService;
-	private final TagRepository tagRepository;
-	private final UserRepository userRepository;
-	private final ChatDetailRepository chatDetailRepository;
-	private final DealRepository dealRepository;
-	private final ChatUserRepository chatUserRepository;
-	
+    private final ChatMainRepository chatMainRepository;
+    private final CloudinaryService cloudinaryService;
+    private final TagRepository tagRepository;
+    private final UserRepository userRepository;
+    private final ChatDetailRepository chatDetailRepository;
+    private final DealRepository dealRepository;
+    private final ChatUserRepository chatUserRepository;
 
-	//채팅방 생성
-	@Transactional
-	public JSONObject createChatRoom(ChatRoomDTO dto,MultipartFile file) {
-		Users user = userRepository.getById(dto.getUser_id());
 
-		List<String> tagStringList = dto.getTag();
-		List<Tag> tags = new ArrayList<>();
-		if(tagStringList != null){
-			for (String name : tagStringList) {
-				tags.add(Tag.create(name));
-			}
-		}
-		ChatMain chatMain = dto.createChatMain(user,tags);
-		ChatMain savedChatMain = chatMainRepository.save(chatMain);
+    //채팅방 생성
+    @Transactional
+    public JSONObject createChatRoom(ChatRoomDTO dto, MultipartFile file) {
+        Users user = userRepository.getById(dto.getUser_id());
 
-		if(file != null)
-			cloudinaryService.upload(file, "chatMain/"+savedChatMain.getId(),savedChatMain.getId());
-		else
-			chatMain.setDefaultImgPath();
+        List<String> tagStringList = dto.getTag();
+        List<Tag> tags = new ArrayList<>();
+        if (tagStringList != null) {
+            for (String name : tagStringList) {
+                tags.add(Tag.create(name));
+            }
+        }
+        ChatMain chatMain = dto.createChatMain(user, tags);
+        ChatMain savedChatMain = chatMainRepository.save(chatMain);
 
-		chatDetailRepository.save(ChatDetail.create("채팅방이 생성 되었습니다",user,savedChatMain, ChatDetailType.CREATED));
+        if (file != null)
+            cloudinaryService.upload(file, "chatMain/" + savedChatMain.getId(), savedChatMain.getId());
+        else
+            chatMain.setDefaultImgPath();
 
-		JSONObject json = new JSONObject();
-		json.put("chatMain_id", savedChatMain.getId());
-		return json;
-	}
+        chatDetailRepository.save(ChatDetail.create("채팅방이 생성 되었습니다", user, savedChatMain, ChatDetailType.CREATED));
 
-	// 기존 내역으로 생성
-	@Transactional
-	public JSONObject copyChatRoom(Long targetId, OrderTimeType orderTimeType){
-		ChatMain targetChatMain =  chatMainRepository.findTagEntityGraph(targetId);
-		ChatMain savedChatMain = chatMainRepository.save(targetChatMain.copy(orderTimeType));
-		List<Tag> saveTags = savedChatMain.copyTags(targetChatMain.getTag());
-		tagRepository.saveAll(saveTags);
+        JSONObject json = new JSONObject();
+        json.put("chatMain_id", savedChatMain.getId());
+        return json;
+    }
 
-		chatDetailRepository.save(ChatDetail.create("채팅방이 생성 되었습니다",savedChatMain.getUser(),savedChatMain, ChatDetailType.CREATED));
-		JSONObject json = new JSONObject();
-		json.put("chatMain_id",savedChatMain.getId());
-		return json;
-	}
+    // 기존 내역으로 생성
+    @Transactional
+    public JSONObject copyChatRoom(Long targetId, OrderTimeType orderTimeType) {
+        ChatMain targetChatMain = chatMainRepository.findTagEntityGraph(targetId);
+        ChatMain savedChatMain = chatMainRepository.save(targetChatMain.copy(orderTimeType));
+        List<Tag> saveTags = savedChatMain.copyTags(targetChatMain.getTag());
+        tagRepository.saveAll(saveTags);
 
-	// 채팅방 상태 업데이트
-	@Transactional
-	public JSONObject updateRoomState(Long chatMain_id,ChatState state){
-		JSONObject json = new JSONObject();
-		ChatMain chatMain = chatMainRepository.findById(chatMain_id)
-				.orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+        chatDetailRepository.save(ChatDetail.create("채팅방이 생성 되었습니다", savedChatMain.getUser(), savedChatMain, ChatDetailType.CREATED));
+        JSONObject json = new JSONObject();
+        json.put("chatMain_id", savedChatMain.getId());
+        return json;
+    }
 
-		chatMain.changeState(state);
+    // 채팅방 상태 업데이트
+    @Transactional
+    public JSONObject updateRoomState(Long chatMain_id, ChatState state) {
+        JSONObject json = new JSONObject();
+        ChatMain chatMain = chatMainRepository.findById(chatMain_id)
+                .orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
 
-		if (ChatState.END.equals(chatMain.getState())){
-			for (ChatUser cu : chatMain.getAllowedUserList()) {
-				dealRepository.save(Deal.create(cu.getUser(),chatMain));
-			}
-			chatUserRepository.deleteAll(chatMain.getChatUser());
-			chatMain.getChatUser().clear();
-		}
-		json.put("chatMain_id",chatMain.getId()); // TODO : 채팅방 id key값 일치시켜야함
-		json.put("state",chatMain.getState().name());
-		return json;
-	}
+        chatMain.changeState(state);
 
-	//참여중인 채팅방 리스트(내꺼톡)
-	@Transactional
-	public JSONObject getProgressingChatList(String user_id) throws Exception {
-		List<ChatMain> list = chatMainRepository.findByUserIdInChatUser(user_id,ChatState.insearchableList);
-		List<Long> idList = new ArrayList<>();
-		for (ChatMain c: list) {
-			idList.add(c.getId());
-		}
-		List<String> latestMessages = chatDetailRepository.findLatestContents(idList);
-		Collections.reverse(latestMessages);
-		return MyUtility.convertListToJSONobj(list, latestMessages,"chatRoom");
-	}
+        if (ChatState.END.equals(chatMain.getState())) {
+            for (ChatUser cu : chatMain.getAllowedUserList()) {
+                dealRepository.save(Deal.create(cu.getUser(), chatMain));
+            }
+            chatUserRepository.deleteAll(chatMain.getChatUser());
+            chatMain.getChatUser().clear();
+        }
+        json.put("chatMain_id", chatMain.getId()); // TODO : 채팅방 id key값 일치시켜야함
+        json.put("state", chatMain.getState().name());
+        return json;
+    }
+
+    //참여중인 채팅방 리스트(내꺼톡)
+    @Transactional
+    public JSONObject getProgressingChatList(String user_id) throws Exception {
+        List<ChatMain> list = chatMainRepository.findByUserIdInChatUser(user_id, ChatState.insearchableList);
+        List<Long> idList = new ArrayList<>();
+        for (ChatMain c : list) {
+            idList.add(c.getId());
+        }
+        List<String> latestMessages = chatDetailRepository.findLatestContents(idList);
+        Collections.reverse(latestMessages);
+        return MyUtility.convertListToJSONobj(list, latestMessages, "chatRoom");
+    }
 
 }

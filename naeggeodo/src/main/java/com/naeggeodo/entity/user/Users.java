@@ -16,47 +16,48 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @ToString
-public class Users{
+public class Users {
 
 
-	@Id @Column(name="user_id")
-	private String id;
+    @Id
+    @Column(name = "user_id")
+    private String id;
 
-	@Column(name="social_id")
-	private String socialId;
-	private String password;
-	private String token;
-	private String phone;
+    @Column(name = "social_id")
+    private String socialId;
+    private String password;
+    private String token;
+    private String phone;
 
-	private String address;
-	// �슦�렪踰덊샇
-	private String zonecode;
-	// buildingcode
-	private String buildingCode;
-	private String email;
+    private String address;
+    // �슦�렪踰덊샇
+    private String zonecode;
+    // buildingcode
+    private String buildingCode;
+    private String email;
 
 
-	private String nickname;
-	@JsonDeserialize(using=LocalDateTimeDeserializer.class)
-	private LocalDateTime joindate;
-	private LocalDateTime withdrawalDate;
-	@Enumerated(EnumType.STRING)
-	private Authority authority;
+    private String nickname;
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    private LocalDateTime joindate;
+    private LocalDateTime withdrawalDate;
+    @Enumerated(EnumType.STRING)
+    private Authority authority;
 
-	private String imgpath;
+    private String imgpath;
 
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "quickChat_id")
-	private QuickChat quickChat;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "quickChat_id")
+    private QuickChat quickChat;
 
-	public void updateAddress(String address,String zonecode,String buildingCode) {
-		this.address = address;
-		this.zonecode = zonecode;
-		this.buildingCode = buildingCode;
-	}
+    public void updateAddress(String address, String zonecode, String buildingCode) {
+        this.address = address;
+        this.zonecode = zonecode;
+        this.buildingCode = buildingCode;
+    }
 
-	public void updateNickname(String nickname) {
-		this.nickname = nickname;
-	}
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
 
 }

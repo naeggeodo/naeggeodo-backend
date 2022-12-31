@@ -11,35 +11,35 @@ import org.springframework.web.socket.messaging.SubProtocolHandler;
 import org.springframework.web.socket.messaging.SubProtocolWebSocketHandler;
 
 @Slf4j
-public class MySubProtocolHandler extends SubProtocolWebSocketHandler{
+public class MySubProtocolHandler extends SubProtocolWebSocketHandler {
 
 
-	@Autowired
-	private WebsocketSessionHandler sessionHandler;
-	
-	public MySubProtocolHandler(MessageChannel clientInboundChannel, SubscribableChannel clientOutboundChannel) {
-		super(clientInboundChannel, clientOutboundChannel);
-	}
+    @Autowired
+    private WebsocketSessionHandler sessionHandler;
+
+    public MySubProtocolHandler(MessageChannel clientInboundChannel, SubscribableChannel clientOutboundChannel) {
+        super(clientInboundChannel, clientOutboundChannel);
+    }
 
 
-	@Override
-	public void addProtocolHandler(SubProtocolHandler handler) {
-		// 여기서 등록
-		super.addProtocolHandler(handler);
-	}
-
-	
-	@Override
-	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-		sessionHandler.register(session);
-		super.afterConnectionEstablished(session);
-	}
+    @Override
+    public void addProtocolHandler(SubProtocolHandler handler) {
+        // 여기서 등록
+        super.addProtocolHandler(handler);
+    }
 
 
-	@Override
-	public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-		sessionHandler.close(session);
-		super.afterConnectionClosed(session, closeStatus);
-	}
-	
+    @Override
+    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        sessionHandler.register(session);
+        super.afterConnectionEstablished(session);
+    }
+
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
+        sessionHandler.close(session);
+        super.afterConnectionClosed(session, closeStatus);
+    }
+
 }

@@ -21,6 +21,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final JwtTokenProvider jwtTokenProvider;
+
     //TODO This is not recommended -- please use permitAll via HttpSecurity#authorizeHttpRequests instead.
     @Override
     public void configure(WebSecurity web) {
@@ -36,17 +37,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         };
         web.ignoring().antMatchers(ignoreURL);
         web.ignoring().antMatchers(HttpMethod.GET
-                ,"/chat-rooms"
-                ,"/chat-rooms/tag/most-wanted"
-                ,"/chat-rooms/tag"
-                ,"/chat-rooms/search"
+                , "/chat-rooms"
+                , "/chat-rooms/tag/most-wanted"
+                , "/chat-rooms/tag"
+                , "/chat-rooms/search"
         );
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .cors().configurationSource(corsConfigurationSource()).and()
+                .cors().disable()
+//                .configurationSource(corsConfigurationSource()).and()
                 .csrf().disable().formLogin().disable().httpBasic().disable()
                 .logout().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)

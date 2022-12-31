@@ -29,9 +29,8 @@ public class OAuthController {
     private final JwtTokenProvider jwtProvider;
 
 
-
     @PostMapping(value = "login/OAuth/{provider}")
-    public ResponseEntity<?> OAuthLogin(@RequestBody Map<String,String> request, @PathVariable String provider, HttpServletResponse response) throws Exception {
+    public ResponseEntity<?> OAuthLogin(@RequestBody Map<String, String> request, @PathVariable String provider, HttpServletResponse response) throws Exception {
 
         log.info("OAUthLogin: ");
 
@@ -55,32 +54,32 @@ public class OAuthController {
 
     @PostMapping(value = "/logout")
     public ResponseEntity<?> logout(HttpServletResponse response
-            ,@CookieValue(value = "refreshToken")Cookie cookie){
+            , @CookieValue(value = "refreshToken") Cookie cookie) {
 
         log.info("Logout: ");
         cookie.setMaxAge(0);
         response.addCookie(cookie);
-    	return ResponseEntity.ok(true);
+        return ResponseEntity.ok(true);
     }
 
     @PostMapping("/refreshtoken")
-    public ResponseEntity<?> refreshtoken(@CookieValue(value = "refreshToken",required = false)Cookie cookie,
+    public ResponseEntity<?> refreshtoken(@CookieValue(value = "refreshToken", required = false) Cookie cookie,
                                           HttpServletResponse response) {
-        log.info(cookie==null?"cookie is null":"cookie isn't null");
-    	String refreshToken = cookie.getValue();
-        log.info("cookie.getValue() = {}",refreshToken);
+        log.info(cookie == null ? "cookie is null" : "cookie isn't null");
+        String refreshToken = cookie.getValue();
+        log.info("cookie.getValue() = {}", refreshToken);
 
-    	JSONObject jwtResponse = new JSONObject(); 
-    	String accessToken =jwtService.refreshToken(refreshToken).getAccessToken();
+        JSONObject jwtResponse = new JSONObject();
+        String accessToken = jwtService.refreshToken(refreshToken).getAccessToken();
 
-        jwtResponse.put("accessToken",accessToken);
+        jwtResponse.put("accessToken", accessToken);
 
-    	return ResponseEntity.ok(jwtResponse.toMap());
+        return ResponseEntity.ok(jwtResponse.toMap());
 
     }
 
     @PostMapping(value = "login/mobil/{provider}")
-    public ResponseEntity<?> MobileLogin(@RequestBody OauthAuthorized request, @PathVariable String provider, HttpServletResponse response) throws JsonProcessingException{
+    public ResponseEntity<?> MobileLogin(@RequestBody OauthAuthorized request, @PathVariable String provider, HttpServletResponse response) throws JsonProcessingException {
         SimpleUser user = service.getAuth(request, provider);
         return ResponseEntity.ok(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(jwtService.mobileCreateJwtToken(
                 user

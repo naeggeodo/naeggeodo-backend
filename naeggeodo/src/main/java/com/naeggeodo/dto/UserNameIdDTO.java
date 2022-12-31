@@ -8,7 +8,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.json.JSONObject;
 
-@Getter @Setter @AllArgsConstructor @NoArgsConstructor
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserNameIdDTO extends JSONConverterAdapter {
     private String user_id;
     private String nickname;
@@ -17,10 +20,10 @@ public class UserNameIdDTO extends JSONConverterAdapter {
 
     @Override
     public JSONObject toJSON() {
-        JSONObject json =  new JSONObject();
-        json.put("user_id",user_id);
-        json.put("nickname",nickname);
-        json.put("remittanceState",state);
+        JSONObject json = new JSONObject();
+        json.put("user_id", user_id);
+        json.put("nickname", nickname);
+        json.put("remittanceState", state);
         return json;
     }
 }

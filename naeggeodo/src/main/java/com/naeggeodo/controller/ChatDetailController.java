@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class ChatDetailController {
-	private final ChatDetailService chatDetailService;
-	
-	@GetMapping(value ="/chat/messages/{chatMain_id}/{user_id}",produces = "application/json")
-	public String load(@PathVariable String chatMain_id, @PathVariable String user_id) throws Exception {
-		return MyUtility.convertListToJSONobj(chatDetailService.load(chatMain_id, user_id), "messages").toString();
-	}
+    private final ChatDetailService chatDetailService;
+
+    @GetMapping(value = "/chat/messages/{chatMain_id}/{user_id}", produces = "application/json")
+    public String load(@PathVariable String chatMain_id, @PathVariable String user_id) throws Exception {
+        return MyUtility.convertListToJSONobj(chatDetailService.load(chatMain_id, user_id), "messages").toString();
+    }
 }

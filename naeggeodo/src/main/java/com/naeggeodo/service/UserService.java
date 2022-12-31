@@ -65,7 +65,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public NicknameDTO getNickName(String user_id) {
         Users user = userRepository.findById(user_id)
-                .orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+                .orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
 
         return new NicknameDTO(user.getNickname(), user.getId());
     }
@@ -73,7 +73,7 @@ public class UserService {
     @Transactional
     public NicknameDTO updateNickName(String user_id, String nickname) {
         Users user = userRepository.findById(user_id)
-                .orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+                .orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
 
         user.updateNickname(nickname);
         return new NicknameDTO(user.getNickname(), user.getId());

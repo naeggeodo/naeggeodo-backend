@@ -9,20 +9,20 @@ import lombok.ToString;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @Getter
 public class JwtResponse {
-	private String accessToken;
-	private String type;
-	private String user_id;
-	private String address;
+    private String accessToken;
+    private String type;
+    private String user_id;
+    private String address;
 
-	private String buildingCode;
+    private String buildingCode;
 
-	public JwtResponse(String accessToken, String type, SimpleUser user) {
-		this.accessToken = accessToken;
-		this.type = type;
+    public JwtResponse(String accessToken, String type, SimpleUser user) {
+        this.accessToken = accessToken;
+        this.type = type;
 //		this.user = user;
-		this.user_id = user.getId();
-		this.address = user.getAddress();
-		this.buildingCode = user.getBuildingCode();
-	}
+        this.user_id = user.getId();
+        this.address = user.getAddress();
+        this.buildingCode = user.getBuildingCode();
+    }
 
 }

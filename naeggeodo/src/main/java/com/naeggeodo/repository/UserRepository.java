@@ -12,10 +12,10 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 
-public interface UserRepository extends JpaRepository<Users, String>{
+public interface UserRepository extends JpaRepository<Users, String> {
     @EntityGraph(attributePaths = "quickChat")
     @Query("select u from Users u where u.id = :id")
-    Optional<Users> findQuickChatEntityGraph(@Param("id")String id);
+    Optional<Users> findQuickChatEntityGraph(@Param("id") String id);
 
 
     @Query(value = "select  participatingChatCount ,myOrdersCount ,u.nickname\n" +
@@ -32,7 +32,8 @@ public interface UserRepository extends JpaRepository<Users, String>{
             "FROM deal d \n" +
             "WHERE user_id = :user_id\n" +
             ") b , users u\n" +
-            "where u.user_id = :user_id",nativeQuery = true)
-    Optional<MypageDTO> getMyPageData(@Param("user_id")String user_id);
+            "where u.user_id = :user_id", nativeQuery = true)
+    Optional<MypageDTO> getMyPageData(@Param("user_id") String user_id);
+
     Users findBySocialIdAndAuthority(String socialId, Authority authority);
 }

@@ -72,7 +72,7 @@ public class ChatMain extends JSONConverterAdapter {
 
     //생성
 
-    public ChatMain copy(OrderTimeType orderTimeType,List<Tag> tags) {
+    public ChatMain copy(OrderTimeType orderTimeType, List<Tag> tags) {
         return ChatMain.builder().title(this.title)
                 .buildingCode(this.buildingCode).address(this.address)
                 .state(ChatState.CREATE).link(this.link)
@@ -83,6 +83,7 @@ public class ChatMain extends JSONConverterAdapter {
                 .tag(tags)
                 .build();
     }
+
     public ChatMain copy(OrderTimeType orderTimeType) {
         return ChatMain.builder().title(this.title)
                 .buildingCode(this.buildingCode).address(this.address)
@@ -115,7 +116,7 @@ public class ChatMain extends JSONConverterAdapter {
 
     public void changeState(ChatState state) {
         this.state = state;
-        if (state.equals(ChatState.END)||state.equals(ChatState.INCOMPLETE)) this.bookmarks = Bookmarks.N;
+        if (state.equals(ChatState.END) || state.equals(ChatState.INCOMPLETE)) this.bookmarks = Bookmarks.N;
     }
 
     // is Full
@@ -144,7 +145,7 @@ public class ChatMain extends JSONConverterAdapter {
         return allowedUserCnt;
     }
 
-    public List<ChatUser> getAllowedUserList(){
+    public List<ChatUser> getAllowedUserList() {
         List<ChatUser> list = new ArrayList<>();
         if (!chatUser.isEmpty()) {
             for (ChatUser cu : chatUser) {
@@ -279,7 +280,7 @@ public class ChatMain extends JSONConverterAdapter {
         updateBookmarksDate(this.bookmarks);
     }
 
-    private LocalDateTime updateBookmarksDate(Bookmarks bookmarks){
+    private LocalDateTime updateBookmarksDate(Bookmarks bookmarks) {
         return bookmarks.equals(Bookmarks.Y) ? null : LocalDateTime.now();
     }
 
@@ -296,7 +297,7 @@ public class ChatMain extends JSONConverterAdapter {
         this.imgPath = category.getDefaultImagePath();
     }
 
-    public void setTags(List<Tag> tags){
+    public void setTags(List<Tag> tags) {
         this.tag = tags;
         tags.forEach((tag) -> tag.setChatMain(this));
     }

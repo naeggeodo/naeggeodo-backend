@@ -18,10 +18,10 @@ public class ReportController {
     private final ReportRepository reportRepository;
 
     @Transactional
-    @PostMapping(value = "/report",produces = "application/json")
-    public String saveReport(@RequestBody ReportDTO reportDTO){
+    @PostMapping(value = "/report", produces = "application/json")
+    public String saveReport(@RequestBody ReportDTO reportDTO) {
         Users user = userRepository.getById(reportDTO.getUser_id());
-        Report report = Report.create(user,reportDTO.getContents(),reportDTO.getType());
+        Report report = Report.create(user, reportDTO.getContents(), reportDTO.getType());
         reportRepository.save(report);
         return "asd";
     }

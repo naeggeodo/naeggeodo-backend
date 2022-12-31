@@ -22,12 +22,11 @@ public class JwtTokenProvider {
     public String createToken(String subject) {
 
 
-
         Claims claims = Jwts.claims().setSubject(subject);
 
         JwtBuilder builder = Jwts.builder()
                 .setClaims(claims)
-                .setExpiration(new Date(new Date().getTime()+accessTokenExpiredInMilliseconds))
+                .setExpiration(new Date(new Date().getTime() + accessTokenExpiredInMilliseconds))
                 .setIssuer("naeggeodo.com")
                 .setHeaderParam("typ", "JWT")
                 .signWith(SignatureAlgorithm.HS256, secretKey);
@@ -37,13 +36,13 @@ public class JwtTokenProvider {
     }
 
     public String createRefreshToken(String subject) {
-    	Claims claims = Jwts.claims().setSubject(subject);
+        Claims claims = Jwts.claims().setSubject(subject);
 
-    	return Jwts.builder()
-    			.setClaims(claims)
-    			.setExpiration(new Date(new Date().getTime()+refreshTokenExpiredInMilliseconds))
-    			.signWith(SignatureAlgorithm.HS256, secretKey)
-    			.compact();
+        return Jwts.builder()
+                .setClaims(claims)
+                .setExpiration(new Date(new Date().getTime() + refreshTokenExpiredInMilliseconds))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
 
     }
 
@@ -58,7 +57,6 @@ public class JwtTokenProvider {
     }
 
 
-
     //유효토근 검증
     public boolean validateToken(String token) {
         try {
@@ -66,9 +64,9 @@ public class JwtTokenProvider {
 
             return !claims.getBody().getExpiration().before(new Date());
         } catch (JwtException | IllegalArgumentException e) {
-            log.info("validateToken Throw ={} and return false",e.getClass());
-            log.info("token = {}",token);
-        	return false;
+            log.info("validateToken Throw ={} and return false", e.getClass());
+            log.info("token = {}", token);
+            return false;
         }
     }
 

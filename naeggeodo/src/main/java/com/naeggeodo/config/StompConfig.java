@@ -20,67 +20,65 @@ import java.util.List;
 @Configuration
 @EnableWebSocketMessageBroker
 @RequiredArgsConstructor
-public class StompConfig extends WebSocketMessageBrokerConfigurationSupport implements WebSocketMessageBrokerConfigurer{
-	
-	private final StompInterceptor stompInterceptor;
-	private final MyStompSubProtocolErrorHandler myStompSubProtocolErrorHandler;
-	@Override
-	public void configureMessageBroker(MessageBrokerRegistry registry) {
-		//subscribe url
-		registry.enableSimpleBroker("/topic","/queue");
-		//publish url
-		registry.setApplicationDestinationPrefixes("/app");
-	}
-	
-	@Override
-	public void configureClientInboundChannel(ChannelRegistration registration) {
-		registration.interceptors(stompInterceptor);
-		super.configureClientInboundChannel(registration);
-	}
-	
-	@Override
-	public void configureClientOutboundChannel(ChannelRegistration registration) {
-		super.configureClientOutboundChannel(registration);
-	}
-	
-	@Override
-	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		//SockJs 생성 url
-		registry.addEndpoint("/chat").setAllowedOriginPatterns("*").withSockJS();
-		registry.setErrorHandler(myStompSubProtocolErrorHandler);
-	}
-	
-	@Override
-	public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
-		registry.setMessageSizeLimit(50*1024*1024);
-		registry.setSendBufferSizeLimit(50*1024*1024);
-		registry.setSendTimeLimit(20 * 10000);
-	}
-	
-	@Override
-	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-		super.addArgumentResolvers(argumentResolvers);
-	}
+public class StompConfig extends WebSocketMessageBrokerConfigurationSupport implements WebSocketMessageBrokerConfigurer {
 
-	
+    private final StompInterceptor stompInterceptor;
+    private final MyStompSubProtocolErrorHandler myStompSubProtocolErrorHandler;
 
-	@Override
-	public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> returnValueHandlers) {
-		super.addReturnValueHandlers(returnValueHandlers);
-	}
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        //subscribe url
+        registry.enableSimpleBroker("/topic", "/queue");
+        //publish url
+        registry.setApplicationDestinationPrefixes("/app");
+    }
 
-	@Override
-	public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
-		return super.configureMessageConverters(messageConverters);
-	}
-	
-	@Override
-	public WebSocketHandler subProtocolWebSocketHandler(AbstractSubscribableChannel clientInboundChannel,
-			AbstractSubscribableChannel clientOutboundChannel) {
-		return new MySubProtocolHandler(clientInboundChannel, clientOutboundChannel);
-	}
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(stompInterceptor);
+        super.configureClientInboundChannel(registration);
+    }
 
-	
-	
+    @Override
+    public void configureClientOutboundChannel(ChannelRegistration registration) {
+        super.configureClientOutboundChannel(registration);
+    }
+
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        //SockJs 생성 url
+        registry.addEndpoint("/chat").setAllowedOriginPatterns("*").withSockJS();
+        registry.setErrorHandler(myStompSubProtocolErrorHandler);
+    }
+
+    @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
+        registry.setMessageSizeLimit(50 * 1024 * 1024);
+        registry.setSendBufferSizeLimit(50 * 1024 * 1024);
+        registry.setSendTimeLimit(20 * 10000);
+    }
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+        super.addArgumentResolvers(argumentResolvers);
+    }
+
+
+    @Override
+    public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> returnValueHandlers) {
+        super.addReturnValueHandlers(returnValueHandlers);
+    }
+
+    @Override
+    public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
+        return super.configureMessageConverters(messageConverters);
+    }
+
+    @Override
+    public WebSocketHandler subProtocolWebSocketHandler(AbstractSubscribableChannel clientInboundChannel,
+                                                        AbstractSubscribableChannel clientOutboundChannel) {
+        return new MySubProtocolHandler(clientInboundChannel, clientOutboundChannel);
+    }
+
 
 }

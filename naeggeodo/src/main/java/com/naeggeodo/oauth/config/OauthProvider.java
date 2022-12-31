@@ -27,5 +27,5 @@ public class OauthProvider {
         this.tokenUrl = tokenUrl;
         this.userInfoUrl = userInfoUrl;
     }
-    
+
 }

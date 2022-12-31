@@ -17,74 +17,76 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public class WebsocketSessionHandler implements StompSessionHandler{
-	 private final Map<String, WebSocketSession> sessionMap = new HashMap<>();
-	 public WebsocketSessionHandler() {}
-	 
-	 public void register(WebSocketSession session) {
-		 sessionMap.put(session.getId(), session);
-	 }
-	 
-	 public void close(WebSocketSession session) {
-		 if(session != null) {
-			 try {
-				 sessionMap.get(session.getId()).close();
-				 sessionMap.remove(session.getId());
-			 } catch (IOException e) {
-				 log.warn("SessionHandler catch Exception = ",e.getCause());
-			 }
-		 }
+public class WebsocketSessionHandler implements StompSessionHandler {
+    private final Map<String, WebSocketSession> sessionMap = new HashMap<>();
 
-	 }
-	 
-	 public void close(String session_id) {
-		 if(sessionMap.get(session_id) != null) {
-			 try {
-				sessionMap.get(session_id).close();
-			    sessionMap.remove(session_id);
-			} catch (IOException e) {
-				 log.warn("SessionHandler catch Exception = ",e.getCause());
-			}
-			
-		 }
+    public WebsocketSessionHandler() {
+    }
 
-	 }
+    public void register(WebSocketSession session) {
+        sessionMap.put(session.getId(), session);
+    }
 
-	 public void clear(List<ChatUser> chatUsers){
-		 for (ChatUser cu: chatUsers) {
-			 close(cu.getSessionId());
-		 }
-	 }
-	 
-	 public boolean isExist(String session_id) {
-			 return sessionMap.get(session_id) != null;
-	 }
+    public void close(WebSocketSession session) {
+        if (session != null) {
+            try {
+                sessionMap.get(session.getId()).close();
+                sessionMap.remove(session.getId());
+            } catch (IOException e) {
+                log.warn("SessionHandler catch Exception = ", e.getCause());
+            }
+        }
 
-	@Override
-	public Type getPayloadType(StompHeaders headers) {
-		return null;
-	}
+    }
 
-	@Override
-	public void handleFrame(StompHeaders headers, Object payload) {
+    public void close(String session_id) {
+        if (sessionMap.get(session_id) != null) {
+            try {
+                sessionMap.get(session_id).close();
+                sessionMap.remove(session_id);
+            } catch (IOException e) {
+                log.warn("SessionHandler catch Exception = ", e.getCause());
+            }
 
-	}
+        }
 
-	@Override
-	public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
+    }
 
-	}
+    public void clear(List<ChatUser> chatUsers) {
+        for (ChatUser cu : chatUsers) {
+            close(cu.getSessionId());
+        }
+    }
 
-	@Override
-	public void handleException(StompSession session, StompCommand command, StompHeaders headers, byte[] payload,
-			Throwable exception) {
+    public boolean isExist(String session_id) {
+        return sessionMap.get(session_id) != null;
+    }
 
-	}
+    @Override
+    public Type getPayloadType(StompHeaders headers) {
+        return null;
+    }
 
-	@Override
-	public void handleTransportError(StompSession session, Throwable exception) {
+    @Override
+    public void handleFrame(StompHeaders headers, Object payload) {
 
-	}
-	 
-	 
+    }
+
+    @Override
+    public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
+
+    }
+
+    @Override
+    public void handleException(StompSession session, StompCommand command, StompHeaders headers, byte[] payload,
+                                Throwable exception) {
+
+    }
+
+    @Override
+    public void handleTransportError(StompSession session, Throwable exception) {
+
+    }
+
+
 }

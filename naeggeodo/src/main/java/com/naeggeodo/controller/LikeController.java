@@ -20,25 +20,25 @@ public class LikeController {
 
     @GetMapping(value = "/like")
     @Transactional
-    public ResponseEntity<?> getLikeCount(){
-        Likes likes =  likeRepository.findById(1L)
-                .orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
-        return ResponseEntity.ok(new HashMap<String,Object>(){
+    public ResponseEntity<?> getLikeCount() {
+        Likes likes = likeRepository.findById(1L)
+                .orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+        return ResponseEntity.ok(new HashMap<String, Object>() {
             {
-                put("likeCount",likes.getCount());
+                put("likeCount", likes.getCount());
             }
         });
     }
 
     @PostMapping(value = "/like")
     @Transactional
-    public ResponseEntity<?> increaseLikeCount(){
-        Likes likes =  likeRepository.findById(1L)
-                .orElseThrow(()->new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+    public ResponseEntity<?> increaseLikeCount() {
+        Likes likes = likeRepository.findById(1L)
+                .orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
         likes.updateCount();
-        return ResponseEntity.ok(new HashMap<String,Object>(){
+        return ResponseEntity.ok(new HashMap<String, Object>() {
             {
-                put("likeCount",likes.getCount());
+                put("likeCount", likes.getCount());
             }
         });
     }

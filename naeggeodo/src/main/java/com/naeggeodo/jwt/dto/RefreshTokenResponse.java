@@ -4,12 +4,12 @@ import lombok.Getter;
 
 @Getter
 public class RefreshTokenResponse {
-	String accessToken;
-	String refreshToken;
+    String accessToken;
+    String refreshToken;
 
-	public RefreshTokenResponse(String accessToken, String refreshToken) {
-		this.accessToken = accessToken;
-		this.refreshToken = refreshToken;
-	}
-	
+    public RefreshTokenResponse(String accessToken, String refreshToken) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+    }
+
 }
