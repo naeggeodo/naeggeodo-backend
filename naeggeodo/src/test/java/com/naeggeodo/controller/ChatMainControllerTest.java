@@ -71,8 +71,8 @@ class ChatMainControllerTest {
                         .param("buildingCode", "용산구"))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.chatRoom[0].category", equalTo("PIZZA")),
-                        jsonPath("$.chatRoom[0].buildingCode", equalTo("용산구"))
+                        jsonPath("$[0].category", equalTo("PIZZA")),
+                        jsonPath("$[0].buildingCode", equalTo("용산구"))
                 );
     }
 
@@ -85,8 +85,8 @@ class ChatMainControllerTest {
                         .param("buildingCode", "용산구"))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.chatRoom[0].buildingCode", equalTo("용산구")),
-                        jsonPath("$.chatRoom[1].buildingCode", equalTo("용산구"))
+                        jsonPath("$[0].buildingCode", equalTo("용산구")),
+                        jsonPath("$[1].buildingCode", equalTo("용산구"))
                 )
                 .andReturn();
 
@@ -197,9 +197,8 @@ class ChatMainControllerTest {
         mockMvc.perform(get("/categories"))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.keys()", hasItems("categories")),
-                        jsonPath("$.categories[*].idx", hasItems(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)),
-                        jsonPath("$.categories[*].category", hasItems("ALL", "CHICKEN", "PIZZA", "FASTFOOD", "DESSERT", "JAPANESE", "CHINESE", "KOREAN", "SNACKS", "STEW", "WESTERN", "GRILLED_MEAT", "PORK_FEET"))
+                        jsonPath("$[*].idx", hasItems(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)),
+                        jsonPath("$[*].category", hasItems("ALL", "CHICKEN", "PIZZA", "FASTFOOD", "DESSERT", "JAPANESE", "CHINESE", "KOREAN", "SNACKS", "STEW", "WESTERN", "GRILLED_MEAT", "PORK_FEET"))
                 );
     }
 
@@ -210,8 +209,7 @@ class ChatMainControllerTest {
                         .param("keyWord", "tag1"))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.keys()", hasItems("chatRoom")),
-                        jsonPath("$.chatRoom[0].tags[0]", equalTo("tag1"))
+                        jsonPath("$[0].tags[0]", equalTo("tag1"))
                 )
                 .andReturn();
 
@@ -224,8 +222,7 @@ class ChatMainControllerTest {
                         .param("keyWord", "tag1"))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.keys()", hasItems("chatRoom")),
-                        jsonPath("$.chatRoom[0].tags[0]", equalTo("tag1"))
+                        jsonPath("$[0].tags[0]", equalTo("tag1"))
                 )
                 .andReturn();
     }
