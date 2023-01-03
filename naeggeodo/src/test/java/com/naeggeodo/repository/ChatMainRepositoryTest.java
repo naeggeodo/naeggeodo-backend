@@ -97,7 +97,7 @@ class ChatMainRepositoryTest {
         log.info("findAll");
         Long id = chatMainRepository.findAll().get(0).getId();
         log.info("findChatMainEntityGraph");
-        chatMainRepository.findChatMainEntityGraph(id);
+        chatMainRepository.findChatUserEntityGraph(id);
     }
 
     @Test

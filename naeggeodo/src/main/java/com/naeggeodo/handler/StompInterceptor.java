@@ -63,7 +63,7 @@ public class StompInterceptor implements ChannelInterceptor {
             }
             String newSessionId = headers.getSessionId();
 
-            ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(chatMain_id);
+            ChatMain chatMain = chatMainRepository.findChatUserEntityGraph(chatMain_id);
             ChatUser enteredChatUser = chatMain.findChatUserBySender(sender);
 
             if (chatMain.isFull()) {

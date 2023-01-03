@@ -80,7 +80,7 @@ public class ChatMainController {
     @Transactional(readOnly = true)
     public ResponseEntity<Object> getChatMain(@PathVariable(name = "chatMain_id") String chatMain_idstr) throws Exception {
         Long chatMain_id = Long.parseLong(chatMain_idstr);
-        ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(chatMain_id);
+        ChatMain chatMain = chatMainRepository.findChatUserEntityGraph(chatMain_id);
         return ResponseEntity.ok(chatMain.toJSON().toMap());
     }
 

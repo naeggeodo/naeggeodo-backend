@@ -25,7 +25,7 @@ public interface ChatMainRepository extends JpaRepository<ChatMain, Long> {
 
     @Query("SELECT c FROM ChatMain c WHERE c.id = :id")
     @EntityGraph(attributePaths = {"chatUser"})
-    ChatMain findChatMainEntityGraph(@Param("id") Long id);
+    ChatMain findChatUserEntityGraph(@Param("id") Long id);
 
     @Query("select c from ChatMain c where c.id = :id")
     @EntityGraph(attributePaths = {"tag"})

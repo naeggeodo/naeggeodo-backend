@@ -42,7 +42,7 @@ public class StompService {
         Long chatMain_id = message.chatMain_idToLong();
         String sender = message.getSender();
         String session_id = headers.getSessionId();
-        ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(chatMain_id);
+        ChatMain chatMain = chatMainRepository.findChatUserEntityGraph(chatMain_id);
         Users user = userRepository.getById(sender);
         ChatUser enteredChatUser = chatMain.findChatUserBySender(sender);
         //신규입장일때
@@ -61,7 +61,7 @@ public class StompService {
         Long chatMain_id = message.chatMain_idToLong();
         String sender = message.getSender();
 
-        ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(chatMain_id);
+        ChatMain chatMain = chatMainRepository.findChatUserEntityGraph(chatMain_id);
         ChatUser exitChatUser = chatMain.findChatUserBySender(sender);
         Users user = userRepository.getById(sender);
         ChatUser nextHost = null;
@@ -99,7 +99,7 @@ public class StompService {
     public String ban(TargetMessageDTO message, StompHeaderAccessor headers) throws Exception {
         String target_id = message.getTarget_id();
         String sender = message.getSender();
-        ChatMain chatMain = chatMainRepository.findChatMainEntityGraph(message.chatMain_idToLong());
+        ChatMain chatMain = chatMainRepository.findChatUserEntityGraph(message.chatMain_idToLong());
         ChatUser targetChatUser = chatMain.findChatUserBySender(target_id);
         String senderSessionId = headers.getSessionId();
         Users user = userRepository.getById(sender);
