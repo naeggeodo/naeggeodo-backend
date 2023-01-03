@@ -1,6 +1,7 @@
 package com.naeggeodo.controller;
 
 import com.naeggeodo.dto.ChatRoomDTO;
+import com.naeggeodo.dto.ChatRoomVO;
 import com.naeggeodo.entity.chat.*;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
@@ -16,8 +17,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,29 +32,17 @@ public class ChatMainController {
 
     //채팅방 리스트
     @GetMapping(value = "/chat-rooms", produces = "application/json", params = "category")
-    @Transactional(readOnly = true)
-    public ResponseEntity<Object> getChatListWithCategory(
+    public List<ChatRoomVO> getChatListWithCategory(
             @RequestParam(name = "category") String category,
-            @RequestParam(name = "buildingCode") String buildingCode) throws Exception {
+            @RequestParam(name = "buildingCode") String buildingCode) {
         //카테고리 조회시
         Category categoryEnum = Category.valueOf(category.toUpperCase());
-        JSONObject json = MyUtility.convertListToJSONobj(
-                chatMainRepository.findByCategoryAndBuildingCodeAndStateNotInOrderByCreateDateDesc
-                        (categoryEnum, buildingCode, ChatState.insearchableList), "chatRoom"
-        );
-        return ResponseEntity.ok(json.toMap());
+        return chatMainService.getChatListWithCategory(buildingCode, categoryEnum);
     }
 
     @GetMapping(value = "/chat-rooms", produces = "application/json", params = "!category")
-    @Transactional(readOnly = true)
-    public ResponseEntity<Object> getChatListWithoutCategory(@RequestParam(name = "buildingCode") String buildingCode) throws Exception {
-
-        //전체조회시
-        JSONObject json = MyUtility.convertListToJSONobj(
-                chatMainRepository.findByBuildingCodeAndStateNotInOrderByCreateDateDesc
-                        (buildingCode, ChatState.insearchableList), "chatRoom"
-        );
-        return ResponseEntity.ok(json.toMap());
+    public List<ChatRoomVO> getChatListWithoutCategory(@RequestParam(name = "buildingCode") String buildingCode) {
+        return chatMainService.getChatListWithoutCategory(buildingCode);
     }
 
     //채팅방 생성
@@ -135,8 +126,8 @@ public class ChatMainController {
 
     //카테고리 리스트
     @GetMapping(value = "/categories", produces = "application/json")
-    public ResponseEntity<Object> getCategoryList() {
-        return ResponseEntity.ok(MyUtility.convertCategoryToJSONobj("categories").toMap());
+    public List<String> getCategoryList() {
+        return Arrays.stream(Category.values()).map(Category::name).collect(Collectors.toList());
     }
 
 
@@ -149,11 +140,8 @@ public class ChatMainController {
     }
 
     @GetMapping(value = "/chat-rooms/search", produces = "application/json")
-    @Transactional(readOnly = true)
-    public ResponseEntity<Object> getChatListByKeyWord(@RequestParam("keyWord") String keyWord) throws Exception {
-        List<ChatMain> list = chatMainRepository.findByTagNameOrTitleContainsAndStateNotInOrderByCreateDateDesc(keyWord, keyWord, ChatState.insearchableList);
-        JSONObject json = MyUtility.convertListToJSONobj(list, "chatRoom");
-        return ResponseEntity.ok(json.toMap());
+    public List<ChatRoomVO> getChatListByKeyWord(@RequestParam("keyWord") String keyWord) {
+        return chatMainService.getChatListByKeyWord(keyWord);
     }
 
 

@@ -1,6 +1,7 @@
 package com.naeggeodo.service;
 
 import com.naeggeodo.dto.ChatRoomDTO;
+import com.naeggeodo.dto.ChatRoomVO;
 import com.naeggeodo.entity.chat.*;
 import com.naeggeodo.entity.deal.Deal;
 import com.naeggeodo.entity.user.Users;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -31,6 +33,29 @@ public class ChatMainService {
     private final DealRepository dealRepository;
     private final ChatUserRepository chatUserRepository;
 
+    @Transactional(readOnly = true)
+    public List<ChatRoomVO> getChatListWithCategory(String buildingCode, Category category) {
+        List<ChatMain> chatList = chatMainRepository.findByCategoryAndBuildingCodeAndStateNotInOrderByCreateDateDesc(category, buildingCode, ChatState.insearchableList);
+        return chatList.stream()
+                       .map(ChatRoomVO::convert)
+                       .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChatRoomVO> getChatListWithoutCategory(String buildingCode) {
+        List<ChatMain> chatList = chatMainRepository.findByBuildingCodeAndStateNotInOrderByCreateDateDesc(buildingCode, ChatState.insearchableList);
+        return chatList.stream()
+                       .map(ChatRoomVO::convert)
+                       .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChatRoomVO> getChatListByKeyWord(String keyWord) {
+        List<ChatMain> chatList = chatMainRepository.findByTagNameOrTitleContainsAndStateNotInOrderByCreateDateDesc(keyWord, keyWord, ChatState.insearchableList);
+        return chatList.stream()
+                .map(ChatRoomVO::convert)
+                .collect(Collectors.toList());
+    }
 
     //채팅방 생성
     @Transactional
