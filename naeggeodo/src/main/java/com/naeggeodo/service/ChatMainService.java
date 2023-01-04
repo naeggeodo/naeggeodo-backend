@@ -57,6 +57,14 @@ public class ChatMainService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<ChatRoomVO> getChatListByTagName(String keyWord) {
+        List<ChatMain> chatList = chatMainRepository.findByTagNameAndStateNotInOrderByCreateDateDesc(keyWord, ChatState.insearchableList);
+        return chatList.stream()
+                .map(ChatRoomVO::convert)
+                .collect(Collectors.toList());
+    }
+
     //채팅방 생성
     @Transactional
     public JSONObject createChatRoom(ChatRoomDTO dto, MultipartFile file) {

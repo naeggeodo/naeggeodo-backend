@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -69,6 +70,13 @@ public class ChatMain extends JSONConverterAdapter {
     private Bookmarks bookmarks;
 
     private LocalDateTime bookmarksDate;
+
+    public List<String> getTagNames() {
+        return this.tag
+                .stream()
+                .map(t -> t.getName())
+                .collect(Collectors.toList());
+    }
 
     //생성
 

@@ -133,10 +133,8 @@ public class ChatMainController {
 
     @GetMapping(value = "/chat-rooms/tag", produces = "application/json")
     @Transactional(readOnly = true)
-    public ResponseEntity<Object> getChatListByTag(@RequestParam("keyWord") String keyWord) throws Exception {
-        List<ChatMain> list = chatMainRepository.findByTagNameAndStateNotInOrderByCreateDateDesc(keyWord, ChatState.insearchableList);
-        JSONObject json = MyUtility.convertListToJSONobj(list, "chatRoom");
-        return ResponseEntity.ok(json.toMap());
+    public List<ChatRoomVO> getChatListByTag(@RequestParam("keyWord") String keyWord) {
+        return chatMainService.getChatListByTagName(keyWord);
     }
 
     @GetMapping(value = "/chat-rooms/search", produces = "application/json")
