@@ -37,16 +37,16 @@ public class ChatMainService {
     public List<ChatRoomVO> getChatListWithCategory(String buildingCode, Category category) {
         List<ChatMain> chatList = chatMainRepository.findByCategoryAndBuildingCodeAndStateNotInOrderByCreateDateDesc(category, buildingCode, ChatState.insearchableList);
         return chatList.stream()
-                       .map(ChatRoomVO::convert)
-                       .collect(Collectors.toList());
+                .map(ChatRoomVO::convert)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public List<ChatRoomVO> getChatListWithoutCategory(String buildingCode) {
         List<ChatMain> chatList = chatMainRepository.findByBuildingCodeAndStateNotInOrderByCreateDateDesc(buildingCode, ChatState.insearchableList);
         return chatList.stream()
-                       .map(ChatRoomVO::convert)
-                       .collect(Collectors.toList());
+                .map(ChatRoomVO::convert)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -63,6 +63,12 @@ public class ChatMainService {
         return chatList.stream()
                 .map(ChatRoomVO::convert)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public ChatRoomVO getChatMain(Long id) {
+        ChatMain chatMain = chatMainRepository.findChatUserEntityGraph(id);
+        return ChatRoomVO.convert(chatMain);
     }
 
     //채팅방 생성
@@ -116,13 +122,12 @@ public class ChatMainService {
         chatMain.changeState(state);
 
         if (ChatState.END.equals(chatMain.getState())) {
-            for (ChatUser cu : chatMain.getAllowedUserList()) {
-                dealRepository.save(Deal.create(cu.getUser(), chatMain));
-            }
+            chatMain.getAllowedUserList()
+                    .forEach(cu -> dealRepository.save(Deal.create(cu.getUser(), chatMain)));
             chatUserRepository.deleteAll(chatMain.getChatUser());
             chatMain.getChatUser().clear();
         }
-        json.put("chatMain_id", chatMain.getId()); // TODO : 채팅방 id key값 일치시켜야함
+        json.put("chatMain_id", chatMain.getId()); // TODO : 공통 응답 객체 생성 후 리턴값 개선 필요
         json.put("state", chatMain.getState().name());
         return json;
     }

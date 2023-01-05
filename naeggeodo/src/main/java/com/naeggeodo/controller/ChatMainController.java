@@ -68,11 +68,8 @@ public class ChatMainController {
 
     //해당 채팅방 data
     @GetMapping(value = "/chat-rooms/{chatMain_id}", produces = "application/json")
-    @Transactional(readOnly = true)
-    public ResponseEntity<Object> getChatMain(@PathVariable(name = "chatMain_id") String chatMain_idstr) throws Exception {
-        Long chatMain_id = Long.parseLong(chatMain_idstr);
-        ChatMain chatMain = chatMainRepository.findChatUserEntityGraph(chatMain_id);
-        return ResponseEntity.ok(chatMain.toJSON().toMap());
+    public ChatRoomVO getChatMain(@PathVariable(name = "chatMain_id") Long id) {
+        return chatMainService.getChatMain(id);
     }
 
     //채팅방 상태 업데이트
@@ -127,7 +124,9 @@ public class ChatMainController {
     //카테고리 리스트
     @GetMapping(value = "/categories", produces = "application/json")
     public List<String> getCategoryList() {
-        return Arrays.stream(Category.values()).map(Category::name).collect(Collectors.toList());
+        return Arrays.stream(Category.values())
+                .map(Category::name)
+                .collect(Collectors.toList());
     }
 
 
