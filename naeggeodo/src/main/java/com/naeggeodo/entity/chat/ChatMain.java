@@ -1,6 +1,8 @@
 package com.naeggeodo.entity.chat;
 
 import com.naeggeodo.entity.user.Users;
+import com.naeggeodo.exception.CustomHttpException;
+import com.naeggeodo.exception.ErrorCode;
 import com.naeggeodo.interfaces.JSONConverterAdapter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +20,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Entity
@@ -74,7 +77,7 @@ public class ChatMain extends JSONConverterAdapter {
     public List<String> getTagNames() {
         return this.tag
                 .stream()
-                .map(t -> t.getName())
+                .map(Tag::getName)
                 .collect(Collectors.toList());
     }
 
@@ -114,68 +117,44 @@ public class ChatMain extends JSONConverterAdapter {
 
     //state upadate
     public void updateState() {
-
-        if (isFull()) {
-            this.state = ChatState.FULL;
-            return;
-        }
-        this.state = ChatState.CREATE;
+        this.state = isFull() ? ChatState.FULL : ChatState.CREATE;
     }
 
     public void changeState(ChatState state) {
         this.state = state;
-        if (state.equals(ChatState.END) || state.equals(ChatState.INCOMPLETE)) this.bookmarks = Bookmarks.N;
+        if (ChatState.insearchableList.contains(state)) {
+            this.bookmarks = Bookmarks.N;
+        }
     }
 
     // is Full
     public boolean isFull() {
-        int maxCount = this.getMaxCount();
-        int currentCount = getAllowedUserCnt();
-
-
-        return currentCount >= maxCount;
+        return getAllowedUserCnt() >= this.maxCount;
     }
 
     // 입장가능?
     public boolean canEnter() {
-        return this.state == ChatState.CREATE || this.state == ChatState.FULL;
+        return ChatState.searchableList.contains(this.state);
     }
 
     public int getAllowedUserCnt() {
-        int allowedUserCnt = 0;
-        if (!chatUser.isEmpty()) {
-            for (ChatUser cu : chatUser) {
-                if (BanState.ALLOWED.equals(cu.getBanState())) {
-                    allowedUserCnt++;
-                }
-            }
-        }
-        return allowedUserCnt;
+        return (int) this.chatUser.stream()
+                .filter(cu -> BanState.ALLOWED.equals(cu.getBanState()))
+                .count();
     }
 
     public List<ChatUser> getAllowedUserList() {
-        List<ChatUser> list = new ArrayList<>();
-        if (!chatUser.isEmpty()) {
-            for (ChatUser cu : chatUser) {
-                if (BanState.ALLOWED.equals(cu.getBanState())) {
-                    list.add(cu);
-                }
-            }
-        }
-        return list;
+        return this.chatUser.stream()
+                .filter(cu -> BanState.ALLOWED.equals(cu.getBanState()))
+                .collect(Collectors.toList());
     }
 
     //imgPath update
     public ChatUser findChatUserBySender(String sender) {
-        ChatUser chatUser = null;
-        if (!this.getChatUser().isEmpty()) {
-            for (ChatUser cu : this.getChatUser()) {
-                if (cu.getUser().getId().equals(sender)) {
-                    chatUser = cu;
-                }
-            }
-        }
-        return chatUser;
+        Optional<ChatUser> first = this.chatUser.stream()
+                .filter(cu -> sender.equals(cu.getUser().getId()))
+                .findFirst();
+        return first.orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
     }
 
     //다음 방장 찾기
@@ -288,8 +267,8 @@ public class ChatMain extends JSONConverterAdapter {
         updateBookmarksDate(this.bookmarks);
     }
 
-    private LocalDateTime updateBookmarksDate(Bookmarks bookmarks) {
-        return bookmarks.equals(Bookmarks.Y) ? null : LocalDateTime.now();
+    private void updateBookmarksDate(Bookmarks bookmarks) {
+        this.bookmarksDate = bookmarks.equals(Bookmarks.Y) ? null : LocalDateTime.now();
     }
 
 
@@ -305,8 +284,4 @@ public class ChatMain extends JSONConverterAdapter {
         this.imgPath = category.getDefaultImagePath();
     }
 
-    public void setTags(List<Tag> tags) {
-        this.tag = tags;
-        tags.forEach((tag) -> tag.setChatMain(this));
-    }
 }
