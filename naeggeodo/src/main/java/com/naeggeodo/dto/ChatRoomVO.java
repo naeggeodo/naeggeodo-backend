@@ -1,5 +1,6 @@
 package com.naeggeodo.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.naeggeodo.entity.chat.ChatMain;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -8,6 +9,7 @@ import lombok.Setter;
 import org.modelmapper.ModelMapper;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static org.modelmapper.config.Configuration.AccessLevel.PRIVATE;
 
@@ -32,6 +34,9 @@ public class ChatRoomVO {
     private String place;
     private String category;
     private String createDate;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Setter(AccessLevel.PRIVATE)
+    private String latestMessage;
 
     public static ChatRoomVO convert(ChatMain chatMain) {
         ModelMapper modelMapper = new ModelMapper();
@@ -42,5 +47,14 @@ public class ChatRoomVO {
         modelMapper.typeMap(ChatMain.class, ChatRoomVO.class)
                 .addMapping(ChatMain::getTagNames, ChatRoomVO::setTags);
         return modelMapper.map(chatMain, ChatRoomVO.class);
+    }
+    
+    public static void setLatestMessage(List<ChatRoomVO> chatList ,List<String> messages) {
+        if (chatList.size() != messages.size()) {
+            throw new IllegalStateException("리스트의 크기가 서로 다릅니다.");
+        }
+
+        IntStream.range(0, chatList.size())
+                .forEach(i -> chatList.get(i).setLatestMessage(messages.get(i)));
     }
 }

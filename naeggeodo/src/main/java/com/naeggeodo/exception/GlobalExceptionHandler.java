@@ -1,5 +1,7 @@
 package com.naeggeodo.exception;
 
+import com.naeggeodo.dto.ResponseDTO;
+import com.naeggeodo.util.ResponseUtils;
 import io.jsonwebtoken.MalformedJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -15,40 +17,40 @@ import javax.persistence.NoResultException;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = {CustomHttpException.class})
-    protected ResponseEntity<ErrorResponse> handleCustomException(CustomHttpException e) {
-        return ErrorResponse.toResponseEntity(e.getErrorCode());
+    protected ResponseDTO handleCustomException(CustomHttpException e) {
+        return ResponseUtils.error(e.getErrorCode());
     }
 
     @ExceptionHandler(value = {NumberFormatException.class, NullPointerException.class})
-    protected ResponseEntity<ErrorResponse> handleNumberFormatException(Exception e) {
-        return ErrorResponse.toResponseEntity(ErrorCode.INVALID_FORMAT);
+    protected ResponseDTO handleNumberFormatException(Exception e) {
+        return ResponseUtils.error(ErrorCode.INVALID_FORMAT);
     }
 
     @ExceptionHandler(value = {IllegalArgumentException.class})
-    protected ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e) {
-        return ErrorResponse.toResponseEntity(ErrorCode.INVALID_FORMAT);
+    protected ResponseDTO handleIllegalArgumentException(IllegalArgumentException e) {
+        return ResponseUtils.error(ErrorCode.INVALID_FORMAT);
     }
 
     @ExceptionHandler(value = {NoResultException.class, EntityNotFoundException.class})
-    protected ResponseEntity<ErrorResponse> handleNoResultException() {
-        return ErrorResponse.toResponseEntity(ErrorCode.RESOURCE_NOT_FOUND);
+    protected ResponseDTO handleNoResultException() {
+        return ResponseUtils.error(ErrorCode.RESOURCE_NOT_FOUND);
     }
 
     @ExceptionHandler(value = {HttpMediaTypeNotSupportedException.class})
-    protected ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
-        return ErrorResponse.toResponseEntity(ErrorCode.INVALID_FORMAT);
+    protected ResponseDTO handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
+        return ResponseUtils.error(ErrorCode.INVALID_FORMAT);
     }
 
     @ExceptionHandler(value = {MalformedJwtException.class})
-    protected ResponseEntity<ErrorResponse> handleHttpMalformedJwtException() {
-        return ErrorResponse.toResponseEntity(ErrorCode.UNAUTHORIZED);
+    protected ResponseDTO handleHttpMalformedJwtException() {
+        return ResponseUtils.error(ErrorCode.UNAUTHORIZED);
     }
 
     @ExceptionHandler(value = {Exception.class})
-    protected ResponseEntity<ErrorResponse> handleException(Exception e) {
+    protected ResponseDTO handleException(Exception e) {
         log.warn("Unhandled Exception From GlobalExceptionHandler");
         e.printStackTrace();
-        return ErrorResponse.toResponseEntity(ErrorCode.UNKNOWN_ERROR);
+        return ResponseUtils.error(ErrorCode.UNKNOWN_ERROR);
     }
 
 }

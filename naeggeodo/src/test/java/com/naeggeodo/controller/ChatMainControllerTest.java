@@ -71,8 +71,11 @@ class ChatMainControllerTest {
                         .param("buildingCode", "용산구"))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$[0].category", equalTo("PIZZA")),
-                        jsonPath("$[0].buildingCode", equalTo("용산구"))
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isArray(),
+                        jsonPath("$.status", equalTo(200)),
+                        jsonPath("$.data[0].category", equalTo("PIZZA")),
+                        jsonPath("$.data[0].buildingCode", equalTo("용산구"))
                 );
     }
 
@@ -85,8 +88,11 @@ class ChatMainControllerTest {
                         .param("buildingCode", "용산구"))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$[0].buildingCode", equalTo("용산구")),
-                        jsonPath("$[1].buildingCode", equalTo("용산구"))
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isArray(),
+                        jsonPath("$.status", equalTo(200)),
+                        jsonPath("$.data[0].buildingCode", equalTo("용산구")),
+                        jsonPath("$.data[1].buildingCode", equalTo("용산구"))
                 )
                 .andReturn();
 
@@ -112,7 +118,7 @@ class ChatMainControllerTest {
                         .file(file)
                         .contentType("multipart/form-data"))
                 //.andExpect(request().asyncNotStarted())
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn();
 
 //        mockMvc.perform(asyncDispatch(mvcResult))
@@ -140,12 +146,14 @@ class ChatMainControllerTest {
         ChatMain chatMain = chatMainRepository.findAll().get(0);
         Long id = chatMain.getId();
 
-        mockMvc.perform(get("/chat-rooms/{chatMain_id}", id)
-                        .param("state", "CREATE"))
+        mockMvc.perform(get("/chat-rooms/{chatMain_id}", 154151))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.state", equalTo(ChatState.CREATE.name())),
-                        jsonPath("$.id", equalTo(id.intValue()))
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isMap(),
+                        jsonPath("$.status", equalTo(200)),
+                        jsonPath("$.data.state", equalTo(ChatState.CREATE.name())),
+                        jsonPath("$.data.id", equalTo(id.intValue()))
                 );
     }
 
@@ -159,8 +167,11 @@ class ChatMainControllerTest {
                         .param("state", "END"))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.state", equalTo(ChatState.END.name())),
-                        jsonPath("$.chatMain_id", equalTo(id.intValue()))
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isMap(),
+                        jsonPath("$.status", equalTo(200)),
+                        jsonPath("$.data.state", equalTo(ChatState.END.name())),
+                        jsonPath("$.data.chatMain_id", equalTo(id.intValue()))
                 );
     }
 
@@ -174,20 +185,37 @@ class ChatMainControllerTest {
                         .param("title", "제목변경"))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.chatMain_id", equalTo(id.intValue())),
-                        jsonPath("$.title", equalTo("제목변경"))
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isMap(),
+                        jsonPath("$.status", equalTo(200)),
+                        jsonPath("$.data.chatMain_id", equalTo(id.intValue())),
+                        jsonPath("$.data.title", equalTo("제목변경"))
                 )
                 .andReturn();
 
     }
-//    user_id 가 path에 들어가면 토큰검증해서 일단 보류
-//    @Test
-//    void getProgressingChatList() {
-//    }
-//
-//    @Test
-//    void getChatListByStateAndUserId() {
-//    }
+    @Test
+    void getProgressingChatList() throws Exception {
+        mockMvc.perform(get("/chat-rooms/progressing/user/{user_id}","user0"))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isArray(),
+                        jsonPath("$.status", equalTo(200))
+                );
+    }
+
+    @Test
+    void getChatListByStateAndUserId() throws Exception {
+        mockMvc.perform(get("/chat-rooms/user/{user_id}","user0")
+                        .param("state","create"))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isArray(),
+                        jsonPath("$.status", equalTo(200))
+                );
+    }
 
     @Test
     @DisplayName("GET /categories")
@@ -197,7 +225,10 @@ class ChatMainControllerTest {
         mockMvc.perform(get("/categories"))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$", hasItems("ALL", "CHICKEN", "PIZZA", "FASTFOOD", "DESSERT", "JAPANESE", "CHINESE", "KOREAN", "SNACKS", "STEW", "WESTERN", "GRILLED_MEAT", "PORK_FEET"))
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isArray(),
+                        jsonPath("$.status", equalTo(200)),
+                        jsonPath("$.data", hasItems("ALL", "CHICKEN", "PIZZA", "FASTFOOD", "DESSERT", "JAPANESE", "CHINESE", "KOREAN", "SNACKS", "STEW", "WESTERN", "GRILLED_MEAT", "PORK_FEET"))
                 );
     }
 
@@ -208,7 +239,10 @@ class ChatMainControllerTest {
                         .param("keyWord", "tag1"))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$[0].tags[0]", equalTo("tag1"))
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isArray(),
+                        jsonPath("$.status", equalTo(200)),
+                        jsonPath("$.data[0].tags[0]", equalTo("tag1"))
                 )
                 .andReturn();
 
@@ -221,33 +255,37 @@ class ChatMainControllerTest {
                         .param("keyWord", "tag1"))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$[0].tags[0]", equalTo("tag1"))
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isArray(),
+                        jsonPath("$.status", equalTo(200)),
+                        jsonPath("$.data[0].tags[0]",equalTo("tag1"))
                 )
                 .andReturn();
     }
 
-    // 인터셉터 토큰에러로 테스트실패
-//    @Test
-//    @DisplayName("PATCH /chat-rooms/{chatMain_id}/bookmarks/{user_id}")
-//    void addBookmarks() throws Exception {
-//        String user_id = "test";
-//        ChatMain chatMain = chatMainRepository.findByBuildingCodeAndStateNotInOrderByCreateDateDesc("bookmarksTest", Arrays.asList(ChatState.FULL)).get(0);
-//
-//        MvcResult mvcResult = mockMvc.perform(patch("/chat-rooms/{chatMain_id}/bookmarks/{user_id}", chatMain.getId(), user_id))
-//                .andReturn();
-//
-//        String content = mvcResult.getResponse().getContentAsString();
-//        JSONObject json = new JSONObject(content);
-//
-//        assertThat(json.get("chatMain_id")).isEqualTo(chatMain.getId().intValue());
-//        assertThat(json.get("bookmarks")).isEqualTo(chatMain.getBookmarks().name());
-//        assertThat(chatMain.getBookmarks()).isEqualTo(Bookmarks.Y);
-//
-//    }
-//
-//    @Test
-//    void getOrderList() {
-//    }
+    @Test
+    @DisplayName("PATCH /chat-rooms/{chatMain_id}/bookmarks/{user_id}")
+    void addBookmarks() throws Exception {
+        Long id = chatMainRepository.findAll().get(0).getId();
+        mockMvc.perform(patch("/chat-rooms/{chatMain_id}/bookmarks/{user_id}",id,"user0"))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isMap(),
+                        jsonPath("$.status", equalTo(200))
+                );
+    }
+
+    @Test
+    void getOrderList() throws Exception {
+        mockMvc.perform(get("/chat-rooms/order-list/{user_id}", "user0"))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isArray(),
+                        jsonPath("$.status", equalTo(200))
+                );
+    }
 
     @Test
     @DisplayName("DELETE /chat-rooms/{chatMain_id}")
@@ -259,8 +297,11 @@ class ChatMainControllerTest {
         mockMvc.perform(delete("/chat-rooms/{chatMain_id}", id))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.deleted", equalTo(true)),
-                        jsonPath("$.chatMain_id", equalTo(id.intValue()))
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isMap(),
+                        jsonPath("$.status", equalTo(200)),
+                        jsonPath("$.data.deleted", equalTo(true)),
+                        jsonPath("$.data.chatMain_id", equalTo(id.intValue()))
                 );
 
     }

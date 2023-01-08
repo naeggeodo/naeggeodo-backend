@@ -1,6 +1,7 @@
 package com.naeggeodo.service;
 
 import com.naeggeodo.dto.ChatRoomDTO;
+import com.naeggeodo.dto.ChatRoomUpdateDTO;
 import com.naeggeodo.dto.ChatRoomVO;
 import com.naeggeodo.entity.chat.*;
 import com.naeggeodo.entity.deal.Deal;
@@ -8,7 +9,6 @@ import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
 import com.naeggeodo.repository.*;
-import com.naeggeodo.util.MyUtility;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -98,28 +98,91 @@ public class ChatMainService {
         return json;
     }
 
+    @Transactional(readOnly = true)
+    public List<ChatRoomVO> getOrderList(String userId) {
+        List<ChatMain> bookmarkedList =
+                chatMainRepository.findTop10ByBookmarksAndUserIdOrderByBookmarksDateDesc(Bookmarks.Y, userId);
+        List<ChatMain> unBookmarkedList =
+                chatMainRepository.findByStateInAndUserIdAndBookmarksOrderByCreateDateDesc(ChatState.insearchableList, userId, Bookmarks.N);
+        bookmarkedList.addAll(unBookmarkedList);
+
+        return bookmarkedList.stream()
+                .map(ChatRoomVO::convert)
+                .collect(Collectors.toList());
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<ChatRoomVO> getChatListByStateAndUserId(String userId, String state) {
+        ChatState chatState = ChatState.valueOf(state.toUpperCase());
+        List<ChatMain> list = chatMainRepository.findByStateAndUserId(chatState, userId);
+        return list.stream()
+                .map(ChatRoomVO::convert)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public ChatRoomUpdateDTO deleteChatMain(Long chatMain_id) {
+        ChatMain chatMain = chatMainRepository.findById(chatMain_id)
+                .orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+        if (!chatMain.isDeletable()) {
+            throw new CustomHttpException(ErrorCode.INVALID_FORMAT);
+        }
+        chatMainRepository.delete(chatMain);
+
+        return ChatRoomUpdateDTO.builder()
+                .chatMain_id(chatMain_id)
+                .deleted(true)
+                .build();
+    }
+
+    @Transactional
+    public ChatRoomUpdateDTO addBookmarks(Long chatMain_id, String userId) {
+        ChatMain chatMain = chatMainRepository.findById(chatMain_id)
+                .orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+
+        if (chatMain.getUser().getId().equals(userId)) {
+            chatMain.updateBookmarks();
+            return ChatRoomUpdateDTO.builder()
+                    .chatMain_id(chatMain.getId())
+                    .bookmarks(chatMain.getBookmarks().name())
+                    .build();
+        } else {
+            throw new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND);
+        }
+
+    }
+
+    @Transactional
+    public ChatRoomUpdateDTO updateTitle(Long chatMain_id, String title) {
+        ChatMain chatMain = chatMainRepository.findById(chatMain_id)
+                .orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
+        chatMain.updateTitle(title);
+
+        return ChatRoomUpdateDTO.builder()
+                .chatMain_id(chatMain.getId())
+                .title(chatMain.getTitle())
+                .build();
+    }
+
     // 기존 내역으로 생성
     @Transactional
-    public JSONObject copyChatRoom(Long targetId, OrderTimeType orderTimeType) {
+    public void copyChatRoom(Long targetId, OrderTimeType orderTimeType) {
         ChatMain targetChatMain = chatMainRepository.findTagEntityGraph(targetId);
         ChatMain savedChatMain = chatMainRepository.save(targetChatMain.copy(orderTimeType));
         List<Tag> saveTags = savedChatMain.copyTags(targetChatMain.getTag());
         tagRepository.saveAll(saveTags);
 
         chatDetailRepository.save(ChatDetail.create("채팅방이 생성 되었습니다", savedChatMain.getUser(), savedChatMain, ChatDetailType.CREATED));
-        JSONObject json = new JSONObject();
-        json.put("chatMain_id", savedChatMain.getId());
-        return json;
     }
 
     // 채팅방 상태 업데이트
     @Transactional
-    public JSONObject updateRoomState(Long chatMain_id, ChatState state) {
-        JSONObject json = new JSONObject();
+    public ChatRoomUpdateDTO updateRoomState(Long chatMain_id, String state) {
+        ChatState chatState = ChatState.valueOf(state);
         ChatMain chatMain = chatMainRepository.findById(chatMain_id)
                 .orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
-
-        chatMain.changeState(state);
+        chatMain.changeState(chatState);
 
         if (ChatState.END.equals(chatMain.getState())) {
             chatMain.getAllowedUserList()
@@ -127,14 +190,15 @@ public class ChatMainService {
             chatUserRepository.deleteAll(chatMain.getChatUser());
             chatMain.getChatUser().clear();
         }
-        json.put("chatMain_id", chatMain.getId()); // TODO : 공통 응답 객체 생성 후 리턴값 개선 필요
-        json.put("state", chatMain.getState().name());
-        return json;
+        return ChatRoomUpdateDTO.builder()
+                .chatMain_id(chatMain.getId())
+                .state(chatMain.getState().name())
+                .build();
     }
 
     //참여중인 채팅방 리스트(내꺼톡)
     @Transactional
-    public JSONObject getProgressingChatList(String user_id) throws Exception {
+    public List<ChatRoomVO> getProgressingChatList(String user_id) {
         List<ChatMain> list = chatMainRepository.findByUserIdInChatUser(user_id, ChatState.insearchableList);
         List<Long> idList = new ArrayList<>();
         for (ChatMain c : list) {
@@ -142,7 +206,13 @@ public class ChatMainService {
         }
         List<String> latestMessages = chatDetailRepository.findLatestContents(idList);
         Collections.reverse(latestMessages);
-        return MyUtility.convertListToJSONobj(list, latestMessages, "chatRoom");
+
+        List<ChatRoomVO> chatList = list.stream()
+                .map(ChatRoomVO::convert)
+                .collect(Collectors.toList());
+        ChatRoomVO.setLatestMessage(chatList, latestMessages);
+
+        return chatList;
     }
 
 }
