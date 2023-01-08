@@ -18,9 +18,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItems;
@@ -68,12 +66,13 @@ class UserControllerTest {
                 )
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.size()", equalTo(4)),
-                        jsonPath("$.keys()", hasItems("address", "zonecode", "buildingCode", "user_id")),
-                        jsonPath("$.address", equalTo("address1")),
-                        jsonPath("$.zonecode", equalTo("zonecode1")),
-                        jsonPath("$.buildingCode", equalTo("buildingCode1")),
-                        jsonPath("$.user_id", equalTo("user0"))
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isMap(),
+                        jsonPath("$.status", equalTo(200)),
+                        jsonPath("$.data.address", equalTo("address1")),
+                        jsonPath("$.data.zonecode", equalTo("zonecode1")),
+                        jsonPath("$.data.buildingCode", equalTo("buildingCode1")),
+                        jsonPath("$.data.user_id", equalTo("user0"))
                 );
     }
 
@@ -103,12 +102,14 @@ class UserControllerTest {
         mockMvc.perform(get("/user/{user_id}/address", userId))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.size()", equalTo(4)),
-                        jsonPath("$.keys()", hasItems("address", "zonecode", "buildingCode", "user_id")),
-                        jsonPath("$.address", equalTo("address")),
-                        jsonPath("$.zonecode", equalTo("zonecode")),
-                        jsonPath("$.buildingCode", equalTo("building_code")),
-                        jsonPath("$.user_id", equalTo("user0"))
+                        status().isOk(),
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isMap(),
+                        jsonPath("$.status", equalTo(200)),
+                        jsonPath("$.data.address", equalTo("address")),
+                        jsonPath("$.data.zonecode", equalTo("zonecode")),
+                        jsonPath("$.data.buildingCode", equalTo("building_code")),
+                        jsonPath("$.data.user_id", equalTo("user0"))
                 )
         ;
     }
@@ -136,11 +137,13 @@ class UserControllerTest {
         mockMvc.perform(get("/user/{user_id}/mypage", userId))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.size()", equalTo(3)),
-                        jsonPath("$.keys()", hasItems("participatingChatCount", "myOrdersCount", "nickname")),
-                        jsonPath("$.participatingChatCount", equalTo(1)),
-                        jsonPath("$.myOrdersCount", equalTo(1)),
-                        jsonPath("$.nickname", equalTo("도봉산-왕주먹"))
+                        status().isOk(),
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isMap(),
+                        jsonPath("$.status", equalTo(200)),
+                        jsonPath("$.data.participatingChatCount", equalTo(1)),
+                        jsonPath("$.data.myOrdersCount", equalTo(1)),
+                        jsonPath("$.data.nickname", equalTo("도봉산-왕주먹"))
                 );
     }
 
@@ -167,9 +170,11 @@ class UserControllerTest {
         mockMvc.perform(get("/user/{user_id}/quick-chatting", userId))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.keys()", hasItems("quickChat")),
-                        jsonPath("$.quickChat.size()", equalTo(5)),
-                        jsonPath("$.quickChat", hasItems("반갑습니다 *^ㅡ^*", "주문 완료했습니다! 송금 부탁드려요 *^ㅡ^*", "음식이 도착했어요!", "맛있게 드세요 *^ㅡ^*", "주문내역 확인해주세요!"))
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isArray(),
+                        jsonPath("$.status", equalTo(200)),
+                        jsonPath("$.data.size()", equalTo(5)),
+                        jsonPath("$.data", hasItems("반갑습니다 *^ㅡ^*", "주문 완료했습니다! 송금 부탁드려요 *^ㅡ^*", "음식이 도착했어요!", "맛있게 드세요 *^ㅡ^*", "주문내역 확인해주세요!"))
                 );
     }
 
@@ -192,9 +197,8 @@ class UserControllerTest {
     void updateQuickChat() throws Exception {
         String userId = "user0";
 
-        Map<String, List<String>> map = new HashMap<>();
-        map.put("quickChat", Arrays.asList("1", "2", "3", "4", "5"));
-        String s = objectMapper.writeValueAsString(map);
+        List<String> list = Arrays.asList("1", "2", "3", "4", "5");
+        String s = objectMapper.writeValueAsString(list);
 
 
         mockMvc.perform(patch("/user/{user_id}/quick-chatting", userId)
@@ -204,9 +208,11 @@ class UserControllerTest {
                 )
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.keys()", hasItems("quickChat")),
-                        jsonPath("$.quickChat.size()", equalTo(5)),
-                        jsonPath("$.quickChat", hasItems("1", "2", "3", "4", "5"))
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isArray(),
+                        jsonPath("$.status", equalTo(200)),
+                        jsonPath("$.data.size()", equalTo(5)),
+                        jsonPath("$.data", hasItems("1", "2", "3", "4", "5"))
                 );
     }
 
@@ -215,8 +221,7 @@ class UserControllerTest {
     void updateQuickCha2t() throws Exception {
         String userId = "user1";
 
-        Map<String, List<String>> list = new HashMap<>();
-        list.put("quickChat", Arrays.asList("1", "2", "3", "4", "5"));
+        List<String> list = Arrays.asList("1", "2", "3", "4", "5");
         String s = objectMapper.writeValueAsString(list);
 
 
@@ -241,10 +246,13 @@ class UserControllerTest {
         mockMvc.perform(get("/user/{user_id}/nickname", userId))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.keys()", hasItems("nickname", "user_id")),
-                        jsonPath("$.size()", equalTo(2)),
-                        jsonPath("$.nickname", equalTo("도봉산-왕주먹")),
-                        jsonPath("$.user_id", equalTo("user0"))
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isMap(),
+                        jsonPath("$.status", equalTo(200)),
+                        jsonPath("$.data.keys()", hasItems("nickname", "user_id")),
+                        jsonPath("$.data.size()", equalTo(2)),
+                        jsonPath("$.data.nickname", equalTo("도봉산-왕주먹")),
+                        jsonPath("$.data.user_id", equalTo("user0"))
                 )
         ;
     }
@@ -271,10 +279,11 @@ class UserControllerTest {
         mockMvc.perform(patch("/user/{user_id}/nickname", userId).param("value", "도봉산-호랑이"))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.keys()", hasItems("nickname", "user_id")),
-                        jsonPath("$.size()", equalTo(2)),
-                        jsonPath("$.nickname", equalTo("도봉산-호랑이")),
-                        jsonPath("$.user_id", equalTo("user0"))
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isMap(),
+                        jsonPath("$.status", equalTo(200)),
+                        jsonPath("$.data.nickname", equalTo("도봉산-호랑이")),
+                        jsonPath("$.data.user_id", equalTo("user0"))
                 );
     }
 

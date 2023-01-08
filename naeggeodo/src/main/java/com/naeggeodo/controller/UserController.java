@@ -3,59 +3,67 @@ package com.naeggeodo.controller;
 import com.naeggeodo.dto.AddressDTO;
 import com.naeggeodo.dto.MypageDTO;
 import com.naeggeodo.dto.NicknameDTO;
-import com.naeggeodo.dto.QuickChatDTO;
-import com.naeggeodo.repository.UserRepository;
+import com.naeggeodo.dto.ResponseDTO;
 import com.naeggeodo.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
+
+import static com.naeggeodo.util.ResponseUtils.success;
 
 @RestController
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserRepository userRepository;
     private final UserService userService;
 
     @PatchMapping(value = "/user/{user_id}/address", produces = "application/json")
-    public AddressDTO updateAddress(@PathVariable("user_id") String user_id
+    public ResponseDTO<AddressDTO> updateAddress(@PathVariable("user_id") String user_id
             , @RequestBody @Valid AddressDTO dto) {
-        return userService.updateUserAddress(user_id, dto);
+        AddressDTO addressDTO = userService.updateUserAddress(user_id, dto);
+        return success(addressDTO);
     }
 
     @GetMapping(value = "/user/{user_id}/address", produces = "application/json")
-    public AddressDTO getAddress(@PathVariable("user_id") String user_id) {
-        return userService.findAddressById(user_id);
+    public ResponseDTO<AddressDTO> getAddress(@PathVariable("user_id") String user_id) {
+        AddressDTO addressDTO = userService.findAddressById(user_id);
+        return success(addressDTO);
     }
 
     @GetMapping(value = "/user/{user_id}/mypage", produces = "application/json")
-    public MypageDTO getMyPageData(@PathVariable("user_id") String user_id) {
-        return userService.getMyPageData(user_id);
+    public ResponseDTO<MypageDTO> getMyPageData(@PathVariable("user_id") String user_id) {
+        MypageDTO mypageDTO = userService.getMyPageData(user_id);
+        return success(mypageDTO);
     }
 
     //해당 유저 퀵채팅
     @GetMapping(value = "/user/{user_id}/quick-chatting", produces = "application/json")
-    public QuickChatDTO getQuickChat(@PathVariable(name = "user_id") String user_id) {
-        return userService.getQuickChat(user_id);
+    public ResponseDTO<List<String>> getQuickChat(@PathVariable(name = "user_id") String user_id) {
+        List<String> quickChatList = userService.getQuickChat(user_id);
+        return success(quickChatList);
     }
 
 
     @PatchMapping(value = "/user/{user_id}/quick-chatting", produces = "application/json")
-    public QuickChatDTO updateQuickChat(@PathVariable("user_id") String user_id,
-                                        @RequestBody QuickChatDTO dto) {
-        return userService.updateQuickChat(user_id, dto);
+    public ResponseDTO<List<String>> updateQuickChat(@PathVariable("user_id") String user_id,
+                                                     @RequestBody List<String> messages) {
+        List<String> list = userService.updateQuickChat(user_id, messages);
+        return success(list);
     }
 
     @GetMapping(value = "/user/{user_id}/nickname", produces = "application/json")
-    public NicknameDTO getNickname(@PathVariable(name = "user_id") String user_id) {
-        return userService.getNickName(user_id);
+    public ResponseDTO<NicknameDTO> getNickname(@PathVariable(name = "user_id") String user_id) {
+        NicknameDTO nicknameDTO = userService.getNickName(user_id);
+        return success(nicknameDTO);
     }
 
     @PatchMapping(value = "/user/{user_id}/nickname", produces = "application/json")
-    public NicknameDTO
-    updateNickname(@PathVariable(name = "user_id") String user_id,
-                   @RequestParam(name = "value") String value) {
-        return userService.updateNickName(user_id, value);
+    public ResponseDTO<NicknameDTO> updateNickname(@PathVariable(name = "user_id") String user_id,
+                                      @RequestParam(name = "value") String value) {
+
+        NicknameDTO nicknameDTO = userService.updateNickName(user_id, value);
+        return success(nicknameDTO);
     }
 }

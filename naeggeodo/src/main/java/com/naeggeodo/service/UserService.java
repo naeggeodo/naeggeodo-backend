@@ -3,7 +3,6 @@ package com.naeggeodo.service;
 import com.naeggeodo.dto.AddressDTO;
 import com.naeggeodo.dto.MypageDTO;
 import com.naeggeodo.dto.NicknameDTO;
-import com.naeggeodo.dto.QuickChatDTO;
 import com.naeggeodo.entity.chat.QuickChat;
 import com.naeggeodo.entity.user.Users;
 import com.naeggeodo.exception.CustomHttpException;
@@ -46,20 +45,20 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public QuickChatDTO getQuickChat(String user_id) {
+    public List<String> getQuickChat(String user_id) {
         Users user = userRepository.findQuickChatEntityGraph(user_id)
                 .orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
         List<String> msgList = user.getQuickChat().getMsgList();
-        return new QuickChatDTO(msgList);
+        return msgList;
     }
 
     @Transactional
-    public QuickChatDTO updateQuickChat(String user_id, QuickChatDTO dto) {
+    public List<String> updateQuickChat(String user_id, List<String> messages) {
         Users user = userRepository.findQuickChatEntityGraph(user_id)
                 .orElseThrow(() -> new CustomHttpException(ErrorCode.RESOURCE_NOT_FOUND));
         QuickChat quickChat = user.getQuickChat();
-        quickChat.updateMsgByList(dto.getQuickChat());
-        return dto;
+        quickChat.updateMsgByList(messages);
+        return messages;
     }
 
     @Transactional(readOnly = true)
