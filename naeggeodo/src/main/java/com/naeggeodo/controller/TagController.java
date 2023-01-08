@@ -1,7 +1,9 @@
 package com.naeggeodo.controller;
 
+import com.naeggeodo.dto.ResponseDTO;
 import com.naeggeodo.repository.TagRepository;
 import com.naeggeodo.util.MyUtility;
+import com.naeggeodo.util.ResponseUtils;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +19,8 @@ public class TagController {
     private final TagRepository tagRepository;
 
     @GetMapping(value = "/chat-rooms/tag/most-wanted", produces = "application/json")
-    @Transactional(readOnly = true)
-    public ResponseEntity<Object> getMostWantedTagList() {
-        List<String> list = tagRepository.findTop10Tag();
-        JSONObject json = MyUtility.convertStringListToJSONObject(list, "tags");
-        return ResponseEntity.ok(json.toMap());
+    public ResponseDTO<List<String>> getMostWantedTagList() {
+        List<String> tagList = tagRepository.findTop10Tag();
+        return ResponseUtils.success(tagList);
     }
 }

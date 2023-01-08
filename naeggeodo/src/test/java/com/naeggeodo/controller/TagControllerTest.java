@@ -44,10 +44,11 @@ class TagControllerTest {
         mockMvc.perform(get("/chat-rooms/tag/most-wanted"))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.keys()", hasItems("tags")),
-                        jsonPath("$.tags.size()", equalTo(10)),
-                        jsonPath("$.tags[*].idx", hasItems(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)),
-                        jsonPath("$.tags[*].msg", hasItems("감자", "치킨", "주먹밥", "콩순이냉장고", "콜라", "피자", "고구마", "원할머니보쌈", "부대찌개", "사이다"))
+                        jsonPath("$.success", equalTo(true)),
+                        jsonPath("$.data").isArray(),
+                        jsonPath("$.status", equalTo(200)),
+                        jsonPath("$.data.size()", equalTo(10)),
+                        jsonPath("$.data", hasItems("감자", "치킨", "주먹밥", "콩순이냉장고", "콜라", "피자", "고구마", "원할머니보쌈", "부대찌개", "사이다"))
                 );
     }
 }
