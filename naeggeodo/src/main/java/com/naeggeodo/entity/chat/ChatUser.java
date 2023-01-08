@@ -55,6 +55,10 @@ public class ChatUser extends JSONConverterAdapter {
         this.chatMain = chatMain;
     }
 
+    public void changeState() {
+        this.state = this.state.equals(RemittanceState.Y) ? RemittanceState.N : RemittanceState.Y;
+    }
+
     @Override
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();

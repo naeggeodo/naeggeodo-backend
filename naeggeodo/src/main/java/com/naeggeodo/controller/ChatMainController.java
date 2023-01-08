@@ -54,7 +54,7 @@ public class ChatMainController {
     // 채팅방 주문목록 리스트에서 생성
     @PostMapping(value = "/chat-rooms/{chatMain_id}/copy")
     public ResponseDTO copyChatRoom(@RequestParam("orderTimeType") String timeTypeStr,
-                                                         @PathVariable("chatMain_id") Long chatMain_id) {
+                                    @PathVariable("chatMain_id") Long chatMain_id) {
         OrderTimeType orderTimeType = OrderTimeType.valueOf(timeTypeStr);
         chatMainService.copyChatRoom(chatMain_id, orderTimeType);
         return created();
@@ -86,7 +86,7 @@ public class ChatMainController {
 
     //참여중인 채팅방
     @GetMapping(value = "/chat-rooms/progressing/user/{user_id}", produces = "application/json")
-    public ResponseDTO<ChatRoomVO> getProgressingChatList(@PathVariable(name = "user_id") String user_id) {
+    public ResponseDTO<List<ChatRoomVO>> getProgressingChatList(@PathVariable(name = "user_id") String user_id) {
         List<ChatRoomVO> chatList = chatMainService.getProgressingChatList(user_id);
         return success(chatList);
     }

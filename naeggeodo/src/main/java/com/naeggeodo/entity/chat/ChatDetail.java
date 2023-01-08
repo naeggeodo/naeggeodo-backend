@@ -81,5 +81,9 @@ public class ChatDetail extends JSONConverterAdapter {
         return json;
     }
 
+    // TODO 모델매퍼 -> 맵스트럭트 적용시 삭제
+    public String getNickName() {
+        return this.user.getNickname();
+    }
 
 }

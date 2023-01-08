@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicUpdate
-//@EntityListeners(ChatMainListener.class)
 public class ChatMain extends JSONConverterAdapter {
 
 
@@ -264,11 +263,11 @@ public class ChatMain extends JSONConverterAdapter {
 
     public void updateBookmarks() {
         this.bookmarks = Bookmarks.getOpposite(this.bookmarks);
-        updateBookmarksDate(this.bookmarks);
+        updateBookmarksDate();
     }
 
-    private void updateBookmarksDate(Bookmarks bookmarks) {
-        this.bookmarksDate = bookmarks.equals(Bookmarks.Y) ? null : LocalDateTime.now();
+    private void updateBookmarksDate() {
+        this.bookmarksDate = Bookmarks.Y.equals(this.bookmarks) ? null : LocalDateTime.now();
     }
 
 
@@ -277,7 +276,7 @@ public class ChatMain extends JSONConverterAdapter {
     }
 
     public boolean isDeletable() {
-        return ChatState.INCOMPLETE.equals(this.state) || ChatState.END.equals(this.state);
+        return ChatState.insearchableList.contains(this.state);
     }
 
     public void setDefaultImgPath() {

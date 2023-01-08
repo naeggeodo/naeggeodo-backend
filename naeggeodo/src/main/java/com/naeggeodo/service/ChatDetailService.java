@@ -1,5 +1,6 @@
 package com.naeggeodo.service;
 
+import com.naeggeodo.dto.ChatDetailDTO;
 import com.naeggeodo.dto.MessageDTO;
 import com.naeggeodo.dto.TargetMessageDTO;
 import com.naeggeodo.entity.chat.ChatDetail;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,9 +44,10 @@ public class ChatDetailService {
 
     //기존 채팅 내역 불러오기
     @Transactional
-    public List<ChatDetail> load(String chatMain_idStr, String user_id) {
-        Long chatMain_id = Long.parseLong(chatMain_idStr);
-
-        return chatDetailRepository.load(chatMain_id, user_id);
+    public List<ChatDetailDTO> load(Long chatMain_id, String user_id) {
+        List<ChatDetail> chatDetails = chatDetailRepository.load(chatMain_id, user_id);
+        return chatDetails.stream()
+                .map(ChatDetailDTO::convert)
+                .collect(Collectors.toList());
     }
 }

@@ -10,7 +10,6 @@ import com.naeggeodo.exception.CustomHttpException;
 import com.naeggeodo.exception.ErrorCode;
 import com.naeggeodo.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -73,7 +72,7 @@ public class ChatMainService {
 
     //채팅방 생성
     @Transactional
-    public JSONObject createChatRoom(ChatRoomDTO dto, MultipartFile file) {
+    public void createChatRoom(ChatRoomDTO dto, MultipartFile file) {
         Users user = userRepository.getById(dto.getUser_id());
 
         List<String> tagStringList = dto.getTag();
@@ -86,16 +85,12 @@ public class ChatMainService {
         ChatMain chatMain = dto.createChatMain(user, tags);
         ChatMain savedChatMain = chatMainRepository.save(chatMain);
 
-        if (file != null)
+        if (file != null) {
             cloudinaryService.upload(file, "chatMain/" + savedChatMain.getId(), savedChatMain.getId());
-        else
+        } else {
             chatMain.setDefaultImgPath();
-
+        }
         chatDetailRepository.save(ChatDetail.create("채팅방이 생성 되었습니다", user, savedChatMain, ChatDetailType.CREATED));
-
-        JSONObject json = new JSONObject();
-        json.put("chatMain_id", savedChatMain.getId());
-        return json;
     }
 
     @Transactional(readOnly = true)

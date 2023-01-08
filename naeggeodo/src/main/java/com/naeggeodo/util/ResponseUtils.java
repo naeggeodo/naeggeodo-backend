@@ -7,8 +7,8 @@ public class ResponseUtils {
 
     private final static String DEFAULT_SUCCESS_MESSAGE = "정상처리 되었습니다.";
 
-    public static <T> ResponseDTO success(T data) {
-        return ResponseDTO.builder()
+    public static <T> ResponseDTO<T> success(T data) {
+        return ResponseDTO.<T>builder()
                 .success(true)
                 .data(data)
                 .message(DEFAULT_SUCCESS_MESSAGE)

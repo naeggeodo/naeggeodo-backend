@@ -61,8 +61,7 @@ public class UserController {
 
     @PatchMapping(value = "/user/{user_id}/nickname", produces = "application/json")
     public ResponseDTO<NicknameDTO> updateNickname(@PathVariable(name = "user_id") String user_id,
-                                      @RequestParam(name = "value") String value) {
-
+                                                   @RequestParam(name = "value") String value) {
         NicknameDTO nicknameDTO = userService.updateNickName(user_id, value);
         return success(nicknameDTO);
     }
